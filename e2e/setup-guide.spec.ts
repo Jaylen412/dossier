@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { resetData, sql } from "./support";
 
 // The setup guide (E21): it opens by itself on a fresh install, walks
-// through each step, and holds the usage ping question back until it's left.
+// through each step, and asks nothing once it's left (this fork has no usage ping).
 // Hosted AI keys aren't checked here: that would reach the vendors.
 test.beforeEach(async () => {
   await resetData();
@@ -18,7 +18,7 @@ async function expectAccessible(page: Page) {
 const freshInstall = async () => {
   await sql(`DELETE FROM "Application"`);
   await sql(`DELETE FROM "ProfileField" WHERE key = 'name'`);
-  await sql(`DELETE FROM "Setting" WHERE key IN ('setupGuide', 'usagePingChoice', 'usagePingChoiceAt', 'usagePingChoiceText')`);
+  await sql(`DELETE FROM "Setting" WHERE key = 'setupGuide'`);
 };
 
 test("opens by itself on a fresh install and walks through every step", async ({ page }) => {
@@ -26,7 +26,6 @@ test("opens by itself on a fresh install and walks through every step", async ({
   await page.goto("/");
   await expect(page).toHaveURL("/welcome");
   await expect(page.getByRole("heading", { name: "Welcome to Dossier" })).toBeVisible();
-  await expect(page.getByRole("dialog", { name: "Send a daily usage ping?" })).toHaveCount(0);
   await expectAccessible(page);
 
   // AI: the e2e server's is set in the environment, so it's done already.
@@ -73,13 +72,13 @@ test("opens by itself on a fresh install and walks through every step", async ({
   await expect(page.locator("input[type=file]")).toBeAttached();
   await page.getByRole("link", { name: "Skip this step →" }).click();
 
-  // Done: what's set up, and the usage ping question once the guide is behind.
+  // Done: what's set up, and no question once the guide is behind.
   await expect(page.getByRole("heading", { name: "You're all set" })).toBeVisible();
   await expect(page.getByRole("definition").filter({ hasText: "JSearch" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Fill in your profile" })).toBeVisible();
   await page.getByRole("link", { name: "Go to the dashboard" }).click();
   await expect(page).toHaveURL("/");
-  await expect(page.getByRole("dialog", { name: "Send a daily usage ping?" })).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
 test("opens again from Settings, and leaving it goes back to the app for good", async ({ page }) => {

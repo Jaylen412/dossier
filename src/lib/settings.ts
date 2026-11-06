@@ -193,18 +193,15 @@ export const settingsSchema = z.object({
   // to the install, not its data, so exports leave them out (INSTALL_SETTINGS).
   startupsViewedAt: z.iso.datetime().nullable().catch(null),
   startupsLastRefresh: json(startupsRefreshSchema).nullable().catch(null),
-  /** "Check for updates daily" in Settings → About (update-check.ts). */
+  // The update check and the backend's notices, removed from this fork:
+  // nothing asks GitHub or the project's backend, or reads these. They stay
+  // so databases and exports from upstream still read, and exports leave
+  // them out (INSTALL_SETTINGS).
   updateCheck: flag(true),
-  // The newest release the update check has seen, the UTC day it last
-  // asked, and the release "Not now" hid the sidebar notice for. They belong
-  // to the install, not its data, so exports leave them out (INSTALL_SETTINGS).
   latestVersion: z.string().nullable().catch(null),
   latestVersionUrl: z.string().nullable().catch(null),
   updateCheckDay: z.string().nullable().catch(null),
   updateDismissed: z.string().nullable().catch(null),
-  // The backend's notices (announcements/check.ts): its last answer, and the
-  // ones dismissed here. They belong to the install, not its data, so exports
-  // leave them out (INSTALL_SETTINGS).
   announcementFeed: json(announcementFeedSchema).nullable().catch(null),
   announcementsDismissed: stringList.catch([]),
   // Gmail and Calendar (E15). Off until the Google account is connected.
@@ -235,14 +232,11 @@ export const settingsSchema = z.object({
   /** Interview length and the gap kept around other meetings, in minutes. */
   slotMinutes: z.coerce.number().int().min(15).max(240).catch(45),
   bufferMinutes: z.coerce.number().int().min(0).max(120).catch(15),
-  // The usage ping (usage-ping.ts): this install's random ID, made by its
-  // first ping, and the UTC day of the last one. They belong to the install,
-  // not its data, so exports leave them out (INSTALL_SETTINGS).
+  // The usage ping, removed from this fork: nothing reads or sends these.
+  // They stay so databases and exports from upstream still read, and
+  // exports leave them out (INSTALL_SETTINGS).
   usagePingId: z.string().nullable().catch(null),
   usagePingDay: z.string().nullable().catch(null),
-  // Whether the operator agreed to the usage ping (#172), when, and which
-  // version of the question they answered (USAGE_PING_TEXT_VERSION), so the
-  // consent can be shown. Null: not answered yet, and nothing is sent.
   usagePingChoice: z.enum(["on", "off"]).nullable().catch(null),
   usagePingChoiceAt: z.string().nullable().catch(null),
   usagePingChoiceText: z.coerce.number().int().nullable().catch(null),

@@ -1,0 +1,62 @@
+# Dossier on a Jetson Orin Nano (8GB), on the home network only, sending
+# nothing upstream. One container with an SQLite file: no database server,
+# which leaves the memory to the AI model. Ollama runs on the Jetson itself,
+# outside Docker, so it can use the GPU.
+#
+# Build the image on an arm64 machine (an Apple Silicon Mac is one) from this
+# fork's source, never pull ghcr.io/aientech/dossier:
+#
+#   docker buildx build --platform linux/arm64 --target production -t dossier-local:1.12.0 --load .
+#   docker save dossier-local:1.12.0 | ssh jetson docker load
+#
+# On the Jetson, put DOSSIER_PASSWORD (a hash: `docker run --rm -it
+# dossier-local:1.12.0 hash-password`), DOSSIER_SECRET (`openssl rand -base64
+# 32`), DOSSIER_LAN_IP and DOSSIER_AI_MODEL in a .env file next to this one, then:
+#
+#   docker compose -f compose.jetson.yml up -d
+
+services:
+  app:
+    image: ${DOSSIER_IMAGE:-dossier-local:1.12.0}
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      # A file on the volume, so upgrades keep it.
+      DATABASE_URL: file:/data/dossier.db
+      DOSSIER_PASSWORD: ${DOSSIER_PASSWORD:?Set DOSSIER_PASSWORD in .env to a hash from hash-password}
+      DOSSIER_SECRET: ${DOSSIER_SECRET:?Set DOSSIER_SECRET in .env}
+      DOSSIER_BACKUP_RETENTION_DAYS: ${DOSSIER_BACKUP_RETENTION_DAYS:-}
+      # Nightly backups run at 03:00 in it.
+      TZ: ${TZ:-UTC}
+      # Ollama on the Jetson, bound to the Docker bridge (OLLAMA_HOST=172.17.0.1:11434).
+      DOSSIER_AI_PROVIDER: local
+      DOSSIER_AI_URL: http://host.docker.internal:11434
+      # A 3-4B model: Dossier asks for a 16k context, and an 8B model with it doesn't fit next to the app in 8GB.
+      DOSSIER_AI_MODEL: ${DOSSIER_AI_MODEL:-qwen3:4b}
+      # The Jetson is slower than a desktop GPU.
+      DOSSIER_AI_TIMEOUT_SECONDS: ${DOSSIER_AI_TIMEOUT_SECONDS:-600}
+      # Off until you choose one in Settings → Job search.
+      DOSSIER_JOBS_SOURCE: ${DOSSIER_JOBS_SOURCE:-off}
+      DOSSIER_JOBS_ARBEITSAGENTUR: ${DOSSIER_JOBS_ARBEITSAGENTUR:-off}
+      # Tooling telemetry, in case anything in the image still asks.
+      NEXT_TELEMETRY_DISABLED: "1"
+      CHECKPOINT_DISABLE: "1"
+    # Only on the Jetson's LAN address; ufw limits port 3000 to the home subnet.
+    ports:
+      - "${DOSSIER_LAN_IP:?Set DOSSIER_LAN_IP in .env to the Jetson's address on your network}:${DOSSIER_PORT:-3000}:3000"
+    volumes:
+      - data:/data
+    # Room for Chromium, which prints the PDFs, without starving the model.
+    mem_limit: 1g
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      # The upstream project's addresses lead nowhere, in case code that asks
+      # them ever comes back with a merge (src/lib/no-upstream.test.ts should
+      # catch that first).
+      - "api.dossier.aien.me:0.0.0.0"
+      - "telemetry.dossier.aien.me:0.0.0.0"
+      - "dossier.aien.me:0.0.0.0"
+      - "api.github.com:0.0.0.0"
+
+volumes:
+  data:
