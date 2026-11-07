@@ -91,7 +91,7 @@ echo "DOSSIER_SECRET=$(openssl rand -base64 32)" >> .env
 
 Keep it out of this repository's folder. Compose names a project after its folder, so `docker compose -f compose.production.yml up` run here shares the `dossier_pgdata` volume with the development setup in [DEVELOPMENT.md](DEVELOPMENT.md). PostgreSQL makes its user and password only when that volume is first created, so whichever setup starts first sets them, and the other then fails to sign in (`role "postgres" does not exist`, or `password authentication failed`). If you must run it here, give it its own project name: `docker compose -p dossier-prod -f compose.production.yml up -d`.
 
-**3. Choose your password.** This asks for it twice and prints a hash of it, one line that starts with `argon2id:`:
+**3. Choose a plain password.** This asks for it twice and prints a hash of it, one line that starts with `argon2id:`:
 
 ```bash
 docker run --rm -it dossier-local hash-password
@@ -119,6 +119,26 @@ docker compose restart app
 ```
 
 Then make sure the password in `DATABASE_URL` is the same one, if you run Dossier outside Docker. If you don't need the data, `docker compose down -v` deletes the volume, and the next `docker compose up` makes it again with the current `.env`.
+
+**Forgot your Dossier password, or it says "Too many attempts"?** `DOSSIER_PASSWORD` in `.env` isn't your password: it's a hash of it, one line starting with `argon2id:`, and Dossier keeps nothing else, so the password can't be looked up. Typing the hash into the sign-in box never works. After 5 wrong tries within a minute, sign-in waits (the message says for how long), and the wait doubles with each further miss, up to 15 minutes, so stop and let it pass. If you remember the password, type it again then. If you don't, make a new one; your data stays as it is:
+
+1. **Make a new hash.** It asks for the new password twice and prints one line starting with `argon2id:`:
+
+   ```bash
+   docker run --rm -it dossier-local hash-password
+   ```
+
+   In the development setup, run `docker/bin/yarn hash-password` instead.
+
+2. **Put it in `.env`**, replacing the old line, with any text editor: `DOSSIER_PASSWORD=argon2id:…`. Keep everything after the `=` on one line, and don't add spaces or quotes around it.
+
+3. **Start Dossier again** so it reads the new value. A plain `restart` keeps the old one:
+
+   ```bash
+   docker compose up -d
+   ```
+
+Then sign in with the new password itself, not the hash. Every browser that was signed in with the old password is signed out, and your data isn't touched.
 
 **Without a database server:** Dossier can keep its data in an SQLite file instead, in one container. Put `DATABASE_URL=file:/data/dossier.db` in `.env` and run the image on its own, with a volume for `/data`:
 
