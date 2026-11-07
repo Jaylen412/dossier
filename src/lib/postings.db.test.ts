@@ -77,7 +77,7 @@ describe("postings", () => {
     expect(await prisma().posting.findFirstOrThrow()).toMatchObject({ savedAt: null, applicationId: application.id });
 
     // Nothing to do for a posting that isn't stored.
-    await unmarkPosting({ source: "ADZUNA", externalId: "nope" }, "saved");
+    await unmarkPosting({ source: "SERPAPI", externalId: "nope" }, "saved");
   });
 
   it("keeps the posting when its application is deleted", async () => {

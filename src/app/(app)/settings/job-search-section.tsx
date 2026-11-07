@@ -3,16 +3,14 @@
 import { RadioGroup } from "radix-ui";
 import { useId, useState } from "react";
 
-import { ArbeitsagenturNote } from "@/components/arbeitsagentur-note";
 import { KeyField } from "@/components/key-field";
 import { useTrackSave } from "@/components/save-tracker";
 import { toastResult } from "@/components/toast";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { JOB_SOURCES, type JobSource, type JSearchHost } from "@/lib/job-search/search";
-import { FREEHIRE_URL, JSEARCH_KEY_URLS, SOURCE_INFO, type JobSearchSettingsView } from "@/lib/job-search/sources";
+import { JSEARCH_KEY_URLS, SOURCE_INFO, type JobSearchSettingsView } from "@/lib/job-search/sources";
 import { cn } from "@/lib/cn";
 
 import { saveJobSearchDetails, saveJobSource, saveJobSourceKey, testJobSource } from "./actions";
@@ -34,13 +32,11 @@ type Connection =
 /**
  * Settings → Job search (E14-4): which source Find jobs searches, and its
  * key. Each field saves on its own; a key is saved when you leave its field
- * and never shown again. The Bundesagentur für Arbeit is saved only once its
- * note is accepted, and isn't offered when the server turns it off (#223).
+ * and never shown again.
  */
 export function JobSearchSection({ initial }: { initial: JobSearchSettingsView }) {
   const track = useTrackSave();
   const [view, setView] = useState(initial);
-  const [appId, setAppId] = useState(initial.adzuna.appId);
   const [connection, setConnection] = useState<Connection>({ status: "untested" });
   const source = view.source;
 
@@ -55,14 +51,8 @@ export function JobSearchSection({ initial }: { initial: JobSearchSettingsView }
   const choose = async (next: Choice) => {
     setView((current) => ({ ...current, source: next }));
     changed();
-    if (next === "ARBEITSAGENTUR" && !view.arbeitsagentur.acceptedAt) return;
     apply(toastResult(await track(saveJobSource({ source: next }))));
   };
-
-  const acceptArbeitsagentur = async () => apply(toastResult(await track(saveJobSource({ source: "ARBEITSAGENTUR", accepted: true }))));
-  const choices = view.arbeitsagentur.offered ? CHOICES : CHOICES.filter((entry) => entry.value !== "ARBEITSAGENTUR");
-  // The BA can't be tested, or searched, before its note is accepted.
-  const testable = source !== "ARBEITSAGENTUR" || Boolean(view.arbeitsagentur.acceptedAt);
 
   const chooseHost = async (host: JSearchHost) => {
     setView((current) => ({ ...current, jsearch: { ...current.jsearch, host } }));
@@ -70,13 +60,7 @@ export function JobSearchSection({ initial }: { initial: JobSearchSettingsView }
     apply(toastResult(await track(saveJobSearchDetails({ jsearchHost: host }))));
   };
 
-  const saveAppId = async () => {
-    if (appId.trim() === view.adzuna.appId) return;
-    changed();
-    apply(toastResult(await track(saveJobSearchDetails({ adzunaAppId: appId }))));
-  };
-
-  const saveKey = async (keySource: "JSEARCH" | "ADZUNA", change: { action: "set"; value: string } | { action: "clear" }) => {
+  const saveKey = async (keySource: JobSource, change: { action: "set"; value: string } | { action: "clear" }) => {
     changed();
     return apply(toastResult(await track(saveJobSourceKey({ source: keySource, change }))));
   };
@@ -102,7 +86,7 @@ export function JobSearchSection({ initial }: { initial: JobSearchSettingsView }
         onValueChange={(value) => void choose(value as Choice)}
         className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3"
       >
-        {choices.map((entry) => (
+        {CHOICES.map((entry) => (
           <RadioGroup.Item
             key={entry.value}
             value={entry.value}
@@ -146,48 +130,22 @@ export function JobSearchSection({ initial }: { initial: JobSearchSettingsView }
                 />
               </>
             )}
-            {source === "ADZUNA" && (
-              <div className="grid grid-cols-1 gap-x-[18px] gap-y-5 sm:grid-cols-2">
-                <Input
-                  label="App ID"
-                  value={appId}
-                  spellCheck={false}
-                  autoComplete="off"
-                  inputClassName="font-mono text-[13.5px]"
-                  onChange={(event) => setAppId(event.target.value)}
-                  onBlur={() => void saveAppId()}
-                />
-                <KeyField
-                  label="App key"
-                  keyState={view.adzuna.keyState}
-                  envName="DOSSIER_ADZUNA_KEY"
-                  getKey={{ href: SOURCE_INFO.ADZUNA.keyUrl!, text: "Adzuna's developer site" }}
-                  onSave={(change) => saveKey("ADZUNA", change)}
-                />
-              </div>
-            )}
-            {source === "ARBEITSAGENTUR" && (
-              <>
-                <ArbeitsagenturNote accepted={Boolean(view.arbeitsagentur.acceptedAt)} onAccept={acceptArbeitsagentur} />
-                <p className="text-sm text-muted">No key needed. The job agent doesn&apos;t search this source; choose JSearch, Adzuna or FreeHire for it.</p>
-              </>
-            )}
-            {source === "FREEHIRE" && (
-              <p className="text-sm text-muted">
-                {view.freehire.host === new URL(FREEHIRE_URL).host
-                  ? `No key needed. Dossier searches FreeHire's public catalogue at ${view.freehire.host}.`
-                  : `No key needed. Dossier searches your own FreeHire at ${view.freehire.host}.`}
-              </p>
+            {source === "SERPAPI" && (
+              <KeyField
+                label="API key"
+                keyState={view.serpapi.keyState}
+                envName="DOSSIER_SERPAPI_KEY"
+                getKey={{ href: SOURCE_INFO.SERPAPI.keyUrl!, text: "SerpApi's sign-up page" }}
+                onSave={(change) => saveKey("SERPAPI", change)}
+              />
             )}
 
-            {testable && (
-              <div className="flex flex-wrap items-center gap-3.5 pt-1">
-                <Button variant="secondary" onClick={() => void test()} disabled={connection.status === "testing"}>
-                  {connection.status === "testing" ? "Testing…" : "Test connection"}
-                </Button>
-                <ConnectionStatus connection={connection} source={source} />
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-3.5 pt-1">
+              <Button variant="secondary" onClick={() => void test()} disabled={connection.status === "testing"}>
+                {connection.status === "testing" ? "Testing…" : "Test connection"}
+              </Button>
+              <ConnectionStatus connection={connection} source={source} />
+            </div>
           </Card>
         </>
       )}
@@ -216,6 +174,9 @@ function HostChoice({ host, onChange }: { host: JSearchHost; onChange: (host: JS
   );
 }
 
+/** The sources whose plan counts searches, so a test costs one. */
+const PAID_SEARCHES: ReadonlySet<JobSource> = new Set(["JSEARCH", "SERPAPI"]);
+
 function ConnectionStatus({ connection, source }: { connection: Connection; source: JobSource }) {
   const [dot, text, message] =
     connection.status === "connected"
@@ -224,7 +185,7 @@ function ConnectionStatus({ connection, source }: { connection: Connection; sour
         ? ["bg-error", "text-error", connection.message]
         : connection.status === "testing"
           ? ["bg-status-offer", "text-muted", "Sending a small search…"]
-          : ["bg-faint", "text-muted", source === "JSEARCH" ? "Not tested since your last change · a test uses one search from your plan" : "Not tested since your last change"];
+          : ["bg-faint", "text-muted", PAID_SEARCHES.has(source) ? "Not tested since your last change · a test uses one search from your plan" : "Not tested since your last change"];
   return (
     <p role="status" className={cn("flex items-center gap-2 text-control", text)}>
       <span aria-hidden className={cn("size-2 flex-none rounded-full", dot)} />

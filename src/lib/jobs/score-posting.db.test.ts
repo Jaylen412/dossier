@@ -36,15 +36,15 @@ vi.mock("@/lib/ai", async (importOriginal) => ({
 
 const prisma = () => db.client!;
 const posting: FoundPosting = {
-  source: "ADZUNA",
-  externalId: "az-1",
+  source: "SERPAPI",
+  externalId: "serp-1",
   title: "Product Designer",
   company: "Harbour Freight",
   place: "Rotterdam",
   remote: false,
   salary: "",
   postedAt: null,
-  url: "https://jobs.example/az-1",
+  url: "https://jobs.example/serp-1",
   via: "",
   description: "The start…",
   complete: false,
@@ -68,12 +68,12 @@ describe("Score in Find jobs (#208)", () => {
     expect(run.steps).toEqual(["Getting the whole posting", "Scoring it against your profile"]);
     expect(fake.sent[0]).toContain("The whole posting: design our freight tools.");
 
-    expect(await prisma().postingScore.findUniqueOrThrow({ where: { source_externalId: { source: "ADZUNA", externalId: "az-1" } } })).toMatchObject({ score: 78, scoredWith: "score-posting@2" });
-    expect((await postingStates([posting])).get("ADZUNA:az-1")?.score).toEqual({ score: 78, reasons: ["Built a design system at Northwind."], redFlags: ["Dutch is required."] });
+    expect(await prisma().postingScore.findUniqueOrThrow({ where: { source_externalId: { source: "SERPAPI", externalId: "serp-1" } } })).toMatchObject({ score: 78, scoredWith: "score-posting@2" });
+    expect((await postingStates([posting])).get("SERPAPI:serp-1")?.score).toEqual({ score: 78, reasons: ["Built a design system at Northwind."], redFlags: ["Dutch is required."] });
   });
 
   it("scores the start when the rest can't be had, and replaces an older score", async () => {
-    await prisma().postingScore.create({ data: { source: "ADZUNA", externalId: "az-1", score: 20, reasons: [], redFlags: [], scoredWith: "score-posting@1" } });
+    await prisma().postingScore.create({ data: { source: "SERPAPI", externalId: "serp-1", score: 20, reasons: [], redFlags: [], scoredWith: "score-posting@1" } });
     const run = context();
     await scorePostingJob.run({ posting }, run);
     expect(fake.sent[0]).toContain("The start…");
@@ -86,7 +86,7 @@ describe("Score in Find jobs (#208)", () => {
   });
 
   it("keys a posting's scoring, so a second click follows the first", () => {
-    expect(scoreJobKey(posting)).toBe("posting-score:ADZUNA:az-1");
+    expect(scoreJobKey(posting)).toBe("posting-score:SERPAPI:serp-1");
   });
 });
 

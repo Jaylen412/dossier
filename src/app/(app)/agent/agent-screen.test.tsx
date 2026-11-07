@@ -102,12 +102,6 @@ describe("AgentScreen (E16-6)", () => {
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 
-  it("labels Adzuna's postings with a link to Adzuna, as its terms ask", () => {
-    open({ scored: [card("s1", 84, { source: "ADZUNA", url: "https://www.adzuna.nl/land/ad/1" }), card("s2", 72)] });
-    const scored = screen.getByRole("region", { name: "Scored postings" });
-    expect(within(scored).getByRole("link", { name: "Jobs by Adzuna (opens in a new tab)" })).toHaveAttribute("href", "https://www.adzuna.nl");
-  });
-
   it("keeps postings below the minimum score behind Show", async () => {
     const user = userEvent.setup();
     open();

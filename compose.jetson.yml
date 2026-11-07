@@ -37,7 +37,7 @@ services:
       DOSSIER_AI_TIMEOUT_SECONDS: ${DOSSIER_AI_TIMEOUT_SECONDS:-600}
       # Off until you choose one in Settings → Job search.
       DOSSIER_JOBS_SOURCE: ${DOSSIER_JOBS_SOURCE:-off}
-      DOSSIER_JOBS_ARBEITSAGENTUR: ${DOSSIER_JOBS_ARBEITSAGENTUR:-off}
+      DOSSIER_SERPAPI_KEY: ${DOSSIER_SERPAPI_KEY:-}
       # Tooling telemetry, in case anything in the image still asks.
       NEXT_TELEMETRY_DISABLED: "1"
       CHECKPOINT_DISABLE: "1"

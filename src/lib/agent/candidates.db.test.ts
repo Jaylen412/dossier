@@ -29,7 +29,7 @@ const duplicate = (error: unknown) => error instanceof Prisma.PrismaClientKnownR
 
 describe("the dedupe key (E16-1)", () => {
   it("is the same for the same link, whatever the tracking parameters or the source", () => {
-    const elsewhere = { ...posting, source: "ADZUNA" as const, externalId: "az-9", url: "https://linkedin.com/jobs/view/123/?refId=y" };
+    const elsewhere = { ...posting, source: "SERPAPI" as const, externalId: "serp-9", url: "https://linkedin.com/jobs/view/123/?refId=y" };
     expect(agentDedupeKey(elsewhere)).toBe(agentDedupeKey(posting));
     expect(agentDedupeKey({ ...posting, url: "https://linkedin.com/jobs/view/456" })).not.toBe(agentDedupeKey(posting));
   });

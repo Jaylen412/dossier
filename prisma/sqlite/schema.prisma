@@ -661,9 +661,7 @@ model Note {
 /// The job sources Find jobs can search (E14-1 to E14-3).
 enum PostingSource {
   JSEARCH
-  ADZUNA
-  ARBEITSAGENTUR
-  FREEHIRE
+  SERPAPI
 }
 
 /// A posting from Find jobs that the user kept (E14-5): saved, dismissed, or

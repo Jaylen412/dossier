@@ -1,7 +1,7 @@
 // The lines of a posting that Jev judges one by one (#274): its bullets and
-// sentences, with lines a source wrapped at a fixed width joined again (the
-// Bundesagentur für Arbeit wraps at about 75 characters). Reasons quote
-// them, so they stay as the posting wrote them.
+// sentences, with lines a source wrapped at a fixed width (about 75
+// characters) joined again. Reasons quote them, so they stay as the posting
+// wrote them.
 
 /** Enough for any requirements list; each line costs two questions. */
 export const MAX_LINES = 40;

@@ -104,12 +104,6 @@ describe("Settings → Job agent (E16-7)", () => {
     expect(screen.getByRole("link", { name: "Settings → Scoring" })).toHaveAttribute("href", "/settings?section=scoring");
   });
 
-  it("says it doesn't search the Bundesagentur für Arbeit (#223)", () => {
-    open({ source: "ARBEITSAGENTUR" });
-    expect(screen.getByRole("note")).toHaveTextContent("The agent doesn't search the Bundesagentur für Arbeit. Choose JSearch, Adzuna or FreeHire in Settings → Job search for it.");
-    expect(screen.getByRole("link", { name: "Settings → Job search" })).toHaveAttribute("href", "/settings?section=jobs");
-  });
-
   it("switches back and says why when a change isn't saved", async () => {
     const user = userEvent.setup();
     vi.mocked(saveAgentSettings).mockResolvedValueOnce({ ok: false, error: "Type what the agent should look for before turning it on." });

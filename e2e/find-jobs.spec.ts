@@ -93,7 +93,10 @@ test("scores a posting against the profile, and keeps the score (#208)", async (
   // Before the test above, nothing was saved, dismissed or applied for.
   await resetData();
   await page.goto("/jobs");
-  await page.getByRole("search", { name: "Search postings" }).getByRole("button", { name: "Search" }).click();
+  const form = page.getByRole("search", { name: "Search postings" });
+  // The profile has no country, so the search is told one.
+  await form.getByLabel("Country").selectOption("nl");
+  await form.getByRole("button", { name: "Search" }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Senior Product Designer, Payments" })).toBeVisible();
   await page.getByRole("button", { name: "Score", exact: true }).click();
   await expect(page.getByText("Excellent fit · 91 of 100")).toBeVisible({ timeout: 30_000 });
@@ -125,7 +128,10 @@ test("scores with Jev once it's chosen in Settings → Scoring (#274)", async ({
   await expect(page.getByText(/^Connected · jev-1\.14\.0 answered in/)).toBeVisible();
 
   await page.goto("/jobs");
-  await page.getByRole("search", { name: "Search postings" }).getByRole("button", { name: "Search" }).click();
+  const form = page.getByRole("search", { name: "Search postings" });
+  // The profile has no country, so the search is told one.
+  await form.getByLabel("Country").selectOption("nl");
+  await form.getByRole("button", { name: "Search" }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Senior Product Designer, Payments" })).toBeVisible();
   await page.getByRole("button", { name: "Score", exact: true }).click();
   await expect(page.getByText("Excellent fit · 90 of 100")).toBeVisible({ timeout: 30_000 });
@@ -137,27 +143,30 @@ test("scores with Jev once it's chosen in Settings → Scoring (#274)", async ({
   await sql(`DELETE FROM "Setting" WHERE key IN ('scorer', 'typesafeKeyEnc')`);
 });
 
-test("searches FreeHire, which needs no key and has no radius", async ({ page }) => {
+test("finds postings through SerpApi", async ({ page }) => {
   const chosen = async (source: string) =>
     expect.poll(async () => (await sql<{ value: string }>(`SELECT value FROM "Setting" WHERE key = 'jobSource'`))[0]?.value).toContain(source);
   await page.goto("/settings?section=jobs");
-  await page.getByRole("radio", { name: "FreeHire" }).click();
-  await expect(page.getByText("No key needed. Dossier searches FreeHire's public catalogue at freehire.me.")).toBeVisible();
-  await chosen("FREEHIRE");
+  await page.getByRole("radio", { name: "SerpApi" }).click();
+  await chosen("SERPAPI");
+  // The key is saved when the field is left, and only "Saved" shows after.
+  await page.getByLabel("API key").fill("e2e-serpapi-key");
+  await page.getByLabel("API key").blur();
+  await expect(page.getByLabel("API key")).toHaveAttribute("placeholder", "Saved · type a new key to replace it");
 
   await page.goto("/jobs?q=product+designer&where=Rotterdam&country=nl");
   const form = page.getByRole("search", { name: "Search postings" });
+  // It has no radius: the place only puts postings there first.
   await expect(form.getByLabel("Within")).toBeDisabled();
-  await expect(form.getByText("FreeHire has no distance filter")).toBeVisible();
+  await expect(form.getByText("SerpApi has no distance filter")).toBeVisible();
   await form.getByRole("button", { name: "Search" }).click();
-  await expect(page.getByRole("heading", { level: 2, name: "Senior Product Designer, Payments" })).toBeVisible();
-  await expect(page.getByText(/^1 posting from FreeHire · searched/)).toBeVisible();
-  // Its whole text came with the search.
-  await expect(page.getByRole("region", { name: "Posting text" })).toContainText("for its payments team");
-  await expect(page.getByText("Jobs by FreeHire").last()).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Product Designer" })).toBeVisible();
+  await expect(page.getByText(/Ledgerly/).first()).toBeVisible();
+  await expect(page.getByText(/^1 posting from SerpApi · searched/)).toBeVisible();
 
   // Back to JSearch, as the environment sets it, for the tests after.
   await page.goto("/settings?section=jobs");
   await page.getByRole("radio", { name: "JSearch" }).click();
   await chosen("JSEARCH");
+  await sql(`DELETE FROM "Setting" WHERE key = 'serpapiKeyEnc'`);
 });

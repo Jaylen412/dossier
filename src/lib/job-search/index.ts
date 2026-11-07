@@ -6,10 +6,8 @@ import type { JobSourceAdapter, RequestContext, SourceCredentials } from "./adap
 import { cached, remember } from "./cache";
 import { JobSearchError, jobSearchError } from "./errors";
 import { fitsExperience } from "./experience";
-import { adzuna } from "./adzuna";
-import { arbeitsagentur } from "./arbeitsagentur";
-import { freehire } from "./freehire";
 import { jsearch } from "./jsearch";
+import { serpapi } from "./serpapi";
 import { postingKey, type FoundPosting, type JobSource, type SearchPage, type SearchQuery } from "./search";
 import { sourceCovers } from "./sources";
 
@@ -23,9 +21,7 @@ export { JobSearchError } from "./errors";
 
 const ADAPTERS: { [S in JobSource]: JobSourceAdapter<S> } = {
   JSEARCH: jsearch,
-  ADZUNA: adzuna,
-  ARBEITSAGENTUR: arbeitsagentur,
-  FREEHIRE: freehire,
+  SERPAPI: serpapi,
 };
 
 const adapterFor = <S extends JobSource>(source: S) => ADAPTERS[source] as JobSourceAdapter<S>;

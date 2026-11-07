@@ -12,8 +12,8 @@ import { SOURCE_INFO } from "./sources";
 // In this code "job" already means a background task (src/lib/jobs), so a
 // job ad is a "posting".
 
-/** The job sources Dossier can search (E14-1 to E14-3, FreeHire), in the order Settings lists them; one is chosen there. */
-export const JOB_SOURCES = [PostingSource.JSEARCH, PostingSource.ADZUNA, PostingSource.FREEHIRE, PostingSource.ARBEITSAGENTUR] as const;
+/** The job sources Dossier can search (E14-1, SerpApi), in the order Settings lists them; one is chosen there. */
+export const JOB_SOURCES = [PostingSource.JSEARCH, PostingSource.SERPAPI] as const;
 export type JobSource = PostingSource;
 
 /** Where a JSearch key comes from: OpenWeb Ninja directly, or the RapidAPI marketplace. */
@@ -126,7 +126,7 @@ export type PostingState = {
 export type ShownPosting = FoundPosting & { state: PostingState };
 
 /** What went wrong with a search, in words for the screen (E14-6). */
-export type SearchProblem = { ok: false; problem: "off" | "not-accepted" | "no-country" | "no-key" | "key" | "quota" | "country" | "unavailable" | "changed"; message: string };
+export type SearchProblem = { ok: false; problem: "off" | "no-country" | "no-key" | "key" | "quota" | "country" | "unavailable" | "changed"; message: string };
 
 /** What a search gives the screen: postings, or what went wrong. */
 export type SearchOutcome = { ok: true; postings: ShownPosting[]; next: string | null } | SearchProblem;

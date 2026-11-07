@@ -13,4 +13,10 @@ describe("the setup guide's job sources (E21-3)", () => {
   it("link only to https pages", () => {
     for (const step of JOB_CHOICES.flatMap((choice) => choice.steps)) if (step.link) expect(step.link.href).toMatch(/^https:\/\//);
   });
+
+  it('offers SerpApi under "Any kind of job" with a sign-up step linking to https://serpapi.com/users/sign_up', () => {
+    const serpapi = JOB_CHOICES.find((choice) => choice.source === "SERPAPI");
+    expect(serpapi).toMatchObject({ kind: "any", name: "SerpApi" });
+    expect(serpapi?.steps.some((step) => step.link?.href === "https://serpapi.com/users/sign_up")).toBe(true);
+  });
 });

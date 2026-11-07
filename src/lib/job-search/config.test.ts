@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { encryptSecret, JOB_SOURCE_KEY } from "@/lib/secrets";
 
-import { arbeitsagenturStartupNotice, credentialsFor, jobSearchView, requestContext, resolveJobSearchConfig } from "./config";
+import { credentialsFor, jobSearchView, requestContext, resolveJobSearchConfig } from "./config";
 
 vi.mock("@/lib/env", () => ({ env: { DOSSIER_SECRET: "a".repeat(32) } }));
 
@@ -10,23 +10,18 @@ const nothingSaved = {
   jobSource: null,
   jsearchKeyEnc: null,
   jsearchHost: "openwebninja" as const,
-  adzunaAppId: null,
-  adzunaKeyEnc: null,
-  arbeitsagenturAcceptedAt: null,
+  serpapiKeyEnc: null,
 };
-const ACCEPTED = "2026-10-23T09:00:00.000Z";
 const noEnv = {};
 
 describe("resolveJobSearchConfig", () => {
   it("is off until a source is chosen", () => {
     const config = resolveJobSearchConfig(nothingSaved, noEnv);
-    expect(config).toMatchObject({ source: null, saved: false, jsearch: { key: null, keyState: "none" }, adzuna: { appId: "", key: null } });
+    expect(config).toMatchObject({ source: null, saved: false, jsearch: { key: null, keyState: "none" }, serpapi: { key: null, keyState: "none" } });
     expect(jobSearchView(config)).toEqual({
       source: "OFF",
       jsearch: { host: "openwebninja", keyState: "none" },
-      adzuna: { appId: "", keyState: "none" },
-      arbeitsagentur: { offered: true, acceptedAt: null },
-      freehire: { host: "freehire.me" },
+      serpapi: { keyState: "none" },
     });
   });
 
@@ -35,35 +30,35 @@ describe("resolveJobSearchConfig", () => {
       DOSSIER_JOBS_SOURCE: "jsearch",
       DOSSIER_JSEARCH_KEY: "ak_env",
       DOSSIER_JSEARCH_HOST: "rapidapi",
-      DOSSIER_ADZUNA_APP_ID: "app-env",
-      DOSSIER_ADZUNA_KEY: "adz-env",
+      DOSSIER_SERPAPI_KEY: "serp-env",
     });
     expect(config).toMatchObject({
       source: "JSEARCH",
       saved: false,
       jsearch: { key: "ak_env", host: "rapidapi", keyState: "env" },
-      adzuna: { appId: "app-env", key: "adz-env", keyState: "env" },
+      serpapi: { key: "serp-env", keyState: "env" },
     });
     expect(resolveJobSearchConfig(nothingSaved, { DOSSIER_JOBS_SOURCE: "off" }).source).toBeNull();
   });
 
   it("prefers what's saved, Off included, and decrypts saved keys", () => {
     const saved = {
-      jobSource: "ADZUNA" as const,
+      jobSource: "SERPAPI" as const,
       jsearchKeyEnc: encryptSecret(JOB_SOURCE_KEY, "ak_saved"),
       jsearchHost: "openwebninja" as const,
-      adzunaAppId: "app-saved",
-      adzunaKeyEnc: encryptSecret(JOB_SOURCE_KEY, "adz-saved"),
-      arbeitsagenturAcceptedAt: null,
+      serpapiKeyEnc: encryptSecret(JOB_SOURCE_KEY, "serp-saved"),
     };
     const config = resolveJobSearchConfig(saved, { DOSSIER_JOBS_SOURCE: "jsearch", DOSSIER_JSEARCH_KEY: "ak_env", DOSSIER_JSEARCH_HOST: "rapidapi" });
     expect(config).toMatchObject({
-      source: "ADZUNA",
+      source: "SERPAPI",
       saved: true,
       jsearch: { key: "ak_saved", host: "openwebninja", keyState: "set" },
-      adzuna: { appId: "app-saved", key: "adz-saved", keyState: "set" },
+      serpapi: { key: "serp-saved", keyState: "set" },
     });
-    expect(resolveJobSearchConfig({ ...saved, jobSource: "OFF" }, { DOSSIER_JOBS_SOURCE: "jsearch" })).toMatchObject({ source: null, saved: true });
+    // Off saved, as an upgrade leaves a source that was removed: the environment's source doesn't take its place.
+    const off = resolveJobSearchConfig({ ...saved, jobSource: "OFF" }, { DOSSIER_JOBS_SOURCE: "jsearch", DOSSIER_JSEARCH_KEY: "ak_env" });
+    expect(off).toMatchObject({ source: null, saved: true });
+    expect(jobSearchView(off).source).toBe("OFF");
   });
 
   it("says when a saved key can't be read, rather than using another", () => {
@@ -76,6 +71,29 @@ describe("resolveJobSearchConfig", () => {
   });
 });
 
+describe("SerpApi's key", () => {
+  it("is set when saved, from the environment when only there, and none otherwise", () => {
+    const saved = resolveJobSearchConfig({ ...nothingSaved, serpapiKeyEnc: encryptSecret(JOB_SOURCE_KEY, "serp_saved") }, { DOSSIER_SERPAPI_KEY: "serp_env" });
+    expect(saved.serpapi).toEqual({ key: "serp_saved", keyState: "set" });
+    expect(resolveJobSearchConfig(nothingSaved, { DOSSIER_JOBS_SOURCE: "serpapi", DOSSIER_SERPAPI_KEY: "serp_env" })).toMatchObject({
+      source: "SERPAPI",
+      serpapi: { key: "serp_env", keyState: "env" },
+    });
+    expect(resolveJobSearchConfig(nothingSaved, noEnv).serpapi).toEqual({ key: null, keyState: "none" });
+    expect(jobSearchView(saved).serpapi).toEqual({ keyState: "set" });
+    expect(credentialsFor(saved, "SERPAPI")).toEqual({ key: "serp_saved" });
+  });
+
+  it("says what's missing, or that the saved key can't be read", () => {
+    const none = resolveJobSearchConfig(nothingSaved, noEnv);
+    expect(() => credentialsFor(none, "SERPAPI")).toThrow(expect.objectContaining({ name: "JobSearchError", problem: "no-key" }));
+    expect(() => credentialsFor(none, "SERPAPI")).toThrow("Add your SerpApi key in Settings → Job search first.");
+    const unreadable = resolveJobSearchConfig({ ...nothingSaved, serpapiKeyEnc: encryptSecret(JOB_SOURCE_KEY, "serp", "b".repeat(32)) }, { DOSSIER_SERPAPI_KEY: "serp_env" });
+    expect(unreadable.serpapi).toEqual({ key: null, keyState: "unreadable" });
+    expect(() => credentialsFor(unreadable, "SERPAPI")).toThrow("Your saved SerpApi key can't be read. Enter it again in Settings → Job search.");
+  });
+});
+
 describe("credentialsFor", () => {
   const config = resolveJobSearchConfig(
     { ...nothingSaved, jobSource: "JSEARCH", jsearchKeyEnc: encryptSecret(JOB_SOURCE_KEY, "ak_saved"), jsearchHost: "rapidapi" },
@@ -84,74 +102,17 @@ describe("credentialsFor", () => {
 
   it("gives each source its own key", () => {
     expect(credentialsFor(config, "JSEARCH")).toEqual({ key: "ak_saved", host: "rapidapi" });
-    expect(credentialsFor({ ...config, arbeitsagentur: { offered: true, acceptedAt: ACCEPTED } }, "ARBEITSAGENTUR")).toEqual({});
-    expect(credentialsFor(config, "FREEHIRE")).toEqual({});
   });
 
   it("says what's missing", () => {
-    expect(() => credentialsFor(config, "ADZUNA")).toThrow("Add your Adzuna app ID and key in Settings → Job search first.");
+    expect(() => credentialsFor(config, "SERPAPI")).toThrow("Add your SerpApi key in Settings → Job search first.");
     expect(() => credentialsFor(resolveJobSearchConfig(nothingSaved, noEnv), "JSEARCH")).toThrow("Add your JSearch key in Settings → Job search first.");
-    const keyOnly = resolveJobSearchConfig({ ...nothingSaved, adzunaKeyEnc: encryptSecret(JOB_SOURCE_KEY, "adz") }, noEnv);
-    expect(() => credentialsFor(keyOnly, "ADZUNA")).toThrow(/app ID and key/);
-  });
-});
-
-describe("the Bundesagentur für Arbeit (#223)", () => {
-  const chosen = { ...nothingSaved, jobSource: "ARBEITSAGENTUR" as const };
-
-  it("isn't searched until its note is accepted", () => {
-    const waiting = resolveJobSearchConfig(chosen, noEnv);
-    expect(waiting).toMatchObject({ source: "ARBEITSAGENTUR", arbeitsagentur: { offered: true, acceptedAt: null } });
-    expect(() => credentialsFor(waiting, "ARBEITSAGENTUR")).toThrow(
-      expect.objectContaining({ problem: "not-accepted", message: "Read the note about Bundesagentur für Arbeit and tick “I understand” before Dossier searches it." }),
-    );
-    const accepted = resolveJobSearchConfig({ ...chosen, arbeitsagenturAcceptedAt: ACCEPTED }, noEnv);
-    expect(credentialsFor(accepted, "ARBEITSAGENTUR")).toEqual({});
-  });
-
-  it("is off everywhere when the server turns it off, a saved choice included", () => {
-    const off = resolveJobSearchConfig({ ...chosen, arbeitsagenturAcceptedAt: ACCEPTED }, { DOSSIER_JOBS_ARBEITSAGENTUR: "off" });
-    expect(off).toMatchObject({ source: null, saved: true, arbeitsagentur: { offered: false } });
-    expect(jobSearchView(off)).toMatchObject({ source: "OFF", arbeitsagentur: { offered: false, acceptedAt: ACCEPTED } });
-    // A saved BA posting doesn't fetch its text either.
-    expect(() => credentialsFor(off, "ARBEITSAGENTUR")).toThrow(expect.objectContaining({ problem: "off" }));
-    // Other sources aren't touched.
-    expect(resolveJobSearchConfig({ ...chosen, jobSource: "JSEARCH" }, { DOSSIER_JOBS_ARBEITSAGENTUR: "off" }).source).toBe("JSEARCH");
-  });
-
-  it("logs its note at start when DOSSIER_JOBS_SOURCE chooses it", () => {
-    const fromEnv = resolveJobSearchConfig(nothingSaved, { DOSSIER_JOBS_SOURCE: "arbeitsagentur" });
-    expect(arbeitsagenturStartupNotice(fromEnv)).toMatch(
-      /^Job search: DOSSIER_JOBS_SOURCE chooses the Bundesagentur für Arbeit\. The Bundesagentur für Arbeit has no official API\..* It isn't searched until you tick “I understand” in Settings → Job search\.$/,
-    );
-    const acceptedFromEnv = resolveJobSearchConfig({ ...nothingSaved, arbeitsagenturAcceptedAt: ACCEPTED }, { DOSSIER_JOBS_SOURCE: "arbeitsagentur" });
-    expect(arbeitsagenturStartupNotice(acceptedFromEnv)).not.toMatch(/isn't searched/);
-    // Chosen in Settings, or another source: nothing to log.
-    expect(arbeitsagenturStartupNotice(resolveJobSearchConfig(chosen, noEnv))).toBeNull();
-    expect(arbeitsagenturStartupNotice(resolveJobSearchConfig(nothingSaved, { DOSSIER_JOBS_SOURCE: "jsearch" }))).toBeNull();
   });
 });
 
 describe("requestContext", () => {
   it("leaves sources at their own address, unless the end-to-end tests point them at a fake", () => {
     expect(requestContext("JSEARCH", undefined)).toEqual({});
-    expect(requestContext("ADZUNA", "http://127.0.0.1:3998/")).toEqual({ baseUrl: "http://127.0.0.1:3998/adzuna" });
-    expect(requestContext("FREEHIRE", undefined, "https://jobs.example")).toEqual({ baseUrl: "https://jobs.example" });
-    expect(requestContext("FREEHIRE", "http://127.0.0.1:3998/", "https://jobs.example")).toEqual({
-      baseUrl: "http://127.0.0.1:3998/freehire",
-    });
-  });
-});
-
-describe("FreeHire from the environment", () => {
-  it("chooses FreeHire when DOSSIER_JOBS_SOURCE says so", () => {
-    expect(resolveJobSearchConfig(nothingSaved, { DOSSIER_JOBS_SOURCE: "freehire" }).source).toBe("FREEHIRE");
-  });
-
-  it("searches freehire.me, or the self-hosted FreeHire DOSSIER_FREEHIRE_URL names", () => {
-    expect(resolveJobSearchConfig(nothingSaved, noEnv).freehire).toEqual({ url: "https://freehire.me" });
-    const own = resolveJobSearchConfig(nothingSaved, { DOSSIER_FREEHIRE_URL: "https://jobs.example:8443" });
-    expect(own.freehire).toEqual({ url: "https://jobs.example:8443" });
-    expect(jobSearchView(own).freehire).toEqual({ host: "jobs.example:8443" });
+    expect(requestContext("SERPAPI", "http://127.0.0.1:3998/")).toEqual({ baseUrl: "http://127.0.0.1:3998/serpapi" });
   });
 });

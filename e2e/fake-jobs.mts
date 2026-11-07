@@ -8,6 +8,8 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 const port = Number(process.env.FAKE_JOBS_PORT ?? 3998);
 /** The JSearch key the app is given in e2e/support.ts. */
 const JSEARCH_KEY = "e2e-jsearch-key";
+/** The SerpApi key a spec saves in Settings → Job search. */
+const SERPAPI_KEY = "e2e-serpapi-key";
 /** The TypeSafe key a spec saves in Settings → Scoring (#274). */
 const TYPESAFE_KEY = "e2e-typesafe-key";
 
@@ -131,31 +133,25 @@ createServer((request, response) => {
     return send(response, 200, { status: "OK", request_id: "e2e", data: second ? { jobs: secondPage, cursor: null } : { jobs: firstPage, cursor: "PAGE-2" } });
   }
 
-  if (url.pathname.startsWith("/adzuna/")) {
-    return send(response, 200, { count: 1, results: [{ id: "e2e-adzuna", title: "Product Designer", description: "The start…", company: { display_name: "Ledgerly" }, location: { display_name: "Rotterdam" } }] });
-  }
-
-  if (url.pathname === "/arbeitsagentur/pc/v6/jobs") {
-    return send(response, 200, { ergebnisliste: [{ referenznummer: "e2e-ba", stellenangebotsTitel: "Produktdesigner (m/w/d)", firma: "Hafenlogik GmbH" }], maxErgebnisse: 1 });
-  }
-
-  if (url.pathname === "/freehire/api/v1/agent/jobs/search") {
+  // SerpApi's google_jobs: the key is a query parameter, and one search page answers with one posting.
+  if (url.pathname === "/serpapi/search.json") {
+    if (url.searchParams.get("api_key") !== SERPAPI_KEY) return send(response, 401, { error: "Invalid API key. Your API key should be here: https://serpapi.com/manage-api-key" });
     return send(response, 200, {
-      data: [
+      search_metadata: { id: "e2e", status: "Success" },
+      search_parameters: { engine: "google_jobs", q: url.searchParams.get("q") ?? "" },
+      jobs_results: [
         {
-          public_slug: "e2e-ledgerly-designer",
-          source: "greenhouse",
-          title: "Senior Product Designer, Payments",
-          company: "Ledgerly",
-          location: "Rotterdam",
-          url: "https://jobs.example/e2e-ledgerly",
-          work_mode: "onsite",
-          posted_at: new Date(Date.now() - 2 * 86_400_000).toISOString(),
-          description: "Ledgerly is hiring a Senior Product Designer for its payments team.",
-          enrichment: { salary_min: 75000, salary_max: 90000, salary_currency: "EUR", salary_period: "year" },
+          title: "Product Designer",
+          company_name: "Ledgerly",
+          location: "Rotterdam, Netherlands",
+          via: "via LinkedIn",
+          share_link: "https://www.google.com/search?q=product+designer&ibp=htl;jobs#htidocid=e2e-serpapi-ledgerly",
+          description: "Ledgerly is hiring a Product Designer for its payments team.",
+          detected_extensions: { posted_at: "2 days ago", work_from_home: false },
+          apply_options: [{ title: "Apply on LinkedIn", link: "https://jobs.example/e2e-serpapi-ledgerly" }],
+          job_id: "e2e-serpapi-ledgerly",
         },
       ],
-      meta: { total: 1, limit: 20, offset: 0 },
     });
   }
 

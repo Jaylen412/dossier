@@ -102,7 +102,7 @@ describe("loadSearch", () => {
 
   it("reads past an old posting that no longer fits, and a damaged search", async () => {
     const search = await prisma().postingSearch.create({
-      data: { source: "ADZUNA", query: { keywords: 1 }, postings: [{ title: "No id" }, ...jsearchV2LastPage.data.jobs.map(() => ({ ...EMPTY_POSTING }))] },
+      data: { source: "SERPAPI", query: { keywords: 1 }, postings: [{ title: "No id" }, ...jsearchV2LastPage.data.jobs.map(() => ({ ...EMPTY_POSTING }))] },
       select: { id: true },
     });
     expect(await loadSearch(search.id, { now: new Date() })).toMatchObject({ query: EMPTY_QUERY, postings: [expect.objectContaining({ externalId: "kept" })] });
@@ -141,7 +141,7 @@ describe("showMoreFor", () => {
     const run = await runSearch(query);
     const id = run.ok ? run.id : "";
     // The user switched sources meanwhile: the search goes on with its own.
-    await saveSettings({ jobSource: "ARBEITSAGENTUR" });
+    await saveSettings({ jobSource: "SERPAPI" });
 
     const requests = stubFetch(() => json(jsearchV2LastPage));
     const more = await showMoreFor(id);

@@ -34,7 +34,7 @@ This fork doesn't build the desktop app. The upstream release of it still sends 
 
 - **Profile:** basics, skills and languages, experience and volunteering, projects, education, certifications, publications and references, in the order you choose, with a strength meter that counts only what a profile needs. Projects (side, open-source, course or thesis work) show what you can do where your job titles don't yet. Certifications keep who issued them, their dates, credential ID and a link to verify them. Publications are cited in your own style, with bold and italics, and go on resumes word for word. Start it from an existing resume (PDF, Word or Markdown) if you like.
 - **Base resume:** twelve themes and a theme builder, previewed live and printed to PDF on the server. Duplicate themes, or share them as files.
-- **Find jobs:** search postings near your city, or anywhere you choose, through JSearch (LinkedIn, Indeed and more), Adzuna or FreeHire (company career pages). Save the good ones, dismiss the rest, score any of them against your profile, and start an application from a posting with one click.
+- **Find jobs:** search postings near your city, or anywhere you choose, through JSearch or SerpApi (LinkedIn, Indeed, Glassdoor and company sites, through Google for Jobs). Save the good ones, dismiss the rest, score any of them against your profile, and start an application from a posting with one click.
 - **Startups:** startups that are hiring, from YC startups' job posts and Hacker News' monthly “Who is hiring?” thread, kept to the ones that hire where you live or remotely from your country and ranked against your profile, with the address each one publishes for applications. Dossier reads their sites politely and follows their robots.txt. Start an application to one with a click; you decide whom to write to.
 - **Job agent (optional):** once a day it runs one search for you, skips what you've seen, scores the new postings against your profile and keeps the best on the Agent screen, with its reasons. It can prepare tailored drafts too, which wait for your review. It never sends or applies.
 - **New application:** paste a posting; Dossier pulls out the details and requirements, matches them against your profile, and writes a tailored resume and cover letter in the tone you pick.
@@ -84,10 +84,12 @@ docker build --target production -t dossier-local .
 **2. Copy the Compose file** into a folder of its own, and make the secrets Dossier needs:
 
 ```bash
-mkdir ~/dossier && cp compose.production.yml ~/dossier/compose.yml && cd ~/dossier
+mkdir -p ~/Developer/tools/dossier-docker && cp compose.production.yml ~/Developer/tools/dossier-docker/compose.yml && cd ~/Developer/tools/dossier-docker
 echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" > .env
 echo "DOSSIER_SECRET=$(openssl rand -base64 32)" >> .env
 ```
+
+Keep it out of this repository's folder. Compose names a project after its folder, so `docker compose -f compose.production.yml up` run here shares the `dossier_pgdata` volume with the development setup in [DEVELOPMENT.md](DEVELOPMENT.md). PostgreSQL makes its user and password only when that volume is first created, so whichever setup starts first sets them, and the other then fails to sign in (`role "postgres" does not exist`, or `password authentication failed`). If you must run it here, give it its own project name: `docker compose -p dossier-prod -f compose.production.yml up -d`.
 
 **3. Choose your password.** This asks for it twice and prints a hash of it, one line that starts with `argon2id:`:
 
@@ -106,6 +108,8 @@ docker compose up -d
 The first start downloads PostgreSQL's image and sets up the database. The Compose file never pulls Dossier's image: without `dossier-local`, it stops with an error instead. Open [http://localhost:3000](http://localhost:3000), sign in with your password, and pick an AI model in **Settings → AI provider** (see [Choosing an AI provider](https://github.com/AienTech/dossier/wiki/Choosing-an-AI-provider)).
 
 `docker compose stop` stops it and `docker compose start` starts it again, with your data kept.
+
+Changing `POSTGRES_PASSWORD` in `.env` later doesn't change the database's password, which was set on the first start, and Dossier then can't sign in. Put the old one back, or change it in the database to match: `docker compose exec db psql -U dossier -d dossier -c "ALTER ROLE dossier PASSWORD '<the new password>'"`.
 
 **Without a database server:** Dossier can keep its data in an SQLite file instead, in one container. Put `DATABASE_URL=file:/data/dossier.db` in `.env` and run the image on its own, with a volume for `/data`:
 
@@ -144,7 +148,7 @@ To put Dossier on a server, on your own domain with HTTPS, follow the upstream [
 The upstream [wiki](https://github.com/AienTech/dossier/wiki) has what comes after installing. Its pages on privacy and upgrading describe upstream's image, not this fork:
 
 - [Choosing an AI provider](https://github.com/AienTech/dossier/wiki/Choosing-an-AI-provider): a hosted model, or a local one with Ollama or LM Studio.
-- [Choosing a job source](https://github.com/AienTech/dossier/wiki/Choosing-a-job-source): JSearch, Adzuna or FreeHire (and an unofficial one for Germany), and the job agent.
+- [Choosing a job source](https://github.com/AienTech/dossier/wiki/Choosing-a-job-source): JSearch or SerpApi, and the job agent.
 - [Connecting Gmail and Calendar](https://github.com/AienTech/dossier/wiki/Connecting-Gmail-and-Calendar): your own Google OAuth client, step by step.
 - [Connecting Claude](https://github.com/AienTech/dossier/wiki/Connecting-Claude): the MCP connector, in Claude's apps and on the command line.
 - [Backups and restore](https://github.com/AienTech/dossier/wiki/Backups-and-restore): exports, nightly backups and database dumps.
