@@ -13,7 +13,7 @@ vi.mock("@/lib/prisma", async () => {
   db.client = createTestClient();
   return { prisma: db.client };
 });
-const zone = vi.hoisted(() => ({ value: "Europe/Berlin" }));
+const zone = vi.hoisted(() => ({ value: "America/Chicago" }));
 vi.mock("@/lib/time-zone", () => ({ lastKnownTimeZone: async () => zone.value }));
 vi.mock("@/lib/jobs/runner", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/jobs/runner")>()),
@@ -24,43 +24,44 @@ const prisma = () => db.client!;
 const run = (at: string, manual = false): AgentRun => ({ at, manual, message: null });
 
 beforeEach(async () => {
-  zone.value = "Europe/Berlin";
+  zone.value = "America/Chicago";
   await resetDatabase(prisma());
 });
 afterAll(() => prisma().$disconnect());
 
 describe("when the daily run is due (E16-4)", () => {
   it("reads the hour and the day in the user's time zone, not the server's", () => {
-    // 05:30 UTC is 07:30 in Berlin: due at 7 there, though UTC hasn't reached 7.
-    expect(scheduledRunDue(new Date("2026-10-20T05:30:00Z"), 7, "Europe/Berlin", [])).toBe(true);
-    expect(scheduledRunDue(new Date("2026-10-20T04:30:00Z"), 7, "Europe/Berlin", [])).toBe(false);
-    expect(scheduledRunDue(new Date("2026-10-20T05:30:00Z"), 7, "UTC", [])).toBe(false);
-    // Kolkata is UTC+5:30, with no daylight saving.
-    expect(scheduledRunDue(new Date("2026-10-20T01:30:00Z"), 7, "Asia/Kolkata", [])).toBe(true);
-    expect(scheduledRunDue(new Date("2026-10-20T01:29:00Z"), 7, "Asia/Kolkata", [])).toBe(false);
+    // 12:30 UTC is 07:30 in Chicago: due at 7 there. 07:30 UTC is only 02:30 there, though UTC has reached 7.
+    expect(scheduledRunDue(new Date("2026-10-20T12:30:00Z"), 7, "America/Chicago", [])).toBe(true);
+    expect(scheduledRunDue(new Date("2026-10-20T11:30:00Z"), 7, "America/Chicago", [])).toBe(false);
+    expect(scheduledRunDue(new Date("2026-10-20T07:30:00Z"), 7, "America/Chicago", [])).toBe(false);
+    expect(scheduledRunDue(new Date("2026-10-20T07:30:00Z"), 7, "UTC", [])).toBe(true);
+    // Phoenix is UTC-7, with no daylight saving.
+    expect(scheduledRunDue(new Date("2026-10-20T14:00:00Z"), 7, "America/Phoenix", [])).toBe(true);
+    expect(scheduledRunDue(new Date("2026-10-20T13:59:00Z"), 7, "America/Phoenix", [])).toBe(false);
   });
 
   it("runs once a day: any run that day in the user's zone, scheduled or not, counts", () => {
-    // 23:30 UTC on the 19th is 01:30 on the 20th in Berlin.
-    expect(scheduledRunDue(new Date("2026-10-20T06:00:00Z"), 7, "Europe/Berlin", [run("2026-10-19T23:30:00Z", true)])).toBe(false);
-    expect(scheduledRunDue(new Date("2026-10-20T06:00:00Z"), 7, "UTC", [run("2026-10-19T23:30:00Z", true)])).toBe(false);
-    expect(scheduledRunDue(new Date("2026-10-20T07:00:00Z"), 7, "UTC", [run("2026-10-19T23:30:00Z", true)])).toBe(true);
+    // 03:30 UTC on the 20th is still 22:30 on the 19th in Chicago.
+    expect(scheduledRunDue(new Date("2026-10-20T12:30:00Z"), 7, "America/Chicago", [run("2026-10-20T03:30:00Z", true)])).toBe(true);
+    expect(scheduledRunDue(new Date("2026-10-20T12:30:00Z"), 7, "UTC", [run("2026-10-20T03:30:00Z", true)])).toBe(false);
+    expect(scheduledRunDue(new Date("2026-10-20T12:30:00Z"), 7, "America/Chicago", [run("2026-10-20T12:10:00Z")])).toBe(false);
   });
 
   it("keeps the hour across daylight saving changes", () => {
-    // Berlin leaves summer time on 25 October 2026: 07:00 is 05:00 UTC the day before, 06:00 UTC that day.
-    const ranSaturday = [run("2026-10-24T05:00:00Z")];
-    expect(nextAgentRun(new Date("2026-10-24T09:00:00Z"), 7, "Europe/Berlin", ranSaturday).toISOString()).toBe("2026-10-25T06:00:00.000Z");
+    // Chicago leaves summer time on 1 November 2026: 07:00 is 12:00 UTC the day before, 13:00 UTC that day.
+    const ranSaturday = [run("2026-10-31T12:00:00Z")];
+    expect(nextAgentRun(new Date("2026-10-31T14:00:00Z"), 7, "America/Chicago", ranSaturday).toISOString()).toBe("2026-11-01T13:00:00.000Z");
     // New York leaves it on 1 November 2026.
     const ranOn31st = [run("2026-10-31T11:00:00Z")];
     expect(nextAgentRun(new Date("2026-10-31T15:00:00Z"), 7, "America/New_York", ranOn31st).toISOString()).toBe("2026-11-01T12:00:00.000Z");
-    // And Berlin goes back to summer time on 28 March 2027.
-    expect(nextAgentRun(new Date("2027-03-27T10:00:00Z"), 7, "Europe/Berlin", [run("2027-03-27T06:00:00Z")]).toISOString()).toBe("2027-03-28T05:00:00.000Z");
+    // And Chicago goes back to summer time on 14 March 2027.
+    expect(nextAgentRun(new Date("2027-03-13T15:00:00Z"), 7, "America/Chicago", [run("2027-03-13T13:00:00Z")]).toISOString()).toBe("2027-03-14T12:00:00.000Z");
   });
 
   it("says the next run is today's while it's still to come, and soon when it's overdue", () => {
-    expect(nextAgentRun(new Date("2026-10-20T03:00:00Z"), 7, "Europe/Berlin", []).toISOString()).toBe("2026-10-20T05:00:00.000Z");
-    expect(nextAgentRun(new Date("2026-10-20T05:07:00Z"), 7, "Europe/Berlin", []).toISOString()).toBe("2026-10-20T05:15:00.000Z");
+    expect(nextAgentRun(new Date("2026-10-20T10:00:00Z"), 7, "America/Chicago", []).toISOString()).toBe("2026-10-20T12:00:00.000Z");
+    expect(nextAgentRun(new Date("2026-10-20T12:07:00Z"), 7, "America/Chicago", []).toISOString()).toBe("2026-10-20T12:15:00.000Z");
   });
 });
 
@@ -86,7 +87,7 @@ describe("the limits (E16-4)", () => {
 describe("the schedule (E16-4)", () => {
   it("starts the day's run when it's due and the agent is on, once", async () => {
     const { startJob } = await import("@/lib/jobs/runner");
-    const due = new Date("2026-10-20T06:00:00Z");
+    const due = new Date("2026-10-20T13:00:00Z");
     expect(await startDueRun(due)).toBeNull();
     await saveSettings({ agentEnabled: true });
     expect(await startDueRun(due)).toBe("agent-job");
@@ -97,8 +98,8 @@ describe("the schedule (E16-4)", () => {
     await prisma().job.create({ data: { type: "agent-scan", key: "agent", status: "RUNNING", input: { manual: false } } });
     expect(await startDueRun(due)).toBeNull();
     await prisma().job.deleteMany();
-    expect(await startDueRun(new Date("2026-10-20T04:00:00Z"))).toBeNull();
-    await saveSettings({ agentRuns: [run("2026-10-20T05:00:00Z")] });
+    expect(await startDueRun(new Date("2026-10-20T11:00:00Z"))).toBeNull();
+    await saveSettings({ agentRuns: [run("2026-10-20T12:00:00Z")] });
     expect(await startDueRun(due)).toBeNull();
     expect(startJob).not.toHaveBeenCalled();
   });

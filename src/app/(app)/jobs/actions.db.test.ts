@@ -45,7 +45,7 @@ const posting: FoundPosting = {
   externalId: "job-1",
   title: "UX Researcher",
   company: "Northwind Studio",
-  place: "Berlin",
+  place: "Austin",
   remote: true,
   salary: "",
   postedAt: null,
@@ -54,7 +54,7 @@ const posting: FoundPosting = {
   description: "The whole posting.",
   complete: true,
 };
-const query = { ...EMPTY_QUERY, keywords: "researcher", country: "de" };
+const query = { ...EMPTY_QUERY, keywords: "researcher", country: "us" };
 
 beforeEach(async () => {
   ai.ready = true;

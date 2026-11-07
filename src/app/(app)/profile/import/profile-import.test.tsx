@@ -32,7 +32,7 @@ vi.mock("@/components/toast", () => {
 });
 
 const profile: ImportedProfile = {
-  basics: { name: "John Doe", city: "Utrecht" },
+  basics: { name: "John Doe", city: "Boston" },
   skills: [
     { name: "Figma", found: true },
     { name: "Service design", found: false },
@@ -42,7 +42,7 @@ const profile: ImportedProfile = {
     {
       role: "Design Lead",
       company: "Acme Payments",
-      location: "Utrecht",
+      location: "Boston",
       descriptor: "Payouts for online marketplaces",
       volunteering: false,
       bullets: "Led the redesign\nSet up the design system",

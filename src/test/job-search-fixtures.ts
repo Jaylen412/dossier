@@ -19,10 +19,10 @@ const ledgerly = {
   job_posted_at_datetime_utc: "2026-09-30T08:00:00.000Z",
   job_posted_at_timestamp: 1790755200,
   // As JSearch writes it: in the country's language, with the publisher.
-  job_location: "Hamburg     •  über LinkedIn",
+  job_location: "Chicago     •  über LinkedIn",
   job_city: null,
   job_state: null,
-  job_country: "DE",
+  job_country: "US",
   job_latitude: 53.55,
   job_longitude: 9.99,
   job_min_salary: 75000,
@@ -39,14 +39,14 @@ const northwind = {
   job_publisher: "Indeed",
   job_apply_link: "https://de.indeed.com/viewjob?jk=abc123&from=serp",
   apply_options: [{ publisher: "Indeed", apply_link: "https://de.indeed.com/viewjob?jk=abc123&from=serp", is_direct: false }],
-  job_description: "Northwind Studio is looking for a UX Researcher, fully remote within Germany.",
+  job_description: "Northwind Studio is looking for a UX Researcher, fully remote within the United States.",
   job_is_remote: true,
   job_posted_at_datetime_utc: null,
   job_posted_at_timestamp: 1790582400,
   job_location: null,
-  job_city: "Berlin",
+  job_city: "Austin",
   job_state: null,
-  job_country: "DE",
+  job_country: "US",
   job_min_salary: null,
   job_max_salary: null,
   job_salary_currency: null,
@@ -57,7 +57,7 @@ const northwind = {
 export const jsearchV2Page = {
   status: "OK",
   request_id: "c8f1b2a4-0000-4000-8000-000000000001",
-  parameters: { query: "product designer in Hamburg", country: "de" },
+  parameters: { query: "product designer in Chicago", country: "us" },
   data: {
     jobs: [
       ledgerly,
@@ -83,12 +83,12 @@ export const jsearchKeyError = { status: "ERROR", request_id: "r4", error: { mes
 /** A page of Google Jobs results: one with apply options and details, one with only a share link, one with no details. */
 export const serpapiPage = {
   search_metadata: { id: "s1", status: "Success", google_jobs_url: "https://www.google.com/search?q=product+designer&ibp=htl;jobs" },
-  search_parameters: { engine: "google_jobs", q: "product designer in Hamburg", gl: "de", hl: "en" },
+  search_parameters: { engine: "google_jobs", q: "product designer in Chicago", gl: "us", hl: "en" },
   jobs_results: [
     {
       title: "Senior Product Designer, Payments",
       company_name: "Ledgerly",
-      location: "Hamburg, Germany",
+      location: "Chicago, Illinois",
       via: "via LinkedIn",
       share_link: "https://www.google.com/search?q=product+designer&ibp=htl;jobs#htidocid=ledgerly",
       extensions: ["3 days ago", "$90K–$120K a year", "Work from home", "Full-time"],
@@ -104,7 +104,7 @@ export const serpapiPage = {
     {
       title: "UX Researcher",
       company_name: "Northwind Studio",
-      location: "Berlin, Germany",
+      location: "Austin, Texas",
       via: "via Indeed",
       share_link: "https://www.google.com/search?q=ux+researcher&ibp=htl;jobs#htidocid=northwind",
       extensions: ["Full-time"],
@@ -115,7 +115,7 @@ export const serpapiPage = {
     {
       title: "Design Systems Designer",
       company_name: "Canal Software",
-      location: "Amsterdam, Netherlands",
+      location: "Seattle, Washington",
       via: "via Company site",
       share_link: "https://www.google.com/search?q=design+systems&ibp=htl;jobs#htidocid=canal",
       description: "",

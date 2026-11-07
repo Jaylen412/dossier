@@ -11,7 +11,7 @@ const extracted = {
   title: "Senior Product Designer · Ledgerly",
   company: "Ledgerly",
   role: "Senior Product Designer",
-  location: "Amsterdam",
+  location: "Seattle",
   mode: "Hybrid · 3 days in office",
   salary: "€75,000–€90,000",
   deadline: "2026-10-15",
@@ -45,11 +45,11 @@ describe("the fact guard (E6-6)", () => {
   });
 
   it("ignores capitals that start a sentence or a bullet, and months, and 'I'", () => {
-    expect(check("Excited to apply. Happily, I'm based in Rotterdam.\n- Shipped the carrier portal in March")).toEqual([]);
+    expect(check("Excited to apply. Happily, I'm based in Denver.\n- Shipped the carrier portal in March")).toEqual([]);
   });
 
   it("knows the posting's own names and the years of experience the profile adds up to", () => {
-    expect(check("I'd love to help Ledgerly's payments team in Amsterdam.")).toEqual([]);
+    expect(check("I'd love to help Ledgerly's payments team in Seattle.")).toEqual([]);
     expect(check("Eleven years of design, 11 in total.")).toEqual([]);
     expect(check("Twenty years of design")).toEqual(["Twenty"]);
   });
@@ -59,7 +59,7 @@ describe("the fact guard (E6-6)", () => {
     expect(unverifiedFacts("An MBA and a certified scrum master", uncertified)).toEqual(["MBA", "certified"]);
     // Jane is certified in accessibility (#293).
     expect(check("A Certified Accessibility Specialist since 2022")).toEqual([]);
-    expect(check("An MSc in Design for Interaction from TU Delft")).toEqual([]);
+    expect(check("An MSc in Design for Interaction from Georgia Tech")).toEqual([]);
     expect(check("Knows WCAG 2.2 well")).toEqual([]);
   });
 

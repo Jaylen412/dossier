@@ -2,15 +2,15 @@ import { describe, expect, it } from "vitest";
 
 import { formatSlot, freeSlots, zonedTime, type WorkingHours } from "./slots";
 
-const hours: WorkingHours = { days: [1, 2, 3, 4, 5], start: "09:00", end: "17:00", timeZone: "Europe/Berlin", slotMinutes: 45, bufferMinutes: 15 };
-// Sunday 18 October 2026, 12:00 in Berlin (CEST, UTC+2).
-const now = new Date("2026-10-18T10:00:00Z");
+const hours: WorkingHours = { days: [1, 2, 3, 4, 5], start: "09:00", end: "17:00", timeZone: "America/Chicago", slotMinutes: 45, bufferMinutes: 15 };
+// Sunday 18 October 2026, 12:00 in Chicago (CDT, UTC-5).
+const now = new Date("2026-10-18T17:00:00Z");
 
 describe("zonedTime", () => {
   it("turns a wall-clock time into an instant, across DST", () => {
-    expect(zonedTime(2026, 10, 20, 9, 0, "Europe/Berlin").toISOString()).toBe("2026-10-20T07:00:00.000Z");
-    // After the switch to winter time on 25 October.
-    expect(zonedTime(2026, 10, 26, 9, 0, "Europe/Berlin").toISOString()).toBe("2026-10-26T08:00:00.000Z");
+    expect(zonedTime(2026, 10, 20, 9, 0, "America/Chicago").toISOString()).toBe("2026-10-20T14:00:00.000Z");
+    // After the switch to winter time on 1 November.
+    expect(zonedTime(2026, 11, 2, 9, 0, "America/Chicago").toISOString()).toBe("2026-11-02T15:00:00.000Z");
     expect(zonedTime(2026, 10, 20, 9, 0, "America/New_York").toISOString()).toBe("2026-10-20T13:00:00.000Z");
   });
 });
@@ -22,9 +22,9 @@ describe("freeSlots", () => {
   });
 
   it("keeps clear of busy times and their buffer", () => {
-    const busy = [{ start: new Date("2026-10-20T07:00:00Z"), end: new Date("2026-10-20T08:30:00Z") }];
-    const [tuesday] = freeSlots(busy, hours, { from: new Date("2026-10-19T16:00:00Z"), days: 2, max: 1, noticeHours: 0 });
-    // Busy 09:00–10:30 Berlin, plus 15 minutes.
+    const busy = [{ start: new Date("2026-10-20T14:00:00Z"), end: new Date("2026-10-20T15:30:00Z") }];
+    const [tuesday] = freeSlots(busy, hours, { from: new Date("2026-10-19T22:00:00Z"), days: 2, max: 1, noticeHours: 0 });
+    // Busy 09:00–10:30 Chicago, plus 15 minutes.
     expect(formatSlot(tuesday, hours.timeZone)).toBe("Tue 20 Oct, 11:00–11:45");
   });
 

@@ -28,13 +28,13 @@ exports[`CoverLetterDocument > renders the prototype's letter 1`] = `
       <bdi
         dir="ltr"
       >
-        +31 6 1234 5678
+        +1 303 555 0142
       </bdi>
         ·  
       <bdi
         dir="ltr"
       >
-        Rotterdam, South Holland
+        Denver, Colorado
       </bdi>
         ·  
       <bdi
@@ -64,7 +64,7 @@ exports[`CoverLetterDocument > renders the prototype's letter 1`] = `
       Ledgerly · Hiring team
     </p>
     <p>
-      Amsterdam
+      Seattle
     </p>
   </div>
   <div
@@ -98,7 +98,7 @@ exports[`CoverLetterDocument > renders the prototype's letter 1`] = `
       class="_paragraph_fa1ef7"
       data-unit="paragraph:4"
     >
-      I'm based in Rotterdam and happy to work hybrid from your Amsterdam office. I'd love to talk about how I could help. Thank you for your time.
+      I'm based in Denver and happy to work hybrid from your Seattle office. I'd love to talk about how I could help. Thank you for your time.
     </div>
   </div>
   <div

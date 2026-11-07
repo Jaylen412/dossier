@@ -15,7 +15,7 @@ const posting: FoundPosting = {
   externalId: "job-1",
   title: "Data Scientist",
   company: "Ledgerly",
-  place: "Berlin",
+  place: "Austin",
   remote: false,
   salary: "€70k",
   postedAt: "2026-10-19T00:00:00.000Z",
@@ -37,7 +37,7 @@ describe("the dedupe key (E16-1)", () => {
   it("falls back to company, title and place, normalised, and then to the source's id", () => {
     const noLink = { ...posting, url: "" };
     expect(agentDedupeKey({ ...noLink, company: "  LEDGERLY ", title: "Data-Scientist", externalId: "other" })).toBe(agentDedupeKey(noLink));
-    expect(agentDedupeKey({ ...noLink, place: "Hamburg" })).not.toBe(agentDedupeKey(noLink));
+    expect(agentDedupeKey({ ...noLink, place: "Chicago" })).not.toBe(agentDedupeKey(noLink));
     const bare = { ...noLink, title: "", company: "", place: "" };
     expect(agentDedupeKey(bare)).not.toBe(agentDedupeKey({ ...bare, externalId: "job-2" }));
     expect(agentDedupeKey(posting)).toMatch(/^[0-9a-f]{64}$/);

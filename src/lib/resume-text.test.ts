@@ -6,7 +6,7 @@ import { markdownText, MAX_RESUME_CHARACTERS, RESUME_MAX_BYTES, RESUME_MESSAGES,
 
 const LINES = [
   "John Doe",
-  "Senior Product Designer - Utrecht",
+  "Senior Product Designer - Boston",
   "Experience",
   "Design Lead, Acme Payments, 2021 - present",
   "Led the redesign of the payout flow for 40,000 merchants",
@@ -31,7 +31,7 @@ describe("resumeText (E4-10)", () => {
     const markdown = [
       "---",
       "# John Doe",
-      "**Senior Product Designer** · Utrecht · [robin@example.com](mailto:robin@example.com) · <https://robin.design>",
+      "**Senior Product Designer** · Boston · [robin@example.com](mailto:robin@example.com) · <https://robin.design>",
       "<!-- last updated in May -->",
       "",
       "## Experience",
@@ -51,7 +51,7 @@ describe("resumeText (E4-10)", () => {
       ok: true,
       text: [
         "John Doe",
-        "Senior Product Designer · Utrecht · robin@example.com · https://robin.design",
+        "Senior Product Designer · Boston · robin@example.com · https://robin.design",
         "",
         "Experience",
         "",
@@ -68,7 +68,7 @@ describe("resumeText (E4-10)", () => {
   });
 
   it("reads plain text as it is, with or without a byte order mark", async () => {
-    const text = ["John Doe", "Senior Product Designer, Utrecht", "Design Lead at Acme Payments since 2021, leading the payout flow redesign"].join("\n");
+    const text = ["John Doe", "Senior Product Designer, Boston", "Design Lead at Acme Payments since 2021, leading the payout flow redesign"].join("\n");
     const bytes = new TextEncoder().encode(String.fromCharCode(0xfeff) + text);
     expect(await resumeText(bytes)).toEqual({ ok: true, text });
     expect(markdownText("2 * 3 * 4 and snake_case_name")).toBe("2 * 3 * 4 and snake_case_name");

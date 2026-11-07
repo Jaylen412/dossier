@@ -6,7 +6,7 @@ import { resetData } from "./support";
 test.beforeAll(resetData);
 
 const POSTING = `Ledgerly: Senior Product Designer, Payments
-Amsterdam (hybrid, 3 days in office) · €75,000–€90,000
+Seattle (hybrid, 3 days in office) · €75,000–€90,000
 
 What we're looking for
 - 5+ years of product design
@@ -25,7 +25,7 @@ test("reads a posting, shows the match and writes tailored documents", async ({ 
   await expect(page.getByLabel("Role")).toHaveValue("Senior Product Designer, Payments");
   await expect(page.getByText("Experience with Kubernetes")).toBeVisible();
 
-  await page.getByLabel("Anything I should know?").fill("I'm moving to Amsterdam in January.");
+  await page.getByLabel("Anything I should know?").fill("I'm moving to Seattle in January.");
   await page.getByRole("button", { name: "Create application →" }).click();
   await page.waitForURL(/\/applications\/c/, { timeout: 30_000 });
 
@@ -35,7 +35,7 @@ test("reads a posting, shows the match and writes tailored documents", async ({ 
   await expect(page.getByText("Payments are where trust is won or lost")).toBeVisible();
   // What you told the AI is the application's first fact (APP-15).
   await page.getByRole("tab", { name: /Job posting/ }).click();
-  await expect(page.getByRole("region", { name: "Facts for this application" }).getByRole("textbox", { name: "Fact 1", exact: true })).toHaveValue("I'm moving to Amsterdam in January.");
+  await expect(page.getByRole("region", { name: "Facts for this application" }).getByRole("textbox", { name: "Fact 1", exact: true })).toHaveValue("I'm moving to Seattle in January.");
 });
 
 test("counts the tokens it used on the Usage screen (#290)", async ({ page }) => {

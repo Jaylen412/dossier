@@ -31,7 +31,7 @@ const answerSchema = z.object({
 const INSTRUCTIONS = `You read job postings and pull out their details as JSON.
 
 - Use only what the posting says; use null for anything it doesn't mention. Keep the posting's own wording for work mode and salary, e.g. "Hybrid · 3 days in office" or "€75,000–€90,000".
-- location: the city or region only, e.g. "Amsterdam".
+- location: the city or region only, e.g. "Seattle".
 - company and role: the employer and the position as the posting names them, often in its heading or first lines; null only when it names none.
 - title: "{role} · {company}", or null when either is missing.
 - deadline: the application deadline as YYYY-MM-DD. When the posting gives no year, it's the first such date after today.

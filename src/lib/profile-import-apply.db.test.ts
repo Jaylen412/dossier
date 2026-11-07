@@ -19,7 +19,7 @@ afterAll(() => prisma().$disconnect());
 
 const noDates = { startYear: null, startMonth: null, endYear: null, endMonth: null, current: false };
 const imported: ImportedProfile = {
-  basics: { name: "John Doe", city: "Utrecht" },
+  basics: { name: "John Doe", city: "Boston" },
   skills: [
     { name: "figma", found: true },
     { name: "User research", found: true },
@@ -30,13 +30,13 @@ const imported: ImportedProfile = {
   ],
   experience: [
     { role: "Design Lead", company: "Acme Payments", location: "", descriptor: "Payouts for marketplaces", volunteering: false, bullets: "Led the payout redesign", skills: ["User research"], startYear: 2021, startMonth: 3, endYear: null, endMonth: null, current: true, unverified: [] },
-    { role: "Product designer", company: "fieldnote", location: "Amsterdam", descriptor: "", volunteering: true, bullets: "", skills: ["figma"], ...noDates, unverified: [] },
+    { role: "Product designer", company: "fieldnote", location: "Seattle", descriptor: "", volunteering: true, bullets: "", skills: ["figma"], ...noDates, unverified: [] },
   ],
   projects: [
     { name: "payout simulator", link: "github.com/john/payout-sim", bullets: "", skills: ["User research"], ...noDates, unverified: [] },
     { name: "Design tokens CLI", link: "", bullets: "Built a CLI", skills: ["figma"], startYear: 2024, startMonth: null, endYear: null, endMonth: null, current: true, unverified: [] },
   ],
-  education: [{ degree: "MSc Interaction Design", school: "TU Delft", notes: "", startYear: 2015, startMonth: null, endYear: 2017, endMonth: null, current: false, unverified: [] }],
+  education: [{ degree: "MSc Interaction Design", school: "Georgia Tech", notes: "", startYear: 2015, startMonth: null, endYear: 2017, endMonth: null, current: false, unverified: [] }],
   certifications: [
     { name: "certified accessibility specialist", issuer: "", year: null, month: null, expiryYear: 2030, expiryMonth: 1, credentialId: "IDI-99", link: "", unverified: [] },
     { name: "First aid", issuer: "Red Cross", year: 2019, month: null, expiryYear: null, expiryMonth: null, credentialId: "", link: "", unverified: [] },
@@ -71,7 +71,7 @@ describe("applyImportedProfile (E4-10)", () => {
     await applyImportedProfile(prisma(), imported, "merge");
 
     const fields = Object.fromEntries((await prisma().profileField.findMany()).map((field) => [field.key, field.value]));
-    expect(fields).toEqual({ name: "John Doe", email: "john@example.com", city: "Utrecht" });
+    expect(fields).toEqual({ name: "John Doe", email: "john@example.com", city: "Boston" });
     expect((await prisma().skill.findMany({ orderBy: { sort: "asc" } })).map((skill) => skill.name)).toEqual(["Figma", "Prototyping", "User research"]);
     expect(await prisma().language.findMany({ orderBy: { sort: "asc" }, select: { name: true, level: true } })).toEqual([
       { name: "Dutch", level: LanguageLevel.NATIVE },
@@ -85,7 +85,7 @@ describe("applyImportedProfile (E4-10)", () => {
       ["Product designer", "fieldnote"],
       ["Design Lead", "Acme Payments"],
     ]);
-    expect(roles[0]).toMatchObject({ location: "Amsterdam", bullets: "My own bullets", startYear: 2018, volunteering: true });
+    expect(roles[0]).toMatchObject({ location: "Seattle", bullets: "My own bullets", startYear: 2018, volunteering: true });
     expect(roles[1]).toMatchObject({ volunteering: false });
     expect(roles[0].skills.map((link) => link.skill.name)).toEqual(["Figma"]);
     expect(roles[1]).toMatchObject({ bullets: "Led the payout redesign", startYear: 2021, startMonth: 3, current: true });
@@ -139,7 +139,7 @@ describe("applyImportedProfile (E4-10)", () => {
     await applyImportedProfile(prisma(), imported, "replace");
 
     const fields = Object.fromEntries((await prisma().profileField.findMany()).map((field) => [field.key, field.value]));
-    expect(fields).toEqual({ name: "John Doe", city: "Utrecht", photo: "data:image/png;base64,iVBORw0KGgo=", photoOnResumes: "false" });
+    expect(fields).toEqual({ name: "John Doe", city: "Boston", photo: "data:image/png;base64,iVBORw0KGgo=", photoOnResumes: "false" });
     expect((await prisma().skill.findMany()).map((skill) => skill.name).sort()).toEqual(["User research", "figma"]);
     expect((await prisma().experience.findMany()).map((role) => role.company).sort()).toEqual(["Acme Payments", "fieldnote"]);
     expect((await prisma().setting.findUnique({ where: { key: "experienceOrder" } }))?.value).toBe("date");

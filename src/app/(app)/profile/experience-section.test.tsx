@@ -37,7 +37,7 @@ const northwind: ExperienceItem = {
   id: "e1",
   role: "Senior Product Designer",
   company: "Northwind Logistics",
-  location: "Rotterdam",
+  location: "Denver",
   descriptor: "",
   volunteering: false,
   bullets: "Led the redesign",
@@ -84,7 +84,7 @@ describe("ExperienceSection", () => {
     render(<Harness />);
     const card = screen.getByRole("button", { name: /Senior Product Designer/, expanded: false });
     expect(card).toHaveAttribute("aria-expanded", "false");
-    expect(card).toHaveTextContent("Northwind Logistics · Rotterdam");
+    expect(card).toHaveTextContent("Northwind Logistics · Denver");
     expect(card).toHaveTextContent("Mar 2021 – Present");
     expect(card).toHaveTextContent("Design systems");
     expect(screen.getByRole("button", { name: /Product Designer.*Fieldnote/ })).toHaveTextContent("Jun 2018 – Feb 2021");

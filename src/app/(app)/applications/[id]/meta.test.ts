@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { metaLine } from "./meta";
 
 const application = {
-  location: "Amsterdam",
+  location: "Seattle",
   mode: "Hybrid · 3 days in office",
   salary: "€75–90k",
   deadline: new Date("2026-10-15T00:00:00Z"),
@@ -13,7 +13,7 @@ const application = {
 describe("metaLine (APP-1)", () => {
   it("lists location, work mode, salary, deadline and creation date", () => {
     expect(metaLine(application)).toEqual([
-      "Amsterdam",
+      "Seattle",
       "Hybrid · 3 days in office",
       "€75–90k",
       "Apply by 15 Oct 2026",

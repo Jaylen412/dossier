@@ -10,7 +10,7 @@ test.use({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1, video: 
 test.beforeAll(resetData);
 
 const POSTING = `Ledgerly: Senior Product Designer, Payments
-Amsterdam (hybrid, 3 days in office) · €75,000–€90,000
+Seattle (hybrid, 3 days in office) · €75,000–€90,000
 
 What we're looking for
 - 5+ years of product design

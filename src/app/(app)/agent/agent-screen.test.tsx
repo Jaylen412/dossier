@@ -24,7 +24,7 @@ const card = (id: string, score: number, extra: Partial<AgentCandidateView> = {}
   id,
   title: `Posting ${id}`,
   company: `Company ${id}`,
-  facts: "Rotterdam · €70k",
+  facts: "Denver · €70k",
   origin: "Posted 2 days ago · via LinkedIn on JSearch",
   source: "JSEARCH",
   url: `https://jobs.example/${id}`,
@@ -42,7 +42,7 @@ const view: AgentView = {
   minScore: 70,
   maxScores: 15,
   maxDrafts: 3,
-  search: "Product designer · Rotterdam, 25 mi · via JSearch",
+  search: "Product designer · Denver, 25 mi · via JSearch",
   setupProblem: null,
   setupSection: null,
   limitReached: false,
@@ -61,7 +61,7 @@ describe("AgentScreen (E16-6)", () => {
   it("says what it searches, when it ran and when it runs next", () => {
     open();
     expect(screen.getByRole("heading", { level: 1, name: "Job agent" })).toBeInTheDocument();
-    expect(screen.getByText("Searches for").nextElementSibling).toHaveTextContent("Product designer · Rotterdam, 25 mi · via JSearch");
+    expect(screen.getByText("Searches for").nextElementSibling).toHaveTextContent("Product designer · Denver, 25 mi · via JSearch");
     expect(screen.getByText("Last run").nextElementSibling).toHaveTextContent("Tue 20 Oct, 07:002 new postings are waiting for a look.");
     expect(screen.getByText("Next run").nextElementSibling).toHaveTextContent("Wed 21 Oct, 07:00");
   });
@@ -123,7 +123,7 @@ describe("AgentScreen (E16-6)", () => {
 
   it("dismisses a scored posting at once, with Undo", async () => {
     const user = userEvent.setup();
-    const undo = { id: "s2", place: "Rotterdam", remote: false, salary: "", postedAt: null, url: "https://jobs.example/s2", via: "", description: "Text", complete: true, reasons: ["Reason for s2"], redFlags: [] };
+    const undo = { id: "s2", place: "Denver", remote: false, salary: "", postedAt: null, url: "https://jobs.example/s2", via: "", description: "Text", complete: true, reasons: ["Reason for s2"], redFlags: [] };
     vi.mocked(dismissAgentCandidate).mockResolvedValueOnce({ ok: true, data: { undo } });
     open();
     const scored = screen.getByRole("region", { name: "Scored postings" });

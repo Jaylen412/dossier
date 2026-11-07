@@ -139,7 +139,7 @@ describe("refineJob (E8-5)", () => {
 describe("the letter's contact details (E8-11)", () => {
   it("never sends the sender or signature to the model, and won't edit them", async () => {
     const framed = [
-      { id: "sender", label: "Sender", text: "Jane Doe\nsecret-mail@example.com · +31 6 1234 5678" },
+      { id: "sender", label: "Sender", text: "Jane Doe\nsecret-mail@example.com · +1 303 555 0142" },
       { id: "greeting", label: "Greeting", text: "Dear Ledgerly team," },
       ...letter,
       { id: "signature", label: "Signature", text: "Jane Doe" },
@@ -156,7 +156,7 @@ describe("the letter's contact details (E8-11)", () => {
     await ask("Make the greeting friendlier");
     const prompt = JSON.stringify(mock.calls[0]);
     expect(prompt).not.toContain("secret-mail@example.com");
-    expect(prompt).not.toContain("+31 6 1234 5678");
+    expect(prompt).not.toContain("+1 303 555 0142");
     expect(prompt).toContain("Dear Ledgerly team,");
     const saved = await units("COVER_LETTER");
     expect(saved.find((unit) => unit.id === "sender")?.text).toBe(framed[0].text);

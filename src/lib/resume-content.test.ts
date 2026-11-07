@@ -12,8 +12,8 @@ describe("contactItems", () => {
   it("lists email, phone, city and state, website and LinkedIn", () => {
     expect(contactItems(basics)).toEqual([
       "jane.doe@example.com",
-      "+31 6 1234 5678",
-      "Rotterdam, South Holland",
+      "+1 303 555 0142",
+      "Denver, Colorado",
       "example.com",
       "linkedin.com/in/janedoe-example",
     ]);
@@ -22,7 +22,7 @@ describe("contactItems", () => {
   it("skips what's empty", () => {
     expect(contactItems({ ...basics, phone: " ", city: "", website: "" })).toEqual([
       "jane.doe@example.com",
-      "South Holland",
+      "Colorado",
       "linkedin.com/in/janedoe-example",
     ]);
   });
@@ -193,7 +193,7 @@ describe("resumeContent", () => {
       ["Fieldnote", ["Ran research"]],
       ["Northwind Logistics", ["Led the portal redesign"]],
     ]);
-    expect(content.education.map((entry) => entry.school)).toEqual(["TU Delft"]);
+    expect(content.education.map((entry) => entry.school)).toEqual(["Georgia Tech"]);
     expect(content.skills).toBe("");
     expect(content.languages).toBe("");
   });

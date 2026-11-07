@@ -17,7 +17,7 @@ const host = process.env.JSEARCH_TEST_HOST === "rapidapi" ? "rapidapi" : "openwe
 // Two searches, each of which may take up to JSEARCH_TIMEOUT_MS.
 describe.runIf(live.has("jsearch") && key)("JSearch (live)", { timeout: 100_000 }, () => {
   it("finds postings near a place, with their text and a link, and a second page", async () => {
-    const query = { ...EMPTY_QUERY, keywords: "software developer", place: "Hamburg", country: "de", radiusMiles: 50 as const };
+    const query = { ...EMPTY_QUERY, keywords: "software developer", place: "Chicago", country: "us", radiusMiles: 50 as const };
     const page = await jsearch.search(query, { key, host }, null);
     expect(page.postings.length).toBeGreaterThan(0);
     for (const posting of page.postings) {

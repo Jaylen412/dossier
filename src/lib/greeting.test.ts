@@ -9,7 +9,7 @@ describe("greeting", () => {
 
   it("reads the hour in a time zone, and falls back to the server's", () => {
     const now = new Date("2026-09-28T10:30:00Z");
-    expect(hourIn("Europe/Berlin", now)).toBe(12);
+    expect(hourIn("America/Chicago", now)).toBe(5);
     expect(hourIn("America/New_York", now)).toBe(6);
     expect(hourIn("Not/AZone", now)).toBe(now.getHours());
   });

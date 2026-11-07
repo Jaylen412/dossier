@@ -94,7 +94,7 @@ function keysOf(answer: unknown): string {
   return keys.length > 0 ? ` (keys: ${keys.join(", ")})` : "";
 }
 
-/** "designer in Hamburg": Google reads the place from the query text. */
+/** "designer in Chicago": Google reads the place from the query text. */
 function queryText({ keywords, place }: SearchQuery): string {
   return place ? `${keywords} in ${place}` : keywords;
 }

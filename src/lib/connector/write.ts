@@ -37,7 +37,7 @@ export const writtenResumeSchema = z.object({
 });
 
 export const writtenLetterSchema = z.object({
-  recipient: z.string().max(400).default("").describe("Address block, one line per line, e.g. 'Acme · Hiring team\\nBerlin'"),
+  recipient: z.string().max(400).default("").describe("Address block, one line per line, e.g. 'Acme · Hiring team\\nAustin'"),
   greeting: z.string().max(200).default("").describe("e.g. 'Dear Acme team,'"),
   paragraphs: z
     .array(z.object({ label: z.string().max(60).default(""), text: z.string().min(1).max(3000) }))

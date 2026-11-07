@@ -8,7 +8,7 @@ import { postingDetails, searchPostings, testSource } from "./index";
 import { EMPTY_QUERY } from "./search";
 import { sourceCovers } from "./sources";
 
-const query = { ...EMPTY_QUERY, keywords: "designer", country: "de" };
+const query = { ...EMPTY_QUERY, keywords: "designer", country: "us" };
 const ninja = { key: "ak_test", host: "openwebninja" as const };
 
 beforeEach(() => {

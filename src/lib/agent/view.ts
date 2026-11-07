@@ -22,7 +22,7 @@ export type AgentCandidateView = {
   id: string;
   title: string;
   company: string;
-  /** "Rotterdam · Remote · €70k", what's known of them. */
+  /** "Denver · Remote · €70k", what's known of them. */
   facts: string;
   /** "Posted 2 days ago · via LinkedIn on JSearch". */
   origin: string;
@@ -45,7 +45,7 @@ export type AgentView = {
   minScore: number;
   maxScores: number;
   maxDrafts: number;
-  /** "Data scientist in Berlin (25 mi), Germany · via JSearch", or null without a search. */
+  /** "Data scientist in Austin (25 mi), United States · via JSearch", or null without a search. */
   search: string | null;
   /** Why it can't run: no search, AI provider, source or key; null when it's set up. */
   setupProblem: string | null;

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { agenda, dayOf, isDay, itemsOnDay, monthDays, monthTitle, shiftMonth, shortDayLabel, startOfDay, type CalendarItem, type TimedItem } from "./calendar-view";
 
-const zone = "Europe/Berlin";
+const zone = "America/Chicago";
 const timed = (id: string, start: string, end: string): TimedItem => ({ id, title: id, kind: "event", href: null, external: false, allDay: false, start: new Date(start), end: new Date(end) });
 
 describe("the calendar's days (E15-6)", () => {
@@ -23,9 +23,9 @@ describe("the calendar's days (E15-6)", () => {
   });
 
   it("reads days in the user's time zone", () => {
-    expect(dayOf(new Date("2026-10-18T23:30:00Z"), zone)).toBe("2026-10-19");
-    expect(startOfDay("2026-10-25", zone).toISOString()).toBe("2026-10-24T22:00:00.000Z");
-    expect(startOfDay("2026-10-26", zone).toISOString()).toBe("2026-10-25T23:00:00.000Z");
+    expect(dayOf(new Date("2026-10-19T04:30:00Z"), zone)).toBe("2026-10-18");
+    expect(startOfDay("2026-11-01", zone).toISOString()).toBe("2026-11-01T05:00:00.000Z");
+    expect(startOfDay("2026-11-02", zone).toISOString()).toBe("2026-11-02T06:00:00.000Z");
     expect([isDay("2026-10-19"), isDay("2026-13-40"), isDay("today"), isDay(undefined)]).toEqual([true, false, false, false]);
   });
 
@@ -50,8 +50,8 @@ describe("the agenda", () => {
   it("lists seven days from the one picked, leaving out empty ones", () => {
     const items: CalendarItem[] = [
       timed("before", "2026-10-19T09:00:00Z", "2026-10-19T10:00:00Z"),
-      // Over midnight in Berlin: on both days.
-      timed("late", "2026-10-20T21:00:00Z", "2026-10-20T23:30:00Z"),
+      // Over midnight in Chicago: on both days.
+      timed("late", "2026-10-21T03:00:00Z", "2026-10-21T06:30:00Z"),
       timed("last", "2026-10-26T09:00:00Z", "2026-10-26T10:00:00Z"),
       timed("after", "2026-10-27T09:00:00Z", "2026-10-27T10:00:00Z"),
     ];

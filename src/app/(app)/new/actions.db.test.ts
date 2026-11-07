@@ -39,7 +39,7 @@ const extracted = {
   title: "Senior Product Designer · Ledgerly",
   company: "Ledgerly",
   role: "Senior Product Designer",
-  location: "Amsterdam",
+  location: "Seattle",
   mode: "Hybrid",
   salary: null,
   deadline: "2026-10-15",
@@ -48,7 +48,7 @@ const extracted = {
   language: "English",
 };
 const match = { items: [{ requirement: "Experience with payments", result: "gap" as const, skill: null, experienceIds: [], note: "Nothing in your profile" }] };
-const details = { title: "Designer at Ledgerly", company: "Ledgerly B.V.", role: "Senior Product Designer", location: "Amsterdam", mode: "Hybrid", salary: "", deadline: "2026-10-20" };
+const details = { title: "Designer at Ledgerly", company: "Ledgerly B.V.", role: "Senior Product Designer", location: "Seattle", mode: "Hybrid", salary: "", deadline: "2026-10-20" };
 
 async function finishedJobs() {
   await prisma().job.create({

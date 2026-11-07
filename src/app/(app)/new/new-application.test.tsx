@@ -190,7 +190,7 @@ describe("the details (E7-3)", () => {
     emit({
       status: "DONE",
       result: {
-        extracted: { title: "Designer · Ledgerly", company: "Ledgerly", role: "Designer", location: "Amsterdam", mode: null, salary: null, deadline: "2026-10-15", requirements: [], asksForReferences: false, language: "English" },
+        extracted: { title: "Designer · Ledgerly", company: "Ledgerly", role: "Designer", location: "Seattle", mode: null, salary: null, deadline: "2026-10-15", requirements: [], asksForReferences: false, language: "English" },
         extractedWith: "extract-posting@1",
         match: { items: [] },
         matchedWith: "match-requirements@1",
@@ -309,7 +309,7 @@ describe("tailoring (E7-5)", () => {
     expect(screen.getByText("Traditional and polished.")).toBeInTheDocument();
     await userEvent.click(within(tones).getByRole("radio", { name: "Direct" }));
     expect(screen.getByText("Short sentences, straight to the point.")).toBeInTheDocument();
-    expect(screen.getByLabelText("Anything I should know?")).toHaveAttribute("placeholder", "e.g. I'm relocating to Amsterdam in January. Or: lean on my research work.");
+    expect(screen.getByLabelText("Anything I should know?")).toHaveAttribute("placeholder", "e.g. I'm relocating to Seattle in January. Or: lean on my research work.");
   });
 
   it("goes back to the posting with everything kept", async () => {

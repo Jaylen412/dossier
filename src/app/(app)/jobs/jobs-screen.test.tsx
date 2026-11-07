@@ -37,10 +37,10 @@ vi.mock("./actions", () => ({
 }));
 
 const countries = [
-  { code: "de", name: "Germany" },
-  { code: "fr", name: "France" },
+  { code: "us", name: "United States" },
+  { code: "pr", name: "Puerto Rico" },
 ];
-const query = { ...EMPTY_QUERY, keywords: "product designer", place: "Hamburg", country: "de" };
+const query = { ...EMPTY_QUERY, keywords: "product designer", place: "Chicago", country: "us" };
 const state: PostingState = { postingId: null, saved: false, dismissed: false, applicationId: null, score: null };
 
 const posting = (id: string, extra: Partial<ShownPosting> = {}): ShownPosting => ({
@@ -48,7 +48,7 @@ const posting = (id: string, extra: Partial<ShownPosting> = {}): ShownPosting =>
   externalId: id,
   title: `Designer ${id}`,
   company: `Company ${id}`,
-  place: "Hamburg",
+  place: "Chicago",
   remote: false,
   salary: "",
   postedAt: "2026-09-30T00:00:00.000Z",
@@ -99,8 +99,8 @@ describe("the search form", () => {
     expect(screen.getByText("Search JSearch for postings near you, then start an application from the one you like.")).toBeInTheDocument();
     const form = screen.getByRole("search", { name: "Search postings" });
     expect(within(form).getByLabelText("What")).toHaveValue("product designer");
-    expect(within(form).getByLabelText("Where")).toHaveValue("Hamburg");
-    expect(within(form).getByLabelText("Country")).toHaveValue("de");
+    expect(within(form).getByLabelText("Where")).toHaveValue("Chicago");
+    expect(within(form).getByLabelText("Country")).toHaveValue("us");
     expect(within(form).getByLabelText("Within")).toHaveValue("25");
     expect(screen.getByText(/Search for a role, a skill or a company/)).toBeInTheDocument();
   });
@@ -169,7 +169,7 @@ describe("the results", () => {
     const list = screen.getByRole("list", { name: "Postings" });
     const items = within(list).getAllByRole("button", { name: /^Designer/ });
     expect(items.map((item) => item.getAttribute("aria-pressed"))).toEqual(["true", "false"]);
-    expect(items[0]).toHaveTextContent("Company a · Hamburg · Remote");
+    expect(items[0]).toHaveTextContent("Company a · Chicago · Remote");
     expect(items[0]).toHaveTextContent("3 days ago · via LinkedIn · EUR 70,000 a year");
     expect(screen.getByRole("heading", { level: 2, name: "Designer a" })).toBeInTheDocument();
     expect(screen.getByText("The whole posting a.")).toBeInTheDocument();
@@ -299,12 +299,12 @@ describe("the results", () => {
 
   it("says when nothing was found", () => {
     renderScreen({ search: stored([]) });
-    expect(screen.getByText("No postings for “product designer” within 25 mi of Hamburg. Try a bigger radius or fewer words.")).toBeInTheDocument();
+    expect(screen.getByText("No postings for “product designer” within 25 mi of Chicago. Try a bigger radius or fewer words.")).toBeInTheDocument();
   });
 
   it("says when nothing was found on a source without a radius", () => {
     renderScreen({ source: "SERPAPI", search: { ...stored([]), source: "SERPAPI" } });
-    expect(screen.getByText("No postings for “product designer” in Hamburg. Try fewer words.")).toBeInTheDocument();
+    expect(screen.getByText("No postings for “product designer” in Chicago. Try fewer words.")).toBeInTheDocument();
   });
 
 });
@@ -317,7 +317,7 @@ describe("a source's terms and countries", () => {
     Object.assign(SOURCE_INFO.SERPAPI, {
       attribution: "Jobs by Example",
       attributionLink: { home: "https://www.example.co.uk", local: /^www\.example\.[a-z]{2}$/ },
-      countries: ["de"],
+      countries: ["us"],
     });
     Object.assign(SOURCE_INFO.JSEARCH, { attribution: "Source: Example" });
   });
@@ -328,8 +328,8 @@ describe("a source's terms and countries", () => {
 
   it("says when the source doesn't cover the country", async () => {
     renderScreen({ source: "SERPAPI" });
-    await userEvent.selectOptions(screen.getByLabelText("Country"), "fr");
-    expect(screen.getByText("SerpApi doesn't list jobs in France.")).toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByLabelText("Country"), "pr");
+    expect(screen.getByText("SerpApi doesn't list jobs in Puerto Rico.")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Search" }));
     expect(runJobSearch).not.toHaveBeenCalled();
   });
@@ -392,15 +392,15 @@ describe("past searches (E14-10)", () => {
     expect(screen.queryByRole("search")).not.toBeInTheDocument();
     const today = screen.getByRole("region", { name: "Today" });
     expect(within(today).getAllByRole("link").map((link) => [link.textContent, link.getAttribute("href")])).toEqual([
-      ["product designer · Hamburg, 50 mi · Remote only · Past week14:32 · 16 postings · JSearch", "/jobs?search=s1"],
-      ["researcher · Germany09:05 · 1 posting · JSearch", "/jobs?search=s2"],
+      ["product designer · Chicago, 50 mi · Remote only · Past week14:32 · 16 postings · JSearch", "/jobs?search=s1"],
+      ["researcher · United States09:05 · 1 posting · JSearch", "/jobs?search=s2"],
     ]);
-    expect(within(screen.getByRole("region", { name: "Mon 28 Sep" })).getByRole("link")).toHaveTextContent("writer · Hamburg10:00 · 0 postings · SerpApi");
+    expect(within(screen.getByRole("region", { name: "Mon 28 Sep" })).getByRole("link")).toHaveTextContent("writer · Chicago10:00 · 0 postings · SerpApi");
   });
 
   it("removes a search", async () => {
     renderScreen({ view: "history", history });
-    await userEvent.click(screen.getByRole("button", { name: "Remove the search “researcher · Germany” from 09:05" }));
+    await userEvent.click(screen.getByRole("button", { name: "Remove the search “researcher · United States” from 09:05" }));
     expect(removeJobSearch).toHaveBeenCalledWith({ id: "s2" });
     expect(screen.queryByRole("link", { name: /researcher/ })).not.toBeInTheDocument();
     expect(router.refresh).toHaveBeenCalled();

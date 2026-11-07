@@ -48,7 +48,7 @@ export function TailoringCard({
         label="Anything I should know?"
         hint="Kept with the application as a fact for the AI. Change it later on its Job posting tab."
         rows={3}
-        placeholder="e.g. I'm relocating to Amsterdam in January. Or: lean on my research work."
+        placeholder="e.g. I'm relocating to Seattle in January. Or: lean on my research work."
         value={note}
         onChange={(event) => onNote(event.target.value)}
       />

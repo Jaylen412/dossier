@@ -222,11 +222,11 @@ describe("profile actions", () => {
     const person = await createReference({});
     if (!school.ok || !person.ok) throw new Error("create failed");
 
-    const degree = { ...school.data, degree: "MSc", school: "TU Delft", startYear: 2013, endYear: 2015 };
+    const degree = { ...school.data, degree: "MSc", school: "Georgia Tech", startYear: 2013, endYear: 2015 };
     const reference = { ...person.data, name: "Jane Doe", email: "jane.doe@example.com" };
     await saveEducation(degree);
     await saveReference(reference);
-    expect(await prisma().education.findUniqueOrThrow({ where: { id: degree.id } })).toMatchObject({ school: "TU Delft", endYear: 2015 });
+    expect(await prisma().education.findUniqueOrThrow({ where: { id: degree.id } })).toMatchObject({ school: "Georgia Tech", endYear: 2015 });
 
     await removeEducation({ id: degree.id });
     await removeReference({ id: reference.id });

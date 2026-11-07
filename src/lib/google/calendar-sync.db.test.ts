@@ -14,7 +14,7 @@ vi.mock("@/lib/prisma", async () => {
 vi.mock("@/lib/env", () => ({
   env: { DOSSIER_SECRET: "s".repeat(40), DOSSIER_GOOGLE_CLIENT_ID: "client", DOSSIER_GOOGLE_CLIENT_SECRET: "secret", DOSSIER_DATA_DIR: "/tmp" },
 }));
-vi.mock("@/lib/time-zone", () => ({ userTimeZone: async () => "Europe/Berlin", lastKnownTimeZone: async () => "Europe/Berlin" }));
+vi.mock("@/lib/time-zone", () => ({ userTimeZone: async () => "America/Chicago", lastKnownTimeZone: async () => "America/Chicago" }));
 
 import { encryptSecret, GOOGLE_TOKEN } from "@/lib/secrets";
 
@@ -85,7 +85,7 @@ describe("Dossier to Google", () => {
     expect(await application()).toMatchObject({ interviewEventId: "ev1", interviewCalendarId: "primary" });
     const added = events.get("ev1")!;
     expect(added).toMatchObject({ summary: "Interview · Product Designer · Northwind", extendedProperties: { private: { dossierApplication: "nw" } } });
-    expect(added.start).toEqual({ dateTime: "2026-10-22T11:00:00.000Z", timeZone: "Europe/Berlin" });
+    expect(added.start).toEqual({ dateTime: "2026-10-22T11:00:00.000Z", timeZone: "America/Chicago" });
     expect(added.end.dateTime).toBe("2026-10-22T11:45:00.000Z");
 
     // Made an hour long in Google, then moved in Dossier: still an hour long.
@@ -160,7 +160,7 @@ describe("the dashboard calendar's data (E15-6)", () => {
     events.set("later", { id: "later", status: "confirmed", summary: "Next week", start: { dateTime: "2026-10-28T09:00:00Z" }, end: { dateTime: "2026-10-28T10:00:00Z" } });
 
     const calendar = await loadCalendar(week);
-    expect(calendar).toMatchObject({ timeZone: "Europe/Berlin", source: { status: "google" } });
+    expect(calendar).toMatchObject({ timeZone: "America/Chicago", source: { status: "google" } });
     const byId = Object.fromEntries(calendar.items.map((item) => [item.id, item]));
     expect(Object.keys(byId).sort()).toEqual(["dentist", "ev1", "interview-lg", "trip"]);
     expect(byId.ev1).toMatchObject({ kind: "interview", href: "/applications/nw", external: false, title: "Interview · Product Designer · Northwind" });

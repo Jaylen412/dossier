@@ -61,7 +61,7 @@ export const searchQuerySchema = z.preprocess(fromLegacyRadius, z.object({
   keywords: z.string().trim().max(200),
   /** A city or region; empty searches the whole country. */
   place: z.string().trim().max(200),
-  /** ISO 3166-1 alpha-2 in lower case, e.g. "de"; empty until one is chosen. */
+  /** ISO 3166-1 alpha-2 in lower case, e.g. "us"; empty until one is chosen. */
   country: z
     .string()
     .trim()
@@ -157,7 +157,7 @@ export type PastSearchDay = {
   searches: { id: string; source: JobSource; query: SearchQuery; found: number; time: string }[];
 };
 
-/** "product designer · Hamburg, 25 mi · Remote only · Past week": a search in a line, without the miles for a source that has no radius. */
+/** "product designer · Chicago, 25 mi · Remote only · Past week": a search in a line, without the miles for a source that has no radius. */
 export function describeSearch(query: SearchQuery, countryName: string, source?: JobSource | null): string {
   const where = query.place ? (source && !SOURCE_INFO[source].radius ? query.place : `${query.place}, ${query.radiusMiles} mi`) : countryName;
   const posted = POSTED_WITHIN.find((option) => option.value === query.postedWithin);
@@ -199,7 +199,7 @@ export function linkKey(link: string): string {
 }
 
 // ─── In the URL ──────────────────────────────────────────────────────────────
-// /jobs?q=designer&where=Hamburg&country=de&radius=25&remote=1&posted=week&level=senior, so
+// /jobs?q=designer&where=Chicago&country=us&radius=25&remote=1&posted=week&level=senior, so
 // Back, a reload or a bookmark show the same search.
 
 const one = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? "";

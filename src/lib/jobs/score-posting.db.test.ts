@@ -40,7 +40,7 @@ const posting: FoundPosting = {
   externalId: "serp-1",
   title: "Product Designer",
   company: "Harbour Freight",
-  place: "Rotterdam",
+  place: "Denver",
   remote: false,
   salary: "",
   postedAt: null,
@@ -95,7 +95,7 @@ describe("scorePastedPostingJob (public issue 66)", () => {
     fake.sent = [];
     const run = context();
     const result = await scorePastedPostingJob.run(
-      { posting: "Harbour Freight is hiring a Product Designer in Rotterdam. Dutch required.", title: "Product Designer", company: "Harbour Freight", location: "Rotterdam", mode: "Hybrid, 2 days remote", salary: "" },
+      { posting: "Harbour Freight is hiring a Product Designer in Denver. Dutch required.", title: "Product Designer", company: "Harbour Freight", location: "Denver", mode: "Hybrid, 2 days remote", salary: "" },
       run,
     );
     expect(result).toEqual({ score: 78, reasons: ["Built a design system at Northwind."], redFlags: ["Dutch is required."] });

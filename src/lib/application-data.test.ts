@@ -25,7 +25,7 @@ describe("JSON column schemas", () => {
       title: "Senior Product Designer · Ledgerly Payments",
       company: "Ledgerly",
       role: "Senior Product Designer",
-      location: "Amsterdam",
+      location: "Seattle",
       mode: null,
       salary: null,
       deadline: "2026-10-15",

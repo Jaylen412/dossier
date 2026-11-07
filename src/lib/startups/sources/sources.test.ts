@@ -10,11 +10,11 @@ vi.mock("@/lib/env", () => ({ env: {} }));
 
 afterEach(() => vi.unstubAllGlobals());
 
-const berlin = placeOf({ city: "Berlin", country: "Germany" });
+const austin = placeOf({ city: "Austin", country: "United States" });
 
 describe("YC startups' job posts (#222)", () => {
   it("reads the company, batch and the rest from a title", () => {
-    expect(readJobTitle("Telli (YC F24) is hiring engineers and designers [Berlin, on-site]")).toEqual({ company: "Telli", batch: "F24", rest: "is hiring engineers and designers [Berlin, on-site]" });
+    expect(readJobTitle("Telli (YC F24) is hiring engineers and designers [Austin, on-site]")).toEqual({ company: "Telli", batch: "F24", rest: "is hiring engineers and designers [Austin, on-site]" });
     expect(readJobTitle("Flexport Is Hiring a Biz Ops Leader")).toEqual({ company: "Flexport", batch: "", rest: "is hiring a Biz Ops Leader" });
     expect(readJobTitle("Something else")).toEqual({ company: "Something else", batch: "", rest: "" });
   });
@@ -68,50 +68,50 @@ describe("Hacker News' Who is hiring? (#222)", () => {
 
   it("keeps a post in the profile's country, with the addresses it gives", () => {
     const startup = startupFromHnPost(
-      post("PAGNOS | Cloud Engineer (TypeScript) | REMOTE (Germany) | Full-time<p>We build things. Apply: jobs@pagnos.de or ask jane at pagnos dot de. https://pagnos.de</p>"),
-      berlin,
+      post("PAGNOS | Cloud Engineer (TypeScript) | REMOTE (US) | Full-time<p>We build things. Apply: jobs@pagnos.com or ask jane at pagnos dot com. https://pagnos.com</p>"),
+      austin,
     );
     expect(startup).toMatchObject({
       source: "HN",
       company: "PAGNOS",
-      website: "https://pagnos.de",
-      location: "REMOTE (Germany)",
+      website: "https://pagnos.com",
+      location: "REMOTE (US)",
       remote: true,
       roles: ["Cloud Engineer (TypeScript)"],
-      emails: [{ email: "jobs@pagnos.de", label: "Hiring", from: "https://news.ycombinator.com/item?id=1", onRequest: false }],
+      emails: [{ email: "jobs@pagnos.com", label: "Hiring", from: "https://news.ycombinator.com/item?id=1", onRequest: false }],
       links: [
         { label: "Hiring post", url: "https://news.ycombinator.com/item?id=1" },
-        { label: "Website", url: "https://pagnos.de" },
+        { label: "Website", url: "https://pagnos.com" },
       ],
     });
   });
 
   it("leaves out posts only for other places, and reads rounds and batches", () => {
-    expect(startupFromHnPost(post("Acme | Engineer | REMOTE (US Timezones)"), berlin)).toBeNull();
-    expect(startupFromHnPost(post("Acme | Engineer | New York, NY | Onsite"), berlin)).toBeNull();
-    expect(startupFromHnPost(post("Acme (YC W24) | Engineer | Berlin | Series A"), berlin)).toMatchObject({ company: "Acme", stage: "Series A", remote: false });
-    expect(startupFromHnPost(post("Tiller (YC W24) | Engineer | Berlin"), berlin)).toMatchObject({ company: "Tiller", stage: "YC W24" });
+    expect(startupFromHnPost(post("Acme | Engineer | New York, NY | Onsite"), austin)).toBeNull();
+    expect(startupFromHnPost(post("Acme | Engineer | REMOTE (US Timezones)"), austin)).toMatchObject({ remote: true });
+    expect(startupFromHnPost(post("Acme (YC W24) | Engineer | Austin | Series A"), austin)).toMatchObject({ company: "Acme", stage: "Series A", remote: false });
+    expect(startupFromHnPost(post("Tiller (YC W24) | Engineer | Austin"), austin)).toMatchObject({ company: "Tiller", stage: "YC W24" });
     expect(startupFromHnPost(post("Acme | Engineer | New York, NY | Onsite"), placeOf({ city: "", country: "" }))).toMatchObject({ location: "New York, NY · Onsite" });
-    expect(startupFromHnPost({ id: 2, text: null }, berlin)).toBeNull();
-    expect(startupFromHnPost(post("| x"), berlin)).toBeNull();
+    expect(startupFromHnPost({ id: 2, text: null }, austin)).toBeNull();
+    expect(startupFromHnPost(post("| x"), austin)).toBeNull();
   });
 
   it("reads this month's thread through Algolia", async () => {
     stubFetch(({ url }) => {
       if (url.pathname.endsWith("/search_by_date"))
         return json({ hits: [{ objectID: "9", title: "Ask HN: Who wants to be hired? (October 2026)" }, { objectID: "10", title: "Ask HN: Who is hiring? (October 2026)" }] });
-      if (url.pathname.endsWith("/items/10")) return json({ children: [post("Acme | Engineer | Berlin", 11), post("Other | Engineer | Paris, France", 12), { bad: true }] });
+      if (url.pathname.endsWith("/items/10")) return json({ children: [post("Acme | Engineer | Austin", 11), post("Other | Engineer | Miami, Florida", 12), { bad: true }] });
       return json({}, { status: 404 });
     });
-    expect((await fetchHnStartups(berlin)).map((startup) => startup.externalId)).toEqual(["11"]);
+    expect((await fetchHnStartups(austin)).map((startup) => startup.externalId)).toEqual(["11"]);
   });
 
   it("fails clearly when there's no thread or the format changed", async () => {
     stubFetch(() => json({ hits: [] }));
-    await expect(fetchHnStartups(berlin)).rejects.toThrow("has no hiring thread this month");
+    await expect(fetchHnStartups(austin)).rejects.toThrow("has no hiring thread this month");
     stubFetch(() => json({ nope: 1 }));
-    await expect(fetchHnStartups(berlin)).rejects.toThrow("changed its format");
+    await expect(fetchHnStartups(austin)).rejects.toThrow("changed its format");
     stubFetch(({ url }) => (url.pathname.endsWith("/search_by_date") ? json({ hits: [{ objectID: "10", title: "Ask HN: Who is hiring? (October 2026)" }] }) : json({ children: "x" })));
-    await expect(fetchHnStartups(berlin)).rejects.toThrow("changed its format");
+    await expect(fetchHnStartups(austin)).rejects.toThrow("changed its format");
   });
 });

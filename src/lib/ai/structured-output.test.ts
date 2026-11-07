@@ -186,11 +186,11 @@ describe("OpenAI-compatible servers without JSON schemas", () => {
     const requests = stubFetch(({ body }) => {
       const format = (body as { response_format?: unknown }).response_format;
       if (JSON.stringify(format ?? {}).includes('"years"')) return hostRefused(400, "The compiled grammar is too large, which would cause performance issues.");
-      return answer(format ? '{"city":"Utrecht"}' : '{"company":"Ledgerly","years":5}');
+      return answer(format ? '{"city":"Boston"}' : '{"company":"Ledgerly","years":5}');
     });
     const provider = new OpenAICompatibleProvider("OPENAI", "https://complex.example/v1", "sk", "strict", 60_000);
     expect(await provider.complete({ ...ask, schemaName: "posting" })).toEqual({ company: "Ledgerly", years: 5 });
-    expect(await provider.complete({ ...ask, schema: City, schemaName: "city" })).toEqual({ city: "Utrecht" });
+    expect(await provider.complete({ ...ask, schema: City, schemaName: "city" })).toEqual({ city: "Boston" });
     expect(requests).toHaveLength(3);
     expect(requests[1].body).not.toHaveProperty("response_format");
     expect(requests[2].body).toMatchObject({ response_format: { type: "json_schema" } });

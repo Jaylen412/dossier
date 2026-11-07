@@ -39,7 +39,7 @@ const posting = (id: string, score: PostingFit | null = null): ShownPosting => (
   externalId: id,
   title: `Designer ${id}`,
   company: "Ledgerly",
-  place: "Amsterdam",
+  place: "Seattle",
   remote: false,
   salary: "",
   postedAt: null,

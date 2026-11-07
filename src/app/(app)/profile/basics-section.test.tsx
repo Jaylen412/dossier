@@ -52,9 +52,9 @@ describe("BasicsSection", () => {
 
   it("saves right away when leaving a field", async () => {
     render(<Harness />);
-    fireEvent.change(screen.getByLabelText("City"), { target: { value: "Rotterdam" } });
+    fireEvent.change(screen.getByLabelText("City"), { target: { value: "Denver" } });
     await act(async () => fireEvent.blur(screen.getByLabelText("City")));
-    expect(saveBasics).toHaveBeenCalledWith({ ...empty, city: "Rotterdam" });
+    expect(saveBasics).toHaveBeenCalledWith({ ...empty, city: "Denver" });
   });
 
   it("hints at malformed email and web addresses once you leave the field, without blocking the save", async () => {

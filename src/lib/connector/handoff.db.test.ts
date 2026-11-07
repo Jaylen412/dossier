@@ -36,7 +36,7 @@ describe("handing work to Claude chat (#221)", () => {
       externalId: "j1",
       title: "Product Designer",
       company: "Acme",
-      place: "Berlin",
+      place: "Austin",
       remote: null,
       salary: "",
       postedAt: null,

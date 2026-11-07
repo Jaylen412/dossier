@@ -44,7 +44,7 @@ export function startupFromJob(item: Item): FoundStartup | null {
   const url = /^https?:\/\//i.test(item.url ?? "") ? item.url!.trim() : "";
   // "Is Hiring a Founding Engineer in SF" → "Founding Engineer in SF".
   const role = rest.replace(/^(?:is|are)\s+hiring\b[\s:–—-]*/i, "").replace(/^(?:an?|for)\s+/i, "").trim();
-  // Places are in brackets, or after "in": "(Remote, worldwide)", "[Berlin, on-site]", "in Austin, TX".
+  // Places are in brackets, or after "in": "(Remote, worldwide)", "[Austin, on-site]", "in Austin, TX".
   const places = [...rest.matchAll(/\(([^)]*)\)|\[([^\]]*)\]/g)].map((match) => (match[1] ?? match[2]).trim());
   const inPlace = /\bin\s+([A-Z][^()[\]]*)$/.exec(rest.replace(/\s*[([].*$/, ""))?.[1]?.trim();
   return {

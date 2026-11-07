@@ -47,7 +47,7 @@ function found(id: string, title: string, complete = true) {
     externalId: id,
     title,
     company: "Acme",
-    place: "Berlin",
+    place: "Austin",
     remote: null,
     salary: "",
     postedAt: null,
@@ -95,7 +95,7 @@ async function tool(name: string, args: Record<string, unknown> = {}): Promise<{
 }
 
 const storeSearch = (postings: unknown[]) =>
-  prisma().postingSearch.create({ data: { source: "JSEARCH", query: { keywords: "designer", place: "Berlin", country: "de", radiusMiles: 25, remoteOnly: false, postedWithin: "any" }, postings: postings as object[], found: postings.length, next: "page:2" } });
+  prisma().postingSearch.create({ data: { source: "JSEARCH", query: { keywords: "designer", place: "Austin", country: "us", radiusMiles: 25, remoteOnly: false, postedWithin: "any" }, postings: postings as object[], found: postings.length, next: "page:2" } });
 
 describe("the Claude connector's tools (#221)", () => {
   it("lists the applications, newest first, by status, and reads one without notes, sender or signature", async () => {
@@ -153,7 +153,7 @@ describe("the Claude connector's tools (#221)", () => {
     const saved = await tool("save_application", {
       search_id: search.id,
       number: 1,
-      details: { company: "Acme", role: "Product Designer", location: "Berlin" },
+      details: { company: "Acme", role: "Product Designer", location: "Austin" },
       resume: { summary: "Designer who ships calm products.", roles: [{ id: profile.id, bullets: ["Led the payments redesign"] }], skills: ["Figma"] },
       cover_letter: { paragraphs: [{ text: "I'd like to help Acme." }] },
       match: [{ requirement: "Figma", result: "covered" }],

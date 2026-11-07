@@ -13,7 +13,7 @@ test("searches, keeps postings, and starts an application from one", async ({ pa
   const form = page.getByRole("search", { name: "Search postings" });
   // The first search starts from the current role and the profile's city; the country is chosen here.
   await expect(form.getByLabel("What")).toHaveValue("Senior Product Designer");
-  await expect(form.getByLabel("Where")).toHaveValue("Rotterdam");
+  await expect(form.getByLabel("Where")).toHaveValue("Denver");
   await form.getByLabel("Country").selectOption("nl");
   await form.getByRole("button", { name: "Search" }).click();
 
@@ -21,7 +21,7 @@ test("searches, keeps postings, and starts an application from one", async ({ pa
   const list = page.getByRole("list", { name: "Postings" });
   await expect(list.getByRole("listitem")).toHaveCount(3);
   await expect(page.getByRole("heading", { level: 2, name: "Senior Product Designer, Payments" })).toBeVisible();
-  await expect(page.getByText("Ledgerly · Rotterdam · EUR 75,000–90,000 a year")).toBeVisible();
+  await expect(page.getByText("Ledgerly · Denver · EUR 75,000–90,000 a year")).toBeVisible();
   await expect(page.getByRole("region", { name: "Posting text" })).toContainText("Strong prototyping skills in Figma");
 
   // The next page, through the cursor.
@@ -33,7 +33,7 @@ test("searches, keeps postings, and starts an application from one", async ({ pa
   const asked = await fakeJobSearches();
   await page.getByRole("link", { name: /^Past searches/ }).click();
   const today = page.getByRole("region", { name: "Today" });
-  await expect(today.getByRole("link")).toHaveText(/Senior Product Designer · Rotterdam, 25 mi.*4 postings · JSearch/);
+  await expect(today.getByRole("link")).toHaveText(/Senior Product Designer · Denver, 25 mi.*4 postings · JSearch/);
   await today.getByRole("link").click();
   await expect(list.getByRole("listitem")).toHaveCount(4);
   await page.goto("/jobs");
@@ -58,7 +58,7 @@ test("searches, keeps postings, and starts an application from one", async ({ pa
   // Start an application from it: the posting is filled in, to check first.
   await page.getByRole("button", { name: "Start application →" }).click();
   await expect(page).toHaveURL(/\/new$/);
-  await expect(page.getByLabel("Job posting")).toHaveValue(/^Ledgerly: Senior Product Designer, Payments\n\nRotterdam · EUR 75,000–90,000 a year\n\nLedgerly is hiring/);
+  await expect(page.getByLabel("Job posting")).toHaveValue(/^Ledgerly: Senior Product Designer, Payments\n\nDenver · EUR 75,000–90,000 a year\n\nLedgerly is hiring/);
   await expect(page.getByLabel(/^Link to the posting/)).toHaveValue("https://jobs.example/e2e-ledgerly");
   await page.getByRole("button", { name: "Read the posting →" }).click();
   await expect(page.getByRole("heading", { name: "How you match" })).toBeVisible();
@@ -76,9 +76,9 @@ test("searches, keeps postings, and starts an application from one", async ({ pa
 
 test("says when nothing was found", async ({ page }) => {
   // A search written in the URL only fills in the form.
-  await page.goto("/jobs?q=nothing&where=Rotterdam&country=nl");
+  await page.goto("/jobs?q=nothing&where=Denver&country=us");
   await page.getByRole("search", { name: "Search postings" }).getByRole("button", { name: "Search" }).click();
-  await expect(page.getByText("No postings for “nothing” within 25 mi of Rotterdam. Try a bigger radius or fewer words.")).toBeVisible();
+  await expect(page.getByText("No postings for “nothing” within 25 mi of Denver. Try a bigger radius or fewer words.")).toBeVisible();
 });
 
 test("tests the connection in Settings → Job search", async ({ page }) => {
@@ -154,7 +154,7 @@ test("finds postings through SerpApi", async ({ page }) => {
   await page.getByLabel("API key").blur();
   await expect(page.getByLabel("API key")).toHaveAttribute("placeholder", "Saved · type a new key to replace it");
 
-  await page.goto("/jobs?q=product+designer&where=Rotterdam&country=nl");
+  await page.goto("/jobs?q=product+designer&where=Denver&country=us");
   const form = page.getByRole("search", { name: "Search postings" });
   // It has no radius: the place only puts postings there first.
   await expect(form.getByLabel("Within")).toBeDisabled();

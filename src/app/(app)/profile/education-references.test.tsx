@@ -28,7 +28,7 @@ const profile: ProfileData = {
   experience: [],
   projects: [],
   education: [
-    { id: "d1", degree: "MSc Design for Interaction", school: "TU Delft", notes: "", startYear: 2013, startMonth: null, endYear: 2015, endMonth: null, current: false },
+    { id: "d1", degree: "MSc Design for Interaction", school: "Georgia Tech", notes: "", startYear: 2013, startMonth: null, endYear: 2015, endMonth: null, current: false },
   ],
   certifications: [],
   publications: [],
@@ -56,7 +56,7 @@ describe("Education", () => {
   it("summarises an entry: degree, school and dates", () => {
     render(<Harness section="education" />);
     const card = screen.getByRole("button", { name: /MSc Design for Interaction/ });
-    expect(card).toHaveTextContent("TU Delft");
+    expect(card).toHaveTextContent("Georgia Tech");
     expect(card).toHaveTextContent("2013 – 2015");
     expect(screen.getByRole("button", { name: "+ Add education" })).toBeInTheDocument();
   });
@@ -66,7 +66,7 @@ describe("Education", () => {
     render(<Harness section="education" />);
     await user.click(screen.getByRole("button", { name: /MSc Design/ }));
     expect(screen.getByLabelText("Degree or course")).toHaveValue("MSc Design for Interaction");
-    expect(screen.getByLabelText("School")).toHaveValue("TU Delft");
+    expect(screen.getByLabelText("School")).toHaveValue("Georgia Tech");
     expect(screen.getByLabelText("Notes")).toHaveAttribute("placeholder", "Thesis, honours, anything worth mentioning");
 
     await user.click(screen.getByLabelText("Still studying"));

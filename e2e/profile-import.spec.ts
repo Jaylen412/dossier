@@ -11,9 +11,9 @@ test.beforeEach(resetData);
 
 const RESUME = docxWith([
   "John Doe",
-  "Design Lead in Utrecht · robin@example.com",
+  "Design Lead in Boston · robin@example.com",
   "Experience",
-  "Design Lead, Acme Payments, Utrecht, March 2021 – present",
+  "Design Lead, Acme Payments, Boston, March 2021 – present",
   "Payouts for online marketplaces, 60 people",
   "Led the redesign of the payout flow",
   "Skills: Figma",
@@ -87,10 +87,10 @@ test("reads a PDF too: Dossier's own base resume", async ({ page }) => {
 test("reads Markdown too", async ({ page }) => {
   const markdown = [
     "# John Doe",
-    "Design Lead in Utrecht · [robin@example.com](mailto:robin@example.com)",
+    "Design Lead in Boston · [robin@example.com](mailto:robin@example.com)",
     "",
     "## Experience",
-    "### Design Lead, **Acme Payments**, Utrecht, March 2021 – present",
+    "### Design Lead, **Acme Payments**, Boston, March 2021 – present",
     "- Led the redesign of the payout flow",
     "",
     "**Skills:** Figma · **Languages:** Dutch (native)",

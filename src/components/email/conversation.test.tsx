@@ -19,7 +19,7 @@ import { Conversation } from "./conversation";
 vi.mock("@/lib/google/actions", () => ({
   applySuggestedStatus: vi.fn(async () => ({ ok: true, data: { eventId: "ev" }, toast: "An interview! You've got this." })),
   confirmInterview: vi.fn(async () => ({ ok: true, data: { eventLink: null, eventId: null }, toast: "Interview added." })),
-  loadFreeSlots: vi.fn(async () => ({ ok: true, data: { slots: [{ start: "2026-10-20T08:00:00.000Z", label: "Tue 20 Oct, 10:00–10:45" }, { start: "2026-10-21T12:00:00.000Z", label: "Wed 21 Oct, 14:00–14:45" }], timeZone: "Europe/Berlin", fromCalendar: true } })),
+  loadFreeSlots: vi.fn(async () => ({ ok: true, data: { slots: [{ start: "2026-10-20T15:00:00.000Z", label: "Tue 20 Oct, 10:00–10:45" }, { start: "2026-10-21T19:00:00.000Z", label: "Wed 21 Oct, 14:00–14:45" }], timeZone: "America/Chicago", fromCalendar: true } })),
   markHandled: vi.fn(async () => ({ ok: true, data: null })),
   rereadEmail: vi.fn(async () => ({ ok: true, data: null })),
   saveReplyDraft: vi.fn(async () => ({ ok: true, data: null })),
@@ -69,7 +69,7 @@ beforeEach(() => {
 describe("Conversation (E15-3, E15-4)", () => {
   it("shows what the AI read and takes up the suggested status", async () => {
     const user = userEvent.setup();
-    render(<Conversation emails={[email()]} aiReady timeZone="Europe/Berlin" />);
+    render(<Conversation emails={[email()]} aiReady timeZone="America/Chicago" />);
     expect(screen.getByText("Invites you to a call and asks your notice period.")).toBeInTheDocument();
     expect(screen.getByText("Interview invite")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Move to Interview" }));
@@ -79,12 +79,12 @@ describe("Conversation (E15-3, E15-4)", () => {
 
   it("drafts an answer with the picked free times, and sends it after review", async () => {
     const user = userEvent.setup();
-    render(<Conversation emails={[email()]} aiReady timeZone="Europe/Berlin" />);
+    render(<Conversation emails={[email()]} aiReady timeZone="America/Chicago" />);
     const times = await screen.findByRole("group", { name: "Times to offer" });
     await user.click(within(times).getByRole("button", { name: "Wed 21 Oct, 14:00–14:45" }));
     await user.type(screen.getByRole("textbox", { name: "Tell the AI" }), "Notice is 3 months");
     await user.click(screen.getByRole("button", { name: "Draft an answer" }));
-    expect(startDraftingReply).toHaveBeenCalledWith({ emailId: "e1", note: "Notice is 3 months", slots: ["2026-10-20T08:00:00.000Z"] });
+    expect(startDraftingReply).toHaveBeenCalledWith({ emailId: "e1", note: "Notice is 3 months", slots: ["2026-10-20T15:00:00.000Z"] });
 
     act(() => jobs.listener?.({ id: "job-1", status: "DONE", result: { body: "Hi Anna,\n\nTuesday works. My notice is […].", gaps: ["Start date?"], unverified: [], slots: [] } }));
     expect(screen.getByRole("textbox", { name: "Your answer" })).toHaveValue("Hi Anna,\n\nTuesday works. My notice is […].");
@@ -102,10 +102,10 @@ describe("Conversation (E15-3, E15-4)", () => {
 
   it("offers to add an agreed interview", async () => {
     const user = userEvent.setup();
-    render(<Conversation emails={[email({ confirmedAt: new Date("2026-10-22T12:00:00Z"), suggestedStatus: null })]} aiReady timeZone="Europe/Berlin" />);
+    render(<Conversation emails={[email({ confirmedAt: new Date("2026-10-22T19:00:00Z"), suggestedStatus: null })]} aiReady timeZone="America/Chicago" />);
     expect(screen.getByRole("heading", { name: "Interview on 22 Oct, 14:00" })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Add interview" }));
-    expect(confirmInterview).toHaveBeenCalledWith({ emailId: "e1", start: "2026-10-22T12:00:00.000Z", moveToInterview: true });
+    expect(confirmInterview).toHaveBeenCalledWith({ emailId: "e1", start: "2026-10-22T19:00:00.000Z", moveToInterview: true });
     expect(loadFreeSlots).not.toHaveBeenCalledTimes(2);
   });
 

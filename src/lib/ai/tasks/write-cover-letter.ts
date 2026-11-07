@@ -34,7 +34,7 @@ const answerSchema = z.object({
 
 const INSTRUCTIONS = `You write a candidate's cover letter for one job, as JSON.
 
-- recipient: the address block, one line per line: who it's for (the company's hiring team, or the contact person the posting names, at the company), then the place if the job has one. Usual for a letter in its language, e.g. "Ledgerly · Hiring team\\nAmsterdam".
+- recipient: the address block, one line per line: who it's for (the company's hiring team, or the contact person the posting names, at the company), then the place if the job has one. Usual for a letter in its language, e.g. "Ledgerly · Hiring team\\nSeattle".
 - greeting: the salutation before the first paragraph, usual for a letter in its language, with its punctuation: the contact person by name when the posting names one, else the hiring team, e.g. "Dear Ledgerly team,".
 - paragraphs: 3–4 paragraphs, about 200–300 words together. Open with why this role and this company, then the problem the job is there to solve and where the candidate has solved it before, and close by inviting a conversation, with where the candidate is based if it matters for the job. No greeting, sign-off or name in them: those are separate.
 - label: a short English name for each paragraph's purpose, e.g. "Why this role", "The challenge", "Where I've solved it", "Closing".

@@ -23,8 +23,8 @@ const job = (id: string, title: string, company: string, extra: Record<string, u
   job_description: `${company} is hiring a ${title}.\n\nWhat you'll do\n- Design checkout flows\n- Work with research\n\nWhat we're looking for\n- 5+ years of product design\n- Strong prototyping skills in Figma`,
   job_is_remote: false,
   job_posted_at_datetime_utc: new Date(Date.now() - 2 * 86_400_000).toISOString(),
-  job_location: "Rotterdam  •  via LinkedIn",
-  job_country: "NL",
+  job_location: "Denver  •  via LinkedIn",
+  job_country: "US",
   ...extra,
 });
 
@@ -42,11 +42,11 @@ function send(response: ServerResponse, status: number, body: unknown) {
 
 // Startups (#222): YC job posts and "Who is hiring?" through Hacker News'
 // APIs, and the startups' own sites, which the app reaches at
-// /startups/<host>/<path>. The profile is in Rotterdam, the Netherlands.
+// /startups/<host>/<path>. The profile is in Denver, Colorado.
 const days = (count: number) => Math.round((Date.now() - count * 86_400_000) / 1000);
 const HN_API: Record<string, unknown> = {
   "/v0/jobstories.json": [101, 102],
-  "/v0/item/101.json": { id: 101, type: "job", title: "Canalworks (YC W25) Is Hiring a Product Designer (Remote, EU)", url: "https://canalworks.example/careers", time: days(2) },
+  "/v0/item/101.json": { id: 101, type: "job", title: "Canalworks (YC W25) Is Hiring a Product Designer (Remote, US)", url: "https://canalworks.example/careers", time: days(2) },
   "/v0/item/102.json": { id: 102, type: "job", title: "Faraway (YC S24) Is Hiring in Austin, TX", url: "https://www.ycombinator.com/companies/faraway/jobs/1", time: days(20) },
 };
 const hiringPost = (id: number, text: string) => ({ id, text, created_at: new Date(Date.now() - 3 * 86_400_000).toISOString() });
@@ -54,10 +54,10 @@ const ALGOLIA: Record<string, unknown> = {
   "/api/v1/search_by_date": { hits: [{ objectID: "500", title: "Ask HN: Who is hiring? (October 2026)" }] },
   "/api/v1/items/500": {
     children: [
-      hiringPost(501, "Harbourlight | Senior Product Designer | Rotterdam, Netherlands | Onsite<p>We design software for ports in Figma. Apply at jobs@harbourlight.example. https://harbourlight.example</p>"),
-      hiringPost(502, "Quietco | Product Designer | REMOTE (Europe)<p>Design tools for quiet teams. https://quietco.example</p>"),
+      hiringPost(501, "Harbourlight | Senior Product Designer | Denver, Colorado | Onsite<p>We design software for ports in Figma. Apply at jobs@harbourlight.example. https://harbourlight.example</p>"),
+      hiringPost(502, "Quietco | Product Designer | REMOTE (US)<p>Design tools for quiet teams. https://quietco.example</p>"),
       hiringPost(503, "Westcoast | Designer | REMOTE (US only)<p>https://westcoast.example</p>"),
-      hiringPost(504, "Tulipworks | UX Designer | Amsterdam, Netherlands<p>https://tulipworks.example</p>"),
+      hiringPost(504, "Tulipworks | UX Designer | Seattle, Washington<p>https://tulipworks.example</p>"),
     ],
   },
 };
@@ -143,7 +143,7 @@ createServer((request, response) => {
         {
           title: "Product Designer",
           company_name: "Ledgerly",
-          location: "Rotterdam, Netherlands",
+          location: "Denver, Colorado",
           via: "via LinkedIn",
           share_link: "https://www.google.com/search?q=product+designer&ibp=htl;jobs#htidocid=e2e-serpapi-ledgerly",
           description: "Ledgerly is hiring a Product Designer for its payments team.",

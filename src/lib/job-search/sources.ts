@@ -66,7 +66,7 @@ export const SOURCE_INFO: Record<JobSource, SourceInfo> = {
   },
 };
 
-/** Whether a source lists jobs in a country ("de"). */
+/** Whether a source lists jobs in a country ("us"). */
 export function sourceCovers(source: JobSource, country: string): boolean {
   const countries = SOURCE_INFO[source].countries;
   return countries === null || countries.includes(country);

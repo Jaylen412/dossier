@@ -4,7 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { fakeStartupRequests, resetData, sql } from "./support";
 
 // Startups (#222) against the fake Hacker News and startup sites
-// (e2e/fake-jobs.mts), for the demo profile in Rotterdam: what a refresh
+// (e2e/fake-jobs.mts), for the demo profile in Denver: what a refresh
 // keeps and leaves out, the addresses it reads (people's only when asked),
 // robots.txt and "no unsolicited applications", the filters, Dismiss with
 // Undo, and Remove for good, which a refresh doesn't undo.
@@ -22,14 +22,14 @@ test("finds hiring startups with the addresses they publish, and leaves alone wh
   await expect(page.getByText("Found 5 new startups.")).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText(/Last refreshed .*: Y Combinator 2 · Hacker News 3\./)).toBeVisible();
 
-  // Remote work only for the US doesn't suit someone in Rotterdam.
+  // Remote work only for the US doesn't suit someone in Denver.
   const cards = page.getByRole("article");
   await expect(cards).toHaveCount(5);
   await expect(page.getByRole("article", { name: "Westcoast" })).toHaveCount(0);
 
   // Role addresses from the startup's own pages; a person's only when asked.
   const canal = page.getByRole("article", { name: "Canalworks" });
-  await expect(canal).toContainText("Remote, open to Netherlands");
+  await expect(canal).toContainText("Remote, open to United States");
   const addresses = canal.getByRole("list", { name: "Addresses they publish" });
   await expect(addresses).toContainText("jobs@canalworks.example");
   await expect(addresses).toContainText("hello@canalworks.example");
@@ -52,7 +52,7 @@ test("finds hiring startups with the addresses they publish, and leaves alone wh
 
   await expectAccessible(page);
 
-  // Filters: remote work open to the Netherlands, then Rotterdam itself.
+  // Filters: remote work open to the United States, then Denver itself.
   await page.getByLabel("Where").selectOption("remote");
   await expect(cards).toHaveCount(2);
   await page.getByLabel("Where").selectOption("city");

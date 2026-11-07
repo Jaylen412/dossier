@@ -98,7 +98,7 @@ function linkOf(job: Job): string {
 
 /**
  * Where the job is. JSearch writes the location in the country's language
- * with the publisher after a bullet ("Hamburg  •  über Stepstone"), and often
+ * with the publisher after a bullet ("Chicago  •  über Stepstone"), and often
  * leaves the city fields empty.
  */
 function placeOf(job: Job): string {
@@ -136,7 +136,7 @@ function keysOf(answer: unknown): string {
   return keys.length > 0 ? ` (keys: ${keys.join(", ")})` : "";
 }
 
-/** "designer in Hamburg": JSearch reads the place from the query text, as Google does. */
+/** "designer in Chicago": JSearch reads the place from the query text, as Google does. */
 function queryText({ keywords, place }: SearchQuery): string {
   return place ? `${keywords} in ${place}` : keywords;
 }

@@ -19,7 +19,7 @@ const found: FoundPosting = {
   externalId: "job-1",
   title: "UX Researcher",
   company: "Northwind Studio",
-  place: "Berlin",
+  place: "Austin",
   remote: true,
   salary: "",
   postedAt: "2026-09-28T00:00:00.000Z",

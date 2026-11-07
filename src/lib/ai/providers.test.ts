@@ -357,11 +357,11 @@ describe("AnthropicProvider", () => {
       const requests = stubFetch(({ body }) =>
         JSON.stringify(format(body) ?? {}).includes('"years"')
           ? badRequest("The compiled grammar is too large, which would cause performance issues.")
-          : anthropicMessage(format(body) ? '{"city":"Utrecht"}' : '{"name":"Jane","years":9}'),
+          : anthropicMessage(format(body) ? '{"city":"Boston"}' : '{"name":"Jane","years":9}'),
       );
       const provider = new AnthropicProvider(baseUrl, "sk-ant", "claude-sonnet-5", 60_000);
       expect(await provider.complete({ ...ask, schema: Person, schemaName: "person" })).toEqual({ name: "Jane", years: 9 });
-      expect(await provider.complete({ ...ask, schema: City, schemaName: "city" })).toEqual({ city: "Utrecht" });
+      expect(await provider.complete({ ...ask, schema: City, schemaName: "city" })).toEqual({ city: "Boston" });
       expect(requests).toHaveLength(3);
       expect(requests[2].body).toMatchObject({ system: "Be brief.", output_config: { format: { type: "json_schema" } } });
     });

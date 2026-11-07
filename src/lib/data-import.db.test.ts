@@ -216,7 +216,7 @@ describe("importExport (E10-6)", () => {
     const application = await prisma().application.create({ data: { title: "Android · Acme" } });
     const emails = [{ email: "jobs@acme.example", label: "Hiring", from: "https://acme.example/careers", onRequest: false, foundAt: "2026-10-01T00:00:00.000Z" }];
     await prisma().startup.create({
-      data: { source: "HN", externalId: "1", company: "Acme", roles: ["Engineer"], emails, links: [], reasons: ["In Berlin"], status: "SAVED", notes: "Ask about Compose", applicationId: application.id },
+      data: { source: "HN", externalId: "1", company: "Acme", roles: ["Engineer"], emails, links: [], reasons: ["In Austin"], status: "SAVED", notes: "Ask about Compose", applicationId: application.id },
     });
     await prisma().startup.create({ data: { source: "YC", externalId: "2", company: "Gone", roles: [], emails: [], links: [], reasons: [], status: "DISMISSED" } });
     await prisma().startupBlock.create({ data: { hash: "b".repeat(64) } });
@@ -300,7 +300,7 @@ describe("importExport (E10-6)", () => {
     const file = JSON.parse(JSON.stringify(await buildExport(prisma(), { now })));
     const lines = async () => (await prisma().experience.findMany({ orderBy: { sort: "asc" } })).map((entry) => entry.descriptor);
     const before = await lines();
-    expect(before).toContain("Freight platform for European carriers, 300 people");
+    expect(before).toContain("Freight platform for regional carriers, 300 people");
     await importExport(prisma(), exportSchema.parse(file));
     expect(await lines()).toEqual(before);
 

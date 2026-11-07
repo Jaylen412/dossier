@@ -35,11 +35,11 @@ async function liveKey(): Promise<string> {
 const fitting = {
   title: "Senior Product Designer",
   company: "Ledgerly",
-  place: "Amsterdam",
+  place: "Seattle",
   remote: false,
   salary: "€75,000–€90,000",
   description: [
-    "Ledgerly makes accounting software for small businesses across the Netherlands.",
+    "Ledgerly makes accounting software for small businesses across the United States.",
     "",
     "What you'll do:",
     "- Lead the design of our invoicing product, from research to shipped screens",
@@ -57,7 +57,7 @@ const fitting = {
 const unfitting = {
   title: "Senior Embedded Software Engineer",
   company: "Antrieb Systems",
-  place: "Munich",
+  place: "Phoenix",
   remote: false,
   salary: "",
   description: [
@@ -68,7 +68,7 @@ const unfitting = {
     "- Experience with real-time operating systems such as FreeRTOS or AUTOSAR",
     "- Knowledge of CAN and automotive safety standards (ISO 26262)",
     "- A degree in electrical engineering or computer science",
-    "- Fluent German (C1 or better), as you'll work on site in Munich every day",
+    "- Fluent German (C1 or better), as you'll work on site in Phoenix every day",
   ].join("\n"),
 };
 

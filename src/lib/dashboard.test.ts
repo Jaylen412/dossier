@@ -188,8 +188,8 @@ describe("the follow-up threshold (E9-9)", () => {
 });
 
 describe("interviews in Worth a look (E9-9)", () => {
-  // Monday 28 September, 10:00 in Amsterdam.
-  const monday = new Date("2026-09-28T08:00:00Z");
+  // Monday 28 September, 10:00 in Chicago.
+  const monday = new Date("2026-09-28T15:00:00Z");
   const interview = (id: string, at: string | null) =>
     app(id, { status: "INTERVIEW", furthestStage: "INTERVIEW", nextInterviewAt: at ? new Date(at) : null });
 
@@ -197,15 +197,15 @@ describe("interviews in Worth a look (E9-9)", () => {
     const figures = dashboardFigures(
       [
         interview("undated", null),
-        interview("next-week", "2026-10-05T12:00:00Z"),
-        interview("tomorrow", "2026-09-29T07:30:00Z"),
-        interview("past", "2026-09-25T12:00:00Z"),
-        interview("earlier", "2026-09-28T06:00:00Z"),
-        interview("today", "2026-09-28T13:00:00Z"),
+        interview("next-week", "2026-10-05T19:00:00Z"),
+        interview("tomorrow", "2026-09-29T14:30:00Z"),
+        interview("past", "2026-09-25T17:00:00Z"),
+        interview("earlier", "2026-09-28T11:00:00Z"),
+        interview("today", "2026-09-28T20:00:00Z"),
         app("offer", { status: "OFFER", furthestStage: "OFFER" }),
       ],
       monday,
-      { timeZone: "Europe/Amsterdam" },
+      { timeZone: "America/Chicago" },
     );
     expect(figures.attention.map(({ id, reason, soon }) => [id, reason, Boolean(soon)])).toEqual([
       ["today", "Interview today at 15:00. Worth re-reading your tailored letter first.", true],
@@ -219,11 +219,11 @@ describe("interviews in Worth a look (E9-9)", () => {
   });
 
   it("says today or tomorrow in the user's time zone", () => {
-    // 23:30 in Amsterdam, 17:30 in New York; the interview is at 01:30 or 19:30.
-    const evening = new Date("2026-09-28T21:30:00Z");
-    const applications = [interview("late", "2026-09-28T23:30:00Z")];
-    expect(dashboardFigures(applications, evening, { timeZone: "Europe/Amsterdam" }).attention[0].reason).toMatch(/^Interview tomorrow at 01:30\./);
-    expect(dashboardFigures(applications, evening, { timeZone: "America/New_York" }).attention[0].reason).toMatch(/^Interview today at 19:30\./);
+    // 22:30 in Chicago, 20:30 in Los Angeles; the interview is at 00:30 or 22:30.
+    const evening = new Date("2026-09-29T03:30:00Z");
+    const applications = [interview("late", "2026-09-29T05:30:00Z")];
+    expect(dashboardFigures(applications, evening, { timeZone: "America/Chicago" }).attention[0].reason).toMatch(/^Interview tomorrow at 00:30\./);
+    expect(dashboardFigures(applications, evening, { timeZone: "America/Los_Angeles" }).attention[0].reason).toMatch(/^Interview today at 22:30\./);
   });
 
   it("ignores the date once the application has moved on", () => {

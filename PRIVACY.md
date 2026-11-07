@@ -86,7 +86,7 @@ User-agent: Dossier
 Disallow: /
 ```
 
-**If you use it:** Startups is for applying for jobs. Offering your services as a freelancer by email is advertising in many countries: in Germany and the rest of the EU it needs the company's consent first, even when the company published the address, and in the US, Canada and Australia such an email needs a way to opt out. Dossier doesn't support that use. Whether the GDPR's exemption for personal activities covers your own job search hasn't been settled, so Dossier treats the addresses as personal data: it looks up people's own addresses only when you ask, drops them after 14 days unless you write to that startup, keeps every address out of what the AI receives, and **Remove for good** deletes a startup and keeps only hashes so it doesn't come back. If someone asks you to delete their address, that's the button.
+**If you use it:** Startups is for applying for jobs. Offering your services as a freelancer by email is advertising: in the US, the CAN-SPAM Act says such an email must be honest about who sends it, carry a postal address and give a way to opt out, even when the company published the address, and some states add rules of their own. Dossier doesn't support that use. Whether a personal job search counts as commercial email hasn't been settled, so Dossier treats the addresses as personal data: it looks up people's own addresses only when you ask, drops them after 14 days unless you write to that startup, keeps every address out of what the AI receives, and **Remove for good** deletes a startup and keeps only hashes so it doesn't come back. If someone asks you to delete their address, that's the button.
 
 ### MCP connector
 

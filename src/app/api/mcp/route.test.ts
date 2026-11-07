@@ -114,10 +114,10 @@ describe("the Claude connector at /api/mcp (#221)", () => {
   });
 
   it("searches the profile's city by default, in the country Claude names", async () => {
-    const { isError, text } = await tool("search_jobs", { keywords: "product designer", country: "Netherlands" });
+    const { isError, text } = await tool("search_jobs", { keywords: "product designer", country: "United States" });
     expect(isError).toBe(false);
     const { city } = demoProfile().basics;
-    expect(searches.ran.at(-1)).toMatchObject({ keywords: "product designer", place: city, country: "nl", radiusMiles: 25, remoteOnly: false, postedWithin: "month" });
+    expect(searches.ran.at(-1)).toMatchObject({ keywords: "product designer", place: city, country: "us", radiusMiles: 25, remoteOnly: false, postedWithin: "month" });
     expect(JSON.parse(text)).toMatchObject({ search_id: "s1", searched: `product designer in ${city}`, link: "https://dossier.example/jobs?search=s1" });
   });
 
@@ -134,7 +134,7 @@ describe("the Claude connector at /api/mcp (#221)", () => {
   });
 
   it("saves the fit scores Claude gives postings, so Find jobs shows them", async () => {
-    const posting = { source: "JSEARCH", externalId: "j1", title: "Product Designer", company: "Acme", place: "Berlin", remote: null, salary: "", postedAt: null, url: "", via: "", description: "Figma", complete: true };
+    const posting = { source: "JSEARCH", externalId: "j1", title: "Product Designer", company: "Acme", place: "Austin", remote: null, salary: "", postedAt: null, url: "", via: "", description: "Figma", complete: true };
     db.postingSearch.findUnique.mockResolvedValue({ postings: [posting] });
     const { text } = await tool("save_job_scores", {
       search_id: "s1",

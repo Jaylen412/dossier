@@ -73,9 +73,9 @@ test("edits the letter's greeting and date, which a letter from before showed wi
   const date = page.locator('[data-unit="date"]');
   await date.hover();
   await date.getByRole("button", { name: "Edit" }).click();
-  await page.getByRole("textbox", { name: "Edit Date" }).fill("Rotterdam, 3 oktober 2026");
+  await page.getByRole("textbox", { name: "Edit Date" }).fill("Denver, 3 oktober 2026");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(date).toContainText("Rotterdam, 3 oktober 2026");
+  await expect(date).toContainText("Denver, 3 oktober 2026");
 
   await page.reload();
   await expect(page.locator('[data-unit="greeting"]')).toContainText("Beste Ledgerly-team,");

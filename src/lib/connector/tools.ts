@@ -166,7 +166,7 @@ export function createDossierServer(origin: string): McpServer {
       inputSchema: z.object({
         keywords: z.string().trim().min(1).max(200).describe("Job title, skill or company, e.g. 'product designer'"),
         place: z.string().max(200).optional().describe("City or region. Defaults to the profile's city. Use '' for the whole country."),
-        country: z.string().max(60).optional().describe("Country name or ISO code, e.g. 'Germany' or 'de'. Required: the profile doesn't store one."),
+        country: z.string().max(60).optional().describe("Country name or ISO code, e.g. 'United States' or 'us'. Required: the profile doesn't store one."),
         remote_only: z.boolean().optional().describe("Only remote postings."),
         radius_miles: z.literal(RADII_MILES).optional(),
         posted_within: z.enum(POSTED).optional().describe("any, day, 3days, week or month. Defaults to month."),
@@ -176,7 +176,7 @@ export function createDossierServer(origin: string): McpServer {
     async (input) => {
       const { basics } = await loadProfile();
       const country = countryCodeFor(input.country ?? "") || (input.country?.trim().length === 2 ? input.country.trim().toLowerCase() : "");
-      if (!country) return failure("Say which country to search in, e.g. country: 'Germany'.");
+      if (!country) return failure("Say which country to search in, e.g. country: 'United States'.");
       const remoteOnly = input.remote_only ?? false;
       const query: SearchQuery = {
         keywords: input.keywords,

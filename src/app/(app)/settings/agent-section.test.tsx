@@ -12,7 +12,7 @@ vi.mock("@/components/toast", () => ({ toast: vi.fn(), toastResult: (result: { o
 
 const initial: AgentSettings = {
   enabled: false,
-  query: { keywords: "Data scientist", place: "Berlin", country: "de", radiusMiles: 25, remoteOnly: false, postedWithin: "any" },
+  query: { keywords: "Data scientist", place: "Austin", country: "us", radiusMiles: 25, remoteOnly: false, postedWithin: "any" },
   hour: 7,
   minScore: 70,
   maxScores: 15,
@@ -20,11 +20,11 @@ const initial: AgentSettings = {
   autoDraft: false,
 };
 const countries = [
-  { code: "de", name: "Germany" },
-  { code: "nl", name: "Netherlands" },
+  { code: "us", name: "United States" },
+  { code: "pr", name: "Puerto Rico" },
 ];
 const open = (props: Partial<Parameters<typeof AgentSection>[0]> = {}) =>
-  render(<AgentSection initial={initial} source="JSEARCH" scoring={{ scorer: "AI", ready: true }} countries={countries} timeZone="Europe/Berlin" {...props} />);
+  render(<AgentSection initial={initial} source="JSEARCH" scoring={{ scorer: "AI", ready: true }} countries={countries} timeZone="America/Chicago" {...props} />);
 
 beforeEach(() => vi.clearAllMocks());
 
@@ -37,7 +37,7 @@ describe("Settings → Job agent (E16-7)", () => {
     expect(toggle).toHaveAccessibleDescription("Off. Nothing is searched or scored until it's on.");
     await user.click(toggle);
     expect(saveAgentSettings).toHaveBeenCalledWith({ enabled: true, query: initial.query });
-    expect(toggle).toHaveAccessibleDescription(/^On\. It runs once a day after 07:00 your time \(Europe\/Berlin\)/);
+    expect(toggle).toHaveAccessibleDescription(/^On\. It runs once a day after 07:00 your time \(America\/Chicago\)/);
   });
 
   it("says on this computer that it only runs while Dossier is open (#325)", () => {

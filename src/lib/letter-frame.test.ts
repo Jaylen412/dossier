@@ -6,14 +6,14 @@ import { documentLabels } from "@/lib/document-labels";
 import { defaultFrame, isFrameUnit, isParagraph, letterDate, newFrame, withFrame, withoutPrivateParts } from "./letter-frame";
 
 const { basics } = demoProfile();
-const context = { basics, company: "Ledgerly", location: "Amsterdam", date: new Date(Date.UTC(2026, 9, 3)), dateFormat: "DAY_MONTH_YEAR" as const };
+const context = { basics, company: "Ledgerly", location: "Seattle", date: new Date(Date.UTC(2026, 9, 3)), dateFormat: "DAY_MONTH_YEAR" as const };
 
 describe("the letter's frame (E8-11)", () => {
   it("draws the frame as letters always had it, in English", () => {
     expect(defaultFrame(context)).toEqual({
       sender: expect.stringMatching(/^Jane Doe\n.*jane\.doe@example\.com.* · /),
       date: "3 October 2026",
-      recipient: "Ledgerly · Hiring team\nAmsterdam",
+      recipient: "Ledgerly · Hiring team\nSeattle",
       greeting: "Dear Ledgerly team,",
       signature: "Jane Doe",
     });
@@ -28,9 +28,9 @@ describe("the letter's frame (E8-11)", () => {
 
   it("draws the parts the AI didn't write in the letter's language", () => {
     const frame = defaultFrame({ ...context, labels: documentLabels("German") });
-    expect(frame).toMatchObject({ recipient: "Ledgerly · Personalabteilung\nAmsterdam", greeting: "Sehr geehrte Damen und Herren," });
+    expect(frame).toMatchObject({ recipient: "Ledgerly · Personalabteilung\nSeattle", greeting: "Sehr geehrte Damen und Herren," });
     expect(defaultFrame({ ...context, company: "", labels: documentLabels("Spanish") })).toMatchObject({
-      recipient: "Equipo de selección\nAmsterdam",
+      recipient: "Equipo de selección\nSeattle",
       greeting: "Estimado equipo de selección:",
     });
   });

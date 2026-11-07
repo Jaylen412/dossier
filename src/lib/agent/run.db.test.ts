@@ -82,7 +82,7 @@ vi.mock("@/lib/ai", async (importOriginal) => ({
 }));
 
 const prisma = () => db.client!;
-const query: SearchQuery = { keywords: "Product designer", place: "Rotterdam", country: "nl", radiusMiles: 25, remoteOnly: false, postedWithin: "any" };
+const query: SearchQuery = { keywords: "Product designer", place: "Denver", country: "us", radiusMiles: 25, remoteOnly: false, postedWithin: "any" };
 const now = new Date("2026-10-20T08:00:00Z");
 const hour = 60 * 60 * 1000;
 
@@ -91,7 +91,7 @@ const posting = (id: string, title: string, posted: string, extra: Partial<Found
   externalId: id,
   title,
   company: `Company ${id}`,
-  place: "Rotterdam",
+  place: "Denver",
   remote: false,
   salary: "",
   postedAt: posted,

@@ -23,9 +23,9 @@ import {
 
 describe("search in the URL", () => {
   it("round-trips a search", () => {
-    const query = { keywords: "product designer", place: "Hamburg", country: "de", radiusMiles: 50 as const, remoteOnly: true, postedWithin: "week" as const };
+    const query = { keywords: "product designer", place: "Chicago", country: "us", radiusMiles: 50 as const, remoteOnly: true, postedWithin: "week" as const };
     const href = searchHref(query);
-    expect(href).toBe("/jobs?q=product+designer&where=Hamburg&country=de&radius=50&remote=1&posted=week");
+    expect(href).toBe("/jobs?q=product+designer&where=Chicago&country=us&radius=50&remote=1&posted=week");
     expect(queryFromParams(Object.fromEntries(new URL(href, "http://x").searchParams))).toEqual(query);
   });
 
@@ -49,18 +49,18 @@ describe("search in the URL", () => {
 
   it("has no search without keywords", () => {
     expect(queryFromParams({})).toBeNull();
-    expect(queryFromParams({ q: "  ", where: "Berlin" })).toBeNull();
+    expect(queryFromParams({ q: "  ", where: "Austin" })).toBeNull();
   });
 
   it("falls back to defaults for values it doesn't know", () => {
-    expect(queryFromParams({ q: ["designer", "other"], radius: "33", posted: "year", country: "Germany", remote: "yes" })).toEqual({
+    expect(queryFromParams({ q: ["designer", "other"], radius: "33", posted: "year", country: "United States", remote: "yes" })).toEqual({
       ...EMPTY_QUERY,
       keywords: "designer",
     });
   });
 
   it("validates a search from the screen", () => {
-    expect(searchQuerySchema.parse({ ...EMPTY_QUERY, keywords: " designer ", country: "DE" })).toMatchObject({ keywords: "designer", country: "de" });
+    expect(searchQuerySchema.parse({ ...EMPTY_QUERY, keywords: " designer ", country: "US" })).toMatchObject({ keywords: "designer", country: "us" });
     expect(searchQuerySchema.safeParse({ ...EMPTY_QUERY, radiusMiles: 30 }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ ...EMPTY_QUERY, country: "deu" }).success).toBe(false);
   });
@@ -68,10 +68,10 @@ describe("search in the URL", () => {
 
 describe("a search in a line", () => {
   it("names the radius only for a source that has one", () => {
-    const query = { ...EMPTY_QUERY, keywords: "product designer", place: "Hamburg", country: "de", remoteOnly: true, postedWithin: "week" as const };
-    expect(describeSearch(query, "Germany")).toBe("product designer · Hamburg, 25 mi · Remote only · Past week");
-    expect(describeSearch(query, "Germany", "JSEARCH")).toBe("product designer · Hamburg, 25 mi · Remote only · Past week");
-    expect(describeSearch(query, "Germany", "SERPAPI")).toBe("product designer · Hamburg · Remote only · Past week");
+    const query = { ...EMPTY_QUERY, keywords: "product designer", place: "Chicago", country: "us", remoteOnly: true, postedWithin: "week" as const };
+    expect(describeSearch(query, "Germany")).toBe("product designer · Chicago, 25 mi · Remote only · Past week");
+    expect(describeSearch(query, "Germany", "JSEARCH")).toBe("product designer · Chicago, 25 mi · Remote only · Past week");
+    expect(describeSearch(query, "Germany", "SERPAPI")).toBe("product designer · Chicago · Remote only · Past week");
     expect(describeSearch({ ...query, place: "" }, "Germany", "SERPAPI")).toBe("product designer · Germany · Remote only · Past week");
   });
 });
@@ -82,7 +82,7 @@ describe("postings", () => {
     externalId: "abc",
     title: "UX Researcher",
     company: "Northwind Studio",
-    place: "Berlin",
+    place: "Austin",
     remote: true,
     salary: "EUR 60,000 a year",
     postedAt: null,
@@ -93,7 +93,7 @@ describe("postings", () => {
   };
 
   it("lays a posting out as New application gets it", () => {
-    expect(postingText(posting)).toBe("Northwind Studio: UX Researcher\n\nBerlin · Remote · EUR 60,000 a year\n\nWe're looking for a researcher.");
+    expect(postingText(posting)).toBe("Northwind Studio: UX Researcher\n\nAustin · Remote · EUR 60,000 a year\n\nWe're looking for a researcher.");
     expect(postingText({ ...posting, company: "", place: "", remote: false, salary: "" })).toBe("UX Researcher\n\nWe're looking for a researcher.");
   });
 
@@ -125,11 +125,11 @@ describe("postings", () => {
   });
 
   it("starts the first search from the profile", () => {
-    expect(defaultSearch({ role: " Product Designer ", city: "Hamburg", country: "Deutschland" })).toEqual({
+    expect(defaultSearch({ role: " Product Designer ", city: "Chicago", country: "United States" })).toEqual({
       ...EMPTY_QUERY,
       keywords: "Product Designer",
-      place: "Hamburg",
-      country: "de",
+      place: "Chicago",
+      country: "us",
     });
     expect(defaultSearch({ role: "", city: "", country: "" })).toEqual(EMPTY_QUERY);
   });

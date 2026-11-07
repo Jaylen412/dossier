@@ -22,7 +22,7 @@ const extracted = {
   title: "Product Designer · Acme",
   company: "Acme",
   role: "Product Designer",
-  location: "Berlin",
+  location: "Austin",
   mode: "Hybrid",
   salary: null,
   deadline: "2026-11-15",
@@ -64,11 +64,11 @@ describe("a draft asked for from Claude chat (#221)", () => {
     const posting = await prisma().posting.create({ data: { source: "JSEARCH", externalId: "p1", title: "Product Designer", company: "Acme" } });
     const job = await prisma().job.create({ data: { type: "connector-draft", status: "RUNNING", input: {} } });
     const context = { id: job.id, step: async () => {}, signal: new AbortController().signal };
-    const input = { posting: "Product Designer at Acme, Berlin.", postingUrl: "https://jobs.example/p1", note: "Stress Figma", postingId: posting.id };
+    const input = { posting: "Product Designer at Acme, Austin.", postingUrl: "https://jobs.example/p1", note: "Stress Figma", postingId: posting.id };
 
     const { applicationId } = await connectorDraftJob.run(input, context);
     const application = await prisma().application.findUniqueOrThrow({ where: { id: applicationId }, include: { documents: true, facts: true } });
-    expect(application).toMatchObject({ title: "Product Designer · Acme", company: "Acme", location: "Berlin", status: "DRAFT", postingUrl: "https://jobs.example/p1" });
+    expect(application).toMatchObject({ title: "Product Designer · Acme", company: "Acme", location: "Austin", status: "DRAFT", postingUrl: "https://jobs.example/p1" });
     expect(application.deadline?.toISOString().slice(0, 10)).toBe("2026-11-15");
     expect(application.facts.map((fact) => fact.text)).toEqual(["Stress Figma"]);
     expect(application.documents.map((document) => document.kind).sort()).toEqual(["COVER_LETTER", "RESUME"]);

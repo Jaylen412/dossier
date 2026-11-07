@@ -76,7 +76,7 @@ describe("sortRows (E9-3)", () => {
   });
 
   it("sorts roles and locations alphabetically, ignoring case", () => {
-    const rows = [row("b", { role: "product designer", location: "Utrecht" }), row("a", { role: "Lead", location: "amsterdam" })];
+    const rows = [row("b", { role: "product designer", location: "Boston" }), row("a", { role: "Lead", location: "austin" })];
     expect(ids(sortRows(rows, { key: "role", reversed: false }))).toEqual(["a", "b"]);
     expect(ids(sortRows(rows, { key: "location", reversed: false }))).toEqual(["a", "b"]);
   });

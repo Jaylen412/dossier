@@ -58,7 +58,7 @@ describe("reading startups' text (#222)", () => {
     expect(firstLink("no link")).toBe("");
     expect(firstLine("\n\nFirst line\nsecond")).toBe("First line");
     expect(firstLine("x".repeat(30), 10)).toBe("xxxxxxxxx…");
-    expect(headerParts("Acme | Senior Engineer — Berlin or REMOTE (EU) - Full-time\nMore")).toEqual(["Acme", "Senior Engineer", "Berlin or REMOTE (EU)", "Full-time"]);
+    expect(headerParts("Acme | Senior Engineer — Austin or REMOTE (US) - Full-time\nMore")).toEqual(["Acme", "Senior Engineer", "Austin or REMOTE (US)", "Full-time"]);
   });
 
   it("takes every address out of what the AI gets, written or hidden", () => {

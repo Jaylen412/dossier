@@ -37,7 +37,7 @@ export type DraftReplyInput = {
   timeZone: string;
   /** The application's earlier mail, oldest first, for context. */
   thread: string[];
-  /** Free times to offer, already written out, e.g. "Tue 21 Oct, 10:00–10:45 (Europe/Berlin)". */
+  /** Free times to offer, already written out, e.g. "Tue 21 Oct, 10:00–10:45 (America/Chicago)". */
   slots: string[];
   /** What the candidate adds, e.g. "Notice period: 3 months" or "make it shorter". */
   note: string;

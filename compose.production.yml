@@ -39,7 +39,7 @@ services:
       DOSSIER_PASSWORD: ${DOSSIER_PASSWORD:?Set DOSSIER_PASSWORD in .env to a hash from hash-password}
       DOSSIER_SECRET: ${DOSSIER_SECRET:?Set DOSSIER_SECRET in .env}
       DOSSIER_BACKUP_RETENTION_DAYS: ${DOSSIER_BACKUP_RETENTION_DAYS:-}
-      # Your time zone, e.g. Europe/Berlin: nightly backups run at 03:00 in it.
+      # Your time zone, e.g. US/NY: nightly backups run at 03:00 in it.
       TZ: ${TZ:-UTC}
       DOSSIER_AI_PROVIDER: ${DOSSIER_AI_PROVIDER:-}
       DOSSIER_AI_URL: ${DOSSIER_AI_URL:-}

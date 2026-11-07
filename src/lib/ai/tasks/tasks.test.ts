@@ -40,7 +40,7 @@ const extracted: Extracted = {
   title: "Senior Product Designer · Ledgerly",
   company: "Ledgerly",
   role: "Senior Product Designer",
-  location: "Amsterdam",
+  location: "Seattle",
   mode: "Hybrid · 3 days in office",
   salary: "€75,000–€90,000",
   deadline: "2026-10-15",
@@ -204,7 +204,7 @@ describe("tailorResume", () => {
     const provider = model(answer);
     await tailorResume(provider, { profile, extracted, match: null, facts: ["Mention my interest in fintech."], posting }, options);
     const text = prompt(provider);
-    for (const secret of ["jane.doe@example.com", "+31 6 1234 5678", "Westersingel", "1992-04-18", "linkedin.com", "John Doe", "github.com/janedoe"]) {
+    for (const secret of ["jane.doe@example.com", "+1 303 555 0142", "Larimer Street", "1992-04-18", "linkedin.com", "John Doe", "github.com/janedoe"]) {
       expect(text).not.toContain(secret);
     }
     expect(text).toContain('"skillsUsed"');
@@ -326,7 +326,7 @@ describe("tailorResume", () => {
     const provider = model(answer);
     const { data } = await tailorResume(provider, { profile: { ...profile, experience: [...profile.experience, mentor] }, extracted, match: null, facts: [], posting }, options);
     expect(data.find((unit) => unit.id === "experience:v1")).toMatchObject({ label: "Code Club volunteering", text: mentor.bullets });
-    expect(prompt(provider)).toContain(`"company": "Code Club",\n      "location": "Rotterdam",\n      "volunteering": true,`);
+    expect(prompt(provider)).toContain(`"company": "Code Club",\n      "location": "Denver",\n      "volunteering": true,`);
     expect(prompt(provider).match(/"volunteering": true/g)).toHaveLength(1);
   });
 
@@ -372,7 +372,7 @@ describe("writeCoverLetter", () => {
     items: [{ requirement: "Experience with payments or fintech", result: "gap", skill: null, experienceIds: [], note: null }],
   };
   const answer = {
-    recipient: " Ledgerly · Hiring team \n\n Amsterdam ",
+    recipient: " Ledgerly · Hiring team \n\n Seattle ",
     greeting: " Dear Ledgerly team, ",
     paragraphs: [
       { label: "Opening", text: "I was excited to see the role." },
@@ -387,7 +387,7 @@ describe("writeCoverLetter", () => {
     const { data, promptVersion } = await writeCoverLetter(provider, { profile, extracted, match, tone: "FORMAL", facts: [], posting }, options);
     expect(promptVersion).toBe("write-cover-letter@5");
     expect(data).toEqual([
-      { id: "recipient", label: "Recipient", text: "Ledgerly · Hiring team\nAmsterdam" },
+      { id: "recipient", label: "Recipient", text: "Ledgerly · Hiring team\nSeattle" },
       { id: "greeting", label: "Greeting", text: "Dear Ledgerly team," },
       { id: "paragraph:1", label: "Opening", text: "I was excited to see the role." },
       { id: "paragraph:2", label: "Paragraph 2", text: "At Northwind I lead the carrier portal." },

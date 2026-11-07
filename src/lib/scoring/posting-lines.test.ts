@@ -29,17 +29,17 @@ describe("postingLines (#274)", () => {
 
   it("splits a long paragraph into its sentences, and reads wrapped paragraphs as one", () => {
     const paragraph = [
-      "We build software for logistics companies across Europe and have grown to forty people in",
+      "We build software for logistics companies across Texas and have grown to forty people in",
       "three offices. You have five or more years of experience with TypeScript and React, and you",
       "have run PostgreSQL in production. A degree in computer science or similar experience is a",
       "plus. We offer a yearly learning budget, flexible hours, a company bike and thirty days of",
-      "paid holiday, and we meet in Berlin once a quarter.",
+      "paid holiday, and we meet in Austin once a quarter.",
     ].join("\n");
     expect(postingLines(paragraph)).toEqual([
-      "We build software for logistics companies across Europe and have grown to forty people in three offices.",
+      "We build software for logistics companies across Texas and have grown to forty people in three offices.",
       "You have five or more years of experience with TypeScript and React, and you have run PostgreSQL in production.",
       "A degree in computer science or similar experience is a plus.",
-      "We offer a yearly learning budget, flexible hours, a company bike and thirty days of paid holiday, and we meet in Berlin once a quarter.",
+      "We offer a yearly learning budget, flexible hours, a company bike and thirty days of paid holiday, and we meet in Austin once a quarter.",
     ]);
   });
 

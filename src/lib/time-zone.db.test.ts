@@ -32,8 +32,8 @@ afterAll(async () => prisma().$disconnect());
 
 describe("the user's time zone", () => {
   it("reads the browser's zone from its cookie, and ignores one that isn't a zone", async () => {
-    request.cookie = encodeURIComponent("Europe/Berlin");
-    expect(await userTimeZone()).toBe("Europe/Berlin");
+    request.cookie = encodeURIComponent("America/Chicago");
+    expect(await userTimeZone()).toBe("America/Chicago");
     request.cookie = "Mars/Olympus";
     expect(await userTimeZone()).toBeUndefined();
   });
@@ -41,10 +41,10 @@ describe("the user's time zone", () => {
   it("remembers it for work without a request, and only writes a change", async () => {
     await rememberBrowserTimeZone(undefined);
     expect(await saved()).toBeUndefined();
-    await rememberBrowserTimeZone("Europe/Berlin");
-    expect(await saved()).toBe("Europe/Berlin");
+    await rememberBrowserTimeZone("America/Chicago");
+    expect(await saved()).toBe("America/Chicago");
     const { updatedAt } = await prisma().setting.findUniqueOrThrow({ where: { key: "browserTimeZone" } });
-    await rememberBrowserTimeZone("Europe/Berlin");
+    await rememberBrowserTimeZone("America/Chicago");
     expect((await prisma().setting.findUniqueOrThrow({ where: { key: "browserTimeZone" } })).updatedAt).toEqual(updatedAt);
   });
 
@@ -53,8 +53,8 @@ describe("the user's time zone", () => {
     expect(await lastKnownTimeZone()).toBe("America/New_York");
     request.inRequest = false;
     expect(await lastKnownTimeZone()).toBe(Intl.DateTimeFormat().resolvedOptions().timeZone);
-    await rememberBrowserTimeZone("Europe/Berlin");
-    expect(await lastKnownTimeZone()).toBe("Europe/Berlin");
+    await rememberBrowserTimeZone("America/Chicago");
+    expect(await lastKnownTimeZone()).toBe("America/Chicago");
   });
 
   it("takes UTC for a server without a zone Intl knows, as with an empty TZ (#258)", async () => {

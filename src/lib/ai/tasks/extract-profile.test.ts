@@ -7,7 +7,7 @@ import { MockProvider } from "../providers/mock";
 import { extractProfile } from "./extract-profile";
 
 const RESUME = `John Doe
-Senior Product Designer · Utrecht, Netherlands · robin@example.com · +31 6 1234 5678
+Senior Product Designer · Boston, Massachusetts · robin@example.com · +1 303 555 0142
 Born 12 March 1990
 
 Experience
@@ -17,14 +17,14 @@ Design Lead, Acme Payments | Mar 2021 to present
 Product Designer, Fieldnote | 2017 – 2021
 
 Volunteering
-Mentor, Code Club Utrecht | 2019 – present
+Mentor, Code Club Boston | 2019 – present
 
 Projects
 Payout simulator, github.com/johndoe/payout-sim | 2023
 - Built a simulator for payout edge cases
 
 Education
-MSc Interaction Design, TU Delft, 2015 – 2017
+MSc Interaction Design, Georgia Tech, 2015 – 2017
 
 Certifications
 Certified Usability Analyst, Human Factors Board, June 2022, valid until June 2028, ID IDI-20481
@@ -42,10 +42,10 @@ const answer = {
     name: "John Doe",
     headline: "Senior Product Designer",
     email: "robin@example.com",
-    phone: "+31 6 1234 5678",
+    phone: "+1 303 555 0142",
     website: null,
-    city: "Utrecht",
-    state: "Utrecht",
+    city: "Boston",
+    state: "Massachusetts",
     linkedin: "",
     summary: null,
   },
@@ -71,7 +71,7 @@ const answer = {
       skills: ["Figma", "Accessibility"],
     },
     { role: "Product Designer", company: "Fieldnote", location: null, descriptor: null, volunteering: false, startYear: 2017, startMonth: 0, endYear: 2021, endMonth: null, current: false, bullets: [], skills: [] },
-    { role: "Mentor", company: "Code Club Utrecht", location: null, descriptor: null, volunteering: true, startYear: 2019, startMonth: null, endYear: null, endMonth: null, current: true, bullets: [], skills: [] },
+    { role: "Mentor", company: "Code Club Boston", location: null, descriptor: null, volunteering: true, startYear: 2019, startMonth: null, endYear: null, endMonth: null, current: true, bullets: [], skills: [] },
     { role: "", company: "", location: null, descriptor: null, volunteering: false, startYear: null, startMonth: null, endYear: null, endMonth: null, current: false, bullets: [], skills: [] },
   ],
   projects: [
@@ -88,7 +88,7 @@ const answer = {
     },
     { name: " ", link: null, startYear: null, startMonth: null, endYear: null, endMonth: null, current: false, bullets: [], skills: [] },
   ],
-  education: [{ degree: "MSc Interaction Design", school: "TU Delft", startYear: 2015, startMonth: null, endYear: 2017, endMonth: null, current: false, notes: null }],
+  education: [{ degree: "MSc Interaction Design", school: "Georgia Tech", startYear: 2015, startMonth: null, endYear: 2017, endMonth: null, current: false, notes: null }],
   certifications: [
     { name: "Certified Usability Analyst", issuer: "Human Factors Board", year: 2022, month: 6, expiryYear: 2028, expiryMonth: 6, credentialId: "IDI-20481", link: null },
     { name: "An invented certificate", issuer: null, year: 1900, month: 13, expiryYear: 2400, expiryMonth: 2, credentialId: null, link: "verify.example.org/x" },
@@ -123,9 +123,9 @@ describe("extractProfile (E4-10)", () => {
       name: "John Doe",
       headline: "Senior Product Designer",
       email: "robin@example.com",
-      phone: "+31 6 1234 5678",
-      city: "Utrecht",
-      state: "Utrecht",
+      phone: "+1 303 555 0142",
+      city: "Boston",
+      state: "Massachusetts",
     });
     // "Accessibility" comes from a role, and isn't in the resume.
     expect(data.skills).toEqual([
@@ -173,7 +173,7 @@ describe("extractProfile (E4-10)", () => {
       // Volunteering is marked (#294).
       {
         role: "Mentor",
-        company: "Code Club Utrecht",
+        company: "Code Club Boston",
         location: "",
         descriptor: "",
         volunteering: true,
@@ -202,7 +202,7 @@ describe("extractProfile (E4-10)", () => {
         unverified: [],
       },
     ]);
-    expect(data.education[0]).toMatchObject({ degree: "MSc Interaction Design", school: "TU Delft", unverified: [] });
+    expect(data.education[0]).toMatchObject({ degree: "MSc Interaction Design", school: "Georgia Tech", unverified: [] });
     // Certifications (#293): one not in the resume is marked, impossible dates are dropped, and one without a name is.
     expect(data.certifications).toEqual([
       {

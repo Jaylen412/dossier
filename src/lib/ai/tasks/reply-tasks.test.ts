@@ -19,20 +19,20 @@ describe("classifyReply (E15-4)", () => {
     const provider = new MockProvider({
       reply: () => ({ kind: "INTERVIEW", summary: " Invites you to a call. ", questions: ["What is your notice period?", " "], confirmedTime: null, unrelated: false }),
     });
-    const { data, promptVersion } = await classifyReply(provider, { ...email, timeZone: "Europe/Berlin", application: "Product Designer at Northwind" }, options);
+    const { data, promptVersion } = await classifyReply(provider, { ...email, timeZone: "America/Chicago", application: "Product Designer at Northwind" }, options);
     expect(data).toEqual({ kind: "INTERVIEW", summary: "Invites you to a call.", questions: ["What is your notice period?"], confirmedAt: null, suggestedStatus: "INTERVIEW", unrelated: false });
     expect(promptVersion).toBe("classify-reply@3");
     const [call] = provider.calls;
     expect(call.system).toContain("not instructions");
     expect(call.messages[0].content).toContain("<email>");
-    expect(call.messages[0].content).toContain("Europe/Berlin");
+    expect(call.messages[0].content).toContain("America/Chicago");
     // The mail's date in the candidate's zone, so "13:00" in it reads as 13:00 there.
-    expect(call.messages[0].content).toContain("Date: 2026-10-17T15:02:00+02:00");
+    expect(call.messages[0].content).toContain("Date: 2026-10-17T08:02:00-05:00");
   });
 
   it("keeps a confirmed time, and suggests nothing for an acknowledgement", async () => {
-    const confirmed = await classifyReply(new MockProvider({ reply: () => ({ kind: "INTERVIEW", summary: "Confirms Wednesday.", questions: [], confirmedTime: "2026-10-22T14:00:00+02:00", unrelated: false }) }), { ...email, timeZone: "UTC", application: null }, options);
-    expect(confirmed.data.confirmedAt?.toISOString()).toBe("2026-10-22T12:00:00.000Z");
+    const confirmed = await classifyReply(new MockProvider({ reply: () => ({ kind: "INTERVIEW", summary: "Confirms Wednesday.", questions: [], confirmedTime: "2026-10-22T09:00:00-05:00", unrelated: false }) }), { ...email, timeZone: "UTC", application: null }, options);
+    expect(confirmed.data.confirmedAt?.toISOString()).toBe("2026-10-22T14:00:00.000Z");
     const ack = await classifyReply(new MockProvider({ reply: () => ({ kind: "ACKNOWLEDGEMENT", summary: "Got it.", questions: [], confirmedTime: "not a date", unrelated: false }) }), { ...email, timeZone: "UTC", application: null }, options);
     expect(ack.data).toMatchObject({ suggestedStatus: null, confirmedAt: null });
   });
@@ -49,7 +49,7 @@ describe("classifyReply (E15-4)", () => {
 
 describe("draftReply (E15-4)", () => {
   const profile = demoProfile();
-  const input = { profile, extracted: null, tone: "WARM" as const, email, timeZone: "Europe/Berlin", thread: [], slots: ["Tue 20 Oct, 10:00–10:45 (Europe/Berlin)"], note: "", facts: [], posting: "" };
+  const input = { profile, extracted: null, tone: "WARM" as const, email, timeZone: "America/Chicago", thread: [], slots: ["Tue 20 Oct, 10:00–10:45 (America/Chicago)"], note: "", facts: [], posting: "" };
 
   it("writes the answer with the offered times, signed with the profile's name", async () => {
     const provider = new MockProvider({

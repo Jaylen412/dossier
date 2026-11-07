@@ -53,8 +53,8 @@ describe("demo seed", () => {
     expect(await basics()).toMatchObject({
       name: "Jane Doe",
       headline: "Senior Product Designer",
-      city: "Rotterdam",
-      state: "South Holland",
+      city: "Denver",
+      state: "Colorado",
     });
     const counts = await Promise.all([
       db.experience.count(),
@@ -76,7 +76,7 @@ describe("demo seed", () => {
       "User research",
       "Workshop facilitation",
     ]);
-    expect(await db.education.findFirstOrThrow({ where: { school: "TU Delft" } })).toMatchObject({
+    expect(await db.education.findFirstOrThrow({ where: { school: "Georgia Tech" } })).toMatchObject({
       startYear: 2013,
       startMonth: null,
       endYear: 2015,

@@ -10,7 +10,7 @@ const profile = demoProfile();
 const posting = {
   title: "Senior Product Designer",
   company: "Ledgerly",
-  place: "Amsterdam",
+  place: "Seattle",
   remote: false,
   salary: "€75,000–€90,000",
   description: "Ledgerly makes accounting software.\n\n- 5+ years of product design\n- Experience with a design system\n- Dutch is a plus",
@@ -40,7 +40,7 @@ describe("jevState (#274)", () => {
   it("sends the profile without the name, contact details or references, and the posting", () => {
     const state = jevState(posting, profile);
     const text = JSON.stringify(state);
-    expect(state.posting).toEqual({ title: "Senior Product Designer", company: "Ledgerly", place: "Amsterdam", remote: false, salary: "€75,000–€90,000", text: posting.description });
+    expect(state.posting).toEqual({ title: "Senior Product Designer", company: "Ledgerly", place: "Seattle", remote: false, salary: "€75,000–€90,000", text: posting.description });
     expect(state.candidate).not.toHaveProperty("name");
     expect(state.candidate).toHaveProperty("skills");
     expect(text).toContain("Northwind Logistics");

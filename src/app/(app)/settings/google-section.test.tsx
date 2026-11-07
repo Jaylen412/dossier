@@ -36,7 +36,7 @@ beforeEach(() => vi.mocked(saveGoogleSettings).mockClear());
 
 describe("GoogleSection (E15-1)", () => {
   it("explains the setup while the server has no Google client", () => {
-    render(<GoogleSection client={client} connection={{ status: "not-configured" }} initial={settings} browserTimeZone="Europe/Berlin" redirectUri={redirect} />);
+    render(<GoogleSection client={client} connection={{ status: "not-configured" }} initial={settings} browserTimeZone="America/Chicago" redirectUri={redirect} />);
     expect(screen.getByText(redirect)).toBeInTheDocument();
     expect(screen.getByLabelText("Client ID")).toBeInTheDocument();
     expect(screen.getByLabelText("Client secret")).toHaveAttribute("type", "password");
@@ -54,7 +54,7 @@ describe("GoogleSection (E15-1)", () => {
         client={client}
         connection={{ status: "connected", email: "jane@gmail.com", canSend: true, canRead: true, canUseCalendar: false, lastSync: "today at 10:00", syncProblem: null }}
         initial={settings}
-        browserTimeZone="Europe/Berlin"
+        browserTimeZone="America/Chicago"
         redirectUri={redirect}
       />,
     );

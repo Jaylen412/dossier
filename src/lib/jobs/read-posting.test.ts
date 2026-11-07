@@ -19,7 +19,7 @@ const extracted = {
   title: null,
   company: "Ledgerly",
   role: "Senior Product Designer",
-  location: "Amsterdam",
+  location: "Seattle",
   mode: null,
   salary: null,
   deadline: "2026-10-15",

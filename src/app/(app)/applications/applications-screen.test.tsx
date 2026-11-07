@@ -16,7 +16,7 @@ export const row = (id: string, extra: Partial<ApplicationRow> = {}): Applicatio
   id,
   company: "Ledgerly",
   role: "Senior Product Designer",
-  location: "Amsterdam",
+  location: "Seattle",
   mode: "Hybrid",
   status: "SENT",
   archived: false,

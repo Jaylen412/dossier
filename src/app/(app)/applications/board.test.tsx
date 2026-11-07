@@ -28,7 +28,7 @@ const row = (id: string, extra: Partial<ApplicationRow> = {}): ApplicationRow =>
   id,
   company: "Ledgerly",
   role: "Senior Product Designer",
-  location: "Amsterdam",
+  location: "Seattle",
   mode: "Hybrid",
   status: "SENT",
   archived: false,
@@ -83,7 +83,7 @@ describe("the board (E9-2)", () => {
     const cards = within(column("Sent")).getAllByRole("listitem");
     expect(cards.map((card) => within(card).getByRole("link").textContent)).toEqual(["Product Designer, Onboarding", "Product Designer, Mobile"]);
     expect(cards[0]).toHaveTextContent("Meridian BankProduct Designer, OnboardingRemote5/7 match2 days ago");
-    expect(cards[1]).toHaveTextContent("Kestrel MapsProduct Designer, MobileAmsterdam · HybridNot matched8 days ago");
+    expect(cards[1]).toHaveTextContent("Kestrel MapsProduct Designer, MobileSeattle · HybridNot matched8 days ago");
     expect(within(cards[0]).getByRole("link")).toHaveAttribute("href", "/applications/meridian");
   });
 

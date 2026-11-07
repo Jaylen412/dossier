@@ -7,7 +7,7 @@ import { JobSearchError } from "./errors";
 import { EMPTY_QUERY, type PostedWithin, type SearchQuery } from "./search";
 import { postedAgeDays, serpapi } from "./serpapi";
 
-const query: SearchQuery = { ...EMPTY_QUERY, keywords: "product designer", place: "Hamburg", country: "de", postedWithin: "week" };
+const query: SearchQuery = { ...EMPTY_QUERY, keywords: "product designer", place: "Chicago", country: "us", postedWithin: "week" };
 const credentials = { key: "serp_test" };
 
 beforeEach(() => vi.unstubAllGlobals());
@@ -34,8 +34,8 @@ describe("SerpApi search", () => {
     expect(`${url.origin}${url.pathname}`).toBe("https://serpapi.com/search.json");
     expect(Object.fromEntries(url.searchParams)).toEqual({
       engine: "google_jobs",
-      q: "product designer in Hamburg",
-      gl: "de",
+      q: "product designer in Chicago",
+      gl: "us",
       hl: "en",
       api_key: "serp_test",
     });
@@ -71,7 +71,7 @@ describe("SerpApi search", () => {
       externalId: "eyJqb2JfdGl0bGUiOiJsZWRnZXJseSJ9",
       title: "Senior Product Designer, Payments",
       company: "Ledgerly",
-      place: "Hamburg, Germany",
+      place: "Chicago, Illinois",
       remote: true,
       salary: "$90K–$120K a year",
       postedAt: new Date(now.getTime() - 3 * 86_400_000).toISOString(),

@@ -23,7 +23,7 @@ describe("the application header (E8-1)", () => {
     render(
       <ApplicationHeader
         title="Senior Product Designer · Ledgerly"
-        meta={["Amsterdam", "Hybrid", "Apply by 15 Oct 2026", "Created 27 Sep 2026"]}
+        meta={["Seattle", "Hybrid", "Apply by 15 Oct 2026", "Created 27 Sep 2026"]}
         actions={null}
       />,
     );

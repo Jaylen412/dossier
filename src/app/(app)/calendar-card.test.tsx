@@ -23,17 +23,17 @@ vi.mock("next/link", () => ({
 }));
 
 const items: CalendarItem[] = [
-  { id: "nw", title: "Interview · Product Designer · Northwind", kind: "interview", href: "/applications/nw", external: false, allDay: false, start: new Date("2026-10-20T10:00:00Z"), end: new Date("2026-10-20T10:45:00Z") },
-  { id: "dentist", title: "Dentist", kind: "event", href: "https://calendar.google.com/event?eid=dentist", external: true, allDay: false, start: new Date("2026-10-23T13:00:00Z"), end: new Date("2026-10-23T13:30:00Z") },
+  { id: "nw", title: "Interview · Product Designer · Northwind", kind: "interview", href: "/applications/nw", external: false, allDay: false, start: new Date("2026-10-20T17:00:00Z"), end: new Date("2026-10-20T17:45:00Z") },
+  { id: "dentist", title: "Dentist", kind: "event", href: "https://calendar.google.com/event?eid=dentist", external: true, allDay: false, start: new Date("2026-10-23T20:00:00Z"), end: new Date("2026-10-23T20:30:00Z") },
   { id: "trip", title: "Trip", kind: "event", href: null, external: false, allDay: true, startDay: "2026-10-24", endDay: "2026-10-26" },
-  { id: "workshop", title: "Workshop", kind: "event", href: null, external: false, allDay: false, start: new Date("2026-11-03T09:00:00Z"), end: new Date("2026-11-03T10:00:00Z") },
+  { id: "workshop", title: "Workshop", kind: "event", href: null, external: false, allDay: false, start: new Date("2026-11-03T15:00:00Z"), end: new Date("2026-11-03T16:00:00Z") },
 ];
 const props: ComponentProps<typeof CalendarCard> = {
   month: "2026-10-20",
   today: "2026-10-20",
   start: "2026-10-20",
   items,
-  timeZone: "Europe/Berlin",
+  timeZone: "America/Chicago",
   source: { status: "google" },
   links: { previous: "/?date=2026-09-01", next: "/?date=2026-11-01", today: "/" },
 };
@@ -52,7 +52,7 @@ describe("the dashboard's calendar (E15-6)", () => {
     expect(today).toHaveAttribute("aria-pressed", "true");
     expect(within(month).getByRole("button", { name: "Saturday 24 October, 1 event" })).toHaveAttribute("aria-pressed", "false");
     expect(within(month).getByRole("button", { name: "Wednesday 21 October" })).toBeInTheDocument();
-    expect(screen.getByText("In your time zone (Europe/Berlin).")).toBeInTheDocument();
+    expect(screen.getByText("In your time zone (America/Chicago).")).toBeInTheDocument();
   });
 
   it("lists the week from today: interviews open their application, events Google Calendar", () => {

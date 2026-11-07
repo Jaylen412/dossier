@@ -40,19 +40,19 @@ const Posting = z.object({
   role: z.string(),
   city: z.string(),
 });
-const posting = "Ledgerly is hiring a Senior Product Designer for its payments team in Amsterdam.";
+const posting = "Ledgerly is hiring a Senior Product Designer for its payments team in Seattle.";
 const resume = `John Doe
-Senior Product Designer · Utrecht, Netherlands · john.doe@example.com · example.com
+Senior Product Designer · Boston, Massachusetts · john.doe@example.com · example.com
 
 Experience
-Design Lead, Acme Payments, Utrecht | Mar 2021 to present
+Design Lead, Acme Payments, Boston | Mar 2021 to present
 - Led the redesign of the payout flow
 - Set up the design system in Figma
 Product Designer, Fieldnote | 2017 – 2021
 - Designed the mobile app's onboarding
 
 Education
-MSc Interaction Design, TU Delft, 2015 – 2017
+MSc Interaction Design, Georgia Tech, 2015 – 2017
 
 Skills: Figma, Design systems, User research
 Languages: Dutch (native), English (fluent)`;
@@ -80,7 +80,7 @@ function checks(name: string, make: () => AIProvider, model: string) {
         schema: Posting,
         schemaName: "posting",
       });
-      expect(result).toMatchObject({ company: "Ledgerly", city: "Amsterdam" });
+      expect(result).toMatchObject({ company: "Ledgerly", city: "Seattle" });
       expect(result.role).toMatch(/product designer/i);
     });
 
@@ -109,7 +109,7 @@ describe.runIf(anthropic)("live: Anthropic", () => {
   // The profile's schema is more than structured output takes, so it goes in the prompt (#230).
   it("imports a profile from a resume", { timeout: 300_000 }, async () => {
     const { data } = await extractProfile(make(), { resume }, { creativity: "FAITHFUL", strict: true, language: null });
-    expect(data.basics).toMatchObject({ name: "John Doe", email: "john.doe@example.com", city: "Utrecht" });
+    expect(data.basics).toMatchObject({ name: "John Doe", email: "john.doe@example.com", city: "Boston" });
     expect(data.experience.map((entry) => entry.company)).toEqual(["Acme Payments", "Fieldnote"]);
     expect(data.education).toHaveLength(1);
     expect(data.skills.length).toBeGreaterThanOrEqual(3);
@@ -136,7 +136,7 @@ describe.runIf(mistral)("live: Mistral", () => {
       schemaName: "posting",
       effort: "low",
     });
-    expect(result).toMatchObject({ company: "Ledgerly", city: "Amsterdam" });
+    expect(result).toMatchObject({ company: "Ledgerly", city: "Seattle" });
   });
 
   it("refuses a wrong key in plain words", async () => {
@@ -160,7 +160,7 @@ describe.runIf(lmStudio)("live: LM Studio", () => {
       schemaName: "posting",
       effort: "low",
     });
-    expect(result).toMatchObject({ company: "Ledgerly", city: "Amsterdam" });
+    expect(result).toMatchObject({ company: "Ledgerly", city: "Seattle" });
   });
 
   it("refuses a model it doesn't have", async () => {

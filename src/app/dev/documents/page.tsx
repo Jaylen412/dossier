@@ -76,7 +76,7 @@ export default async function DevDocumentsPage({ searchParams }: PageProps<"/dev
                 basics={profile.basics}
                 units={demoLetterUnits()}
                 company="Ledgerly"
-                location="Amsterdam"
+                location="Seattle"
                 tone="WARM"
                 date={new Date(Date.UTC(2026, 8, 27))}
                 dateFormat={settings.dateFormat}
@@ -89,7 +89,7 @@ export default async function DevDocumentsPage({ searchParams }: PageProps<"/dev
                 basics={profile.basics}
                 units={demoLetterUnits()}
                 company="Ledgerly"
-                location="Amsterdam"
+                location="Seattle"
                 tone="WARM"
                 date={new Date(Date.UTC(2026, 8, 27))}
                 dateFormat={settings.dateFormat}

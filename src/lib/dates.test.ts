@@ -26,26 +26,26 @@ describe("dates", () => {
   it("shows a moment's weekday, date and time in the user's time zone (E9-9)", () => {
     const at = new Date("2026-10-08T12:00:00Z");
     const now = new Date("2026-09-29T09:00:00Z");
-    expect(formatDateTime(at, "Europe/Amsterdam", now)).toBe("Thu 8 Oct, 14:00");
+    expect(formatDateTime(at, "America/Chicago", now)).toBe("Thu 8 Oct, 07:00");
     expect(formatDateTime(at, "America/New_York", now)).toBe("Thu 8 Oct, 08:00");
     expect(formatDateTime(at, "UTC", new Date("2025-12-01T09:00:00Z"))).toBe("Thu 8 Oct 2026, 12:00");
     expect(formatTime(new Date("2026-10-08T21:05:00Z"), "UTC")).toBe("21:05");
   });
 
   it("counts calendar days in the user's time zone", () => {
-    const now = new Date("2026-09-29T21:30:00Z");
-    const later = new Date("2026-09-29T23:00:00Z");
-    // 23:30 → 01:00 in Amsterdam is the next day; 17:30 → 19:00 in New York is the same one.
-    expect(daysBetween(now, later, "Europe/Amsterdam")).toBe(1);
-    expect(daysBetween(now, later, "America/New_York")).toBe(0);
+    const now = new Date("2026-09-29T03:30:00Z");
+    const later = new Date("2026-09-29T05:00:00Z");
+    // 22:30 → 00:00 in Chicago is the next day; 20:30 → 22:00 in Los Angeles is the same one.
+    expect(daysBetween(now, later, "America/Chicago")).toBe(1);
+    expect(daysBetween(now, later, "America/Los_Angeles")).toBe(0);
     expect(daysBetween(now, new Date("2026-09-28T12:00:00Z"), "UTC")).toBe(-1);
   });
 });
 
 describe("isoInZone", () => {
   it("writes a moment as the zone's wall clock with its offset, DST included", () => {
-    expect(isoInZone(new Date("2026-10-18T11:00:00Z"), "Europe/Berlin")).toBe("2026-10-18T13:00:00+02:00");
-    expect(isoInZone(new Date("2026-11-02T11:00:00Z"), "Europe/Berlin")).toBe("2026-11-02T12:00:00+01:00");
+    expect(isoInZone(new Date("2026-10-18T11:00:00Z"), "America/Chicago")).toBe("2026-10-18T06:00:00-05:00");
+    expect(isoInZone(new Date("2026-11-02T11:00:00Z"), "America/Chicago")).toBe("2026-11-02T05:00:00-06:00");
     expect(isoInZone(new Date("2026-10-18T11:00:00Z"), "America/New_York")).toBe("2026-10-18T07:00:00-04:00");
     expect(isoInZone(new Date("2026-10-18T11:00:00Z"), "UTC")).toBe("2026-10-18T11:00:00+00:00");
   });

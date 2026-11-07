@@ -103,7 +103,7 @@ export function firstLine(text: string, max = 220): string {
   return line.length <= max ? line.trim() : `${line.slice(0, max - 1).trimEnd()}…`;
 }
 
-/** "Acme | Senior Android Engineer | Berlin or REMOTE (EU) | Full-time": a hiring post's first line, in parts. */
+/** "Acme | Senior Android Engineer | Austin or REMOTE (US) | Full-time": a hiring post's first line, in parts. */
 export function headerParts(text: string): string[] {
   return firstLine(text, 400)
     .split(/\s+[|•·—–]\s+|\s+-\s+|\s*\|\s*/)

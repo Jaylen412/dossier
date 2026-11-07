@@ -27,7 +27,7 @@ vi.mock("@/lib/prisma", async () => {
   return { prisma: db.client };
 });
 const profile = vi.hoisted(() => ({
-  basics: { headline: "Android engineer", summary: "", city: "Berlin", country: "Germany" },
+  basics: { headline: "Android engineer", summary: "", city: "Austin", country: "United States" },
   skills: [
     { id: "1", name: "Android" },
     { id: "2", name: "Kotlin" },
@@ -58,7 +58,7 @@ vi.mock("./sources/hn", async () => {
 });
 
 const prisma = () => db.client!;
-const berlin = placeOf(profile.basics);
+const austin = placeOf(profile.basics);
 const filter = (change: object = {}) => startupFilterSchema.parse(change);
 const startup = (change: Partial<FoundStartup> = {}): FoundStartup => ({
   source: "HN",
@@ -66,8 +66,8 @@ const startup = (change: Partial<FoundStartup> = {}): FoundStartup => ({
   company: "Acme",
   website: "https://acme.io",
   summary: "Android apps for farmers",
-  details: "Acme | Android Engineer | Berlin, Germany\nKotlin, Android. Write to jobs@acme.io or jane at acme dot io.",
-  location: "Berlin, Germany",
+  details: "Acme | Android Engineer | Austin, Texas\nKotlin, Android. Write to jobs@acme.io or jane at acme dot io.",
+  location: "Austin, Texas",
   remote: false,
   stage: "",
   roles: ["Android Engineer"],
@@ -118,26 +118,26 @@ describe("keeping startups (#222)", () => {
     await upsertStartups(
       [
         startup(),
-        startup({ externalId: "2", company: "Remote Co", website: "", location: "REMOTE (EU)", details: "Remote Co | Engineer | REMOTE (EU)", postedAt: "2026-10-22T12:00:00Z" }),
-        startup({ source: "YC", externalId: "3", company: "Faraway", website: "", location: "Austin, TX", summary: "Faraway (YC W24) Is Hiring in Austin, TX", details: "", roles: [], postedAt: null }),
-        startup({ externalId: "4", company: "Munich Co", website: "", location: "Munich, Germany", details: "Munich Co | Engineer | Munich, Germany", emails: [address("jobs@munich.co")], postedAt: "2026-10-19T12:00:00Z" }),
+        startup({ externalId: "2", company: "Remote Co", website: "", location: "REMOTE (US)", details: "Remote Co | Engineer | REMOTE (US)", postedAt: "2026-10-22T12:00:00Z" }),
+        startup({ source: "YC", externalId: "3", company: "Faraway", website: "", location: "Boston, MA", summary: "Faraway (YC W24) Is Hiring in Boston, MA", details: "", roles: [], postedAt: null }),
+        startup({ externalId: "4", company: "Phoenix Co", website: "", location: "Phoenix, USA", details: "Phoenix Co | Engineer | Phoenix, USA", emails: [address("jobs@phoenix.co")], postedAt: "2026-10-19T12:00:00Z" }),
       ],
       now,
     );
-    const names = async (change: object) => (await listStartups(filter(change), berlin)).startups.map((entry) => entry.company);
-    expect(await names({})).toEqual(["Acme", "Munich Co", "Remote Co", "Faraway"]);
-    expect(await names({ sort: "newest" })).toEqual(["Remote Co", "Acme", "Munich Co", "Faraway"]);
+    const names = async (change: object) => (await listStartups(filter(change), austin)).startups.map((entry) => entry.company);
+    expect(await names({})).toEqual(["Acme", "Phoenix Co", "Remote Co", "Faraway"]);
+    expect(await names({ sort: "newest" })).toEqual(["Remote Co", "Acme", "Phoenix Co", "Faraway"]);
     expect(await names({ place: "city" })).toEqual(["Acme"]);
-    expect(await names({ place: "country" })).toEqual(["Acme", "Munich Co"]);
+    expect(await names({ place: "country" })).toEqual(["Acme", "Phoenix Co"]);
     expect(await names({ place: "remote" })).toEqual(["Remote Co"]);
     expect(await names({ source: "YC" })).toEqual(["Faraway"]);
-    expect(await names({ withEmail: true })).toEqual(["Munich Co"]);
+    expect(await names({ withEmail: true })).toEqual(["Phoenix Co"]);
     expect(await names({ q: "remote co" })).toEqual(["Remote Co"]);
     expect(await names({ minScore: 70 })).toEqual(["Acme"]);
 
-    const [faraway] = (await listStartups(filter({ source: "YC" }), berlin)).startups;
+    const [faraway] = (await listStartups(filter({ source: "YC" }), austin)).startups;
     await updateStartup(faraway.id, { status: "DISMISSED", notes: "Too far" });
-    const list = await listStartups(filter({ status: "DISMISSED" }), berlin, { limit: 1 });
+    const list = await listStartups(filter({ status: "DISMISSED" }), austin, { limit: 1 });
     expect(list).toMatchObject({ total: 1, counts: { NEW: 3, SAVED: 0, CONTACTED: 0, DISMISSED: 1 } });
     expect(list.startups[0].notes).toBe("Too far");
     expect(await updateStartup("missing", { status: "SAVED" })).toBeNull();
@@ -213,9 +213,9 @@ describe("keeping startups (#222)", () => {
     const [hn, yc] = await prisma().startup.findMany({ orderBy: { externalId: "asc" } });
     const text = startupPostingText((await getStartup(hn.id))!);
     expect(text).toContain("Kotlin, Android.");
-    expect(text).toContain("Location: Berlin, Germany");
+    expect(text).toContain("Location: Austin, Texas");
     expect(text).not.toMatch(/jobs@|jane at/);
-    expect(startupPostingText((await getStartup(yc.id))!)).toBe("Yc (YC W24) Is Hiring\n\nYc (YC W24) Is Hiring\n\nLocation: Berlin, Germany\n\nRole: Founding Engineer");
+    expect(startupPostingText((await getStartup(yc.id))!)).toBe("Yc (YC W24) Is Hiring\n\nYc (YC W24) Is Hiring\n\nLocation: Austin, Texas\n\nRole: Founding Engineer");
   });
 });
 

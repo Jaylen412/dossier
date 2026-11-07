@@ -24,7 +24,7 @@ const { scoreWithJev } = await import("./jev");
 const { recordUsage } = await import("@/lib/usage-data");
 
 const profile = demoProfile();
-const posting = { title: "Designer", company: "Ledgerly", place: "Amsterdam", remote: false, salary: "", description: "You know Figma." };
+const posting = { title: "Designer", company: "Ledgerly", place: "Seattle", remote: false, salary: "", description: "You know Figma." };
 const signal = new AbortController().signal;
 
 beforeEach(() => {

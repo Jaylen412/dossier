@@ -21,7 +21,7 @@ vi.mock("@/lib/prisma", async () => {
 vi.mock("@/lib/env", () => ({ env: { DOSSIER_SECRET: "a".repeat(32) } }));
 const prisma = () => db.client!;
 
-const query = { ...EMPTY_QUERY, keywords: "product designer", place: "Hamburg", country: "de" };
+const query = { ...EMPTY_QUERY, keywords: "product designer", place: "Chicago", country: "us" };
 const useJSearch = () => saveSettings({ jobSource: "JSEARCH", jsearchKeyEnc: encryptSecret(JOB_SOURCE_KEY, "ak_test") });
 
 beforeEach(async () => {
@@ -111,11 +111,11 @@ describe("loadSearch", () => {
   });
 
   it("says when it ran: yesterday, or the day", async () => {
-    const yesterday = await prisma().postingSearch.create({ data: { source: "JSEARCH", query, postings: [], createdAt: new Date("2026-10-02T16:20:00Z") } });
-    const older = await prisma().postingSearch.create({ data: { source: "JSEARCH", query, postings: [], createdAt: new Date("2026-09-28T08:05:00Z") } });
+    const yesterday = await prisma().postingSearch.create({ data: { source: "JSEARCH", query, postings: [], createdAt: new Date("2026-10-02T23:20:00Z") } });
+    const older = await prisma().postingSearch.create({ data: { source: "JSEARCH", query, postings: [], createdAt: new Date("2026-09-28T15:05:00Z") } });
     const now = new Date("2026-10-03T12:00:00Z");
-    expect((await loadSearch(yesterday.id, { timeZone: "Europe/Berlin", now }))!.ranAt).toBe("yesterday at 18:20");
-    expect((await loadSearch(older.id, { timeZone: "Europe/Berlin", now }))!.ranAt).toBe("on Mon 28 Sep at 10:05");
+    expect((await loadSearch(yesterday.id, { timeZone: "America/Chicago", now }))!.ranAt).toBe("yesterday at 18:20");
+    expect((await loadSearch(older.id, { timeZone: "America/Chicago", now }))!.ranAt).toBe("on Mon 28 Sep at 10:05");
   });
 });
 
@@ -181,15 +181,15 @@ describe("listSearches and removeSearch", () => {
   it("lists kept searches newest first, grouped by the day they ran in the user's time zone", async () => {
     const at = (iso: string, keywords: string) =>
       prisma().postingSearch.create({ data: { source: "JSEARCH", query: { ...query, keywords }, postings: [], found: 3, createdAt: new Date(iso) } });
-    await at("2026-10-03T09:30:00Z", "designer");
-    await at("2026-10-02T22:30:00Z", "researcher"); // Already the 3rd in Berlin.
+    await at("2026-10-03T11:30:00Z", "designer");
+    await at("2026-10-03T03:30:00Z", "researcher"); // Already the 3rd in UTC, still the 2nd in Chicago.
     await at("2026-10-02T10:00:00Z", "writer");
-    await at("2026-09-28T08:00:00Z", "nurse");
+    await at("2026-09-28T15:00:00Z", "nurse");
 
-    const days = await listSearches({ timeZone: "Europe/Berlin", now: new Date("2026-10-03T12:00:00Z") });
+    const days = await listSearches({ timeZone: "America/Chicago", now: new Date("2026-10-03T12:00:00Z") });
     expect(days.map((day) => [day.day, day.searches.map((search) => [search.time, search.query.keywords, search.found])])).toEqual([
-      ["Today", [["11:30", "designer", 3], ["00:30", "researcher", 3]]],
-      ["Yesterday", [["12:00", "writer", 3]]],
+      ["Today", [["06:30", "designer", 3]]],
+      ["Yesterday", [["22:30", "researcher", 3], ["05:00", "writer", 3]]],
       ["Mon 28 Sep", [["10:00", "nurse", 3]]],
     ]);
     expect(await countSearches()).toBe(4);

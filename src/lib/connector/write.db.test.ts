@@ -29,10 +29,10 @@ const profile = demoProfile();
 const role = profile.experience[0];
 
 const written = (overrides: Partial<WrittenApplication> = {}): WrittenApplication => ({
-  posting: "Senior Product Designer at Acme, Berlin. Figma, design systems, 5+ years.",
+  posting: "Senior Product Designer at Acme, Austin. Figma, design systems, 5+ years.",
   postingUrl: "https://jobs.example/acme-design",
   postingId: null,
-  details: { company: "Acme", role: "Senior Product Designer", location: "Berlin", mode: "Hybrid", salary: "", deadline: null, language: "English" },
+  details: { company: "Acme", role: "Senior Product Designer", location: "Austin", mode: "Hybrid", salary: "", deadline: null, language: "English" },
   resume: {
     summary: "Designer who ships calm, clear products.",
     roles: [
@@ -44,7 +44,7 @@ const written = (overrides: Partial<WrittenApplication> = {}): WrittenApplicatio
     education: [],
   },
   letter: {
-    recipient: "Acme · Hiring team\nBerlin",
+    recipient: "Acme · Hiring team\nAustin",
     greeting: "Dear Acme team,",
     paragraphs: [
       { label: "Why Acme", text: "Dear Acme team,\nI'd like to help Acme design its product." },
@@ -71,7 +71,7 @@ describe("an application written in Claude chat (#221)", () => {
       where: { id: applicationId },
       include: { documents: { select: { kind: true, units: true, writtenWith: true } } },
     });
-    expect(application).toMatchObject({ status: "DRAFT", company: "Acme", role: "Senior Product Designer", location: "Berlin", postingUrl: "https://jobs.example/acme-design" });
+    expect(application).toMatchObject({ status: "DRAFT", company: "Acme", role: "Senior Product Designer", location: "Austin", postingUrl: "https://jobs.example/acme-design" });
 
     const resume = application.documents.find((document) => document.kind === "RESUME")!;
     const units = resume.units as { id: string; text: string }[];

@@ -38,7 +38,7 @@ const answers: Record<string, (messages: Message[]) => unknown> = {
     title: "Senior Product Designer, Payments · Ledgerly",
     company: "Ledgerly",
     role: "Senior Product Designer, Payments",
-    location: "Amsterdam",
+    location: "Seattle",
     mode: "Hybrid · 3 days in office",
     salary: "€75,000–€90,000",
     deadline: null,
@@ -92,7 +92,7 @@ const answers: Record<string, (messages: Message[]) => unknown> = {
   },
 
   cover_letter: () => ({
-    recipient: "Ledgerly · Hiring team\nAmsterdam",
+    recipient: "Ledgerly · Hiring team\nSeattle",
     greeting: "Dear Ledgerly team,",
     paragraphs: [
       { label: "Opening", text: "Payments are where trust is won or lost, and I'd love to help Ledgerly's customers feel calm about them." },
@@ -142,7 +142,7 @@ const answers: Record<string, (messages: Message[]) => unknown> = {
       email: "robin@example.com",
       phone: null,
       website: null,
-      city: "Utrecht",
+      city: "Boston",
       state: null,
       linkedin: null,
       summary: null,
@@ -153,7 +153,7 @@ const answers: Record<string, (messages: Message[]) => unknown> = {
       {
         role: "Design Lead",
         company: "Acme Payments",
-        location: "Utrecht",
+        location: "Boston",
         descriptor: "Payouts for online marketplaces, 60 people",
         volunteering: false,
         startYear: 2021,

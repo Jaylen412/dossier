@@ -22,7 +22,7 @@ describe("ResumeDocument", () => {
   it("puts contact details in the header of single-column layouts", () => {
     render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" />);
     expect(screen.getByText("jane.doe@example.com").parentElement?.textContent).toBe(
-      "jane.doe@example.com  ·  +31 6 1234 5678  ·  Rotterdam, South Holland  ·  example.com  ·  linkedin.com/in/janedoe-example",
+      "jane.doe@example.com  ·  +1 303 555 0142  ·  Denver, Colorado  ·  example.com  ·  linkedin.com/in/janedoe-example",
     );
     expect(sectionTitles()).toEqual(["Profile", "Experience", "Projects", "Education", "Certifications", "Publications", "Skills", "Languages"]);
   });
@@ -108,7 +108,7 @@ describe("ResumeDocument", () => {
   it("puts the line about a role's company under its title, as written, tailored or not (#257)", () => {
     for (const units of [undefined, demoResumeUnits()]) {
       const { unmount } = render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" units={units} />);
-      const line = screen.getByText("Freight platform for European carriers, 300 people");
+      const line = screen.getByText("Freight platform for regional carriers, 300 people");
       expect(line.previousElementSibling).toHaveTextContent("Senior Product Designer, Northwind Logistics");
       expect(line.nextElementSibling?.tagName).toBe("UL");
       // A role without one has nothing between its title and its points.
@@ -180,10 +180,10 @@ describe("ResumeDocument", () => {
     render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" />);
     const publication = screen.getByRole("heading", { name: "Publications" }).closest("section")!;
     expect(publication).toHaveTextContent(
-      "Doe, J., & Vermeer, K. (2016). Trust in automated scheduling: A field study with dispatch planners. Proceedings of the Delft Design Conference, 4, 112–121. doi.org/10.5555/12345678",
+      "Doe, J., & Vermeer, K. (2016). Trust in automated scheduling: A field study with dispatch planners. Proceedings of the Georgia Design Conference, 4, 112–121. doi.org/10.5555/12345678",
     );
     expect(within(publication).getByText("Doe, J.").tagName).toBe("STRONG");
-    expect(within(publication).getByText("Proceedings of the Delft Design Conference").tagName).toBe("EM");
+    expect(within(publication).getByText("Proceedings of the Georgia Design Conference").tagName).toBe("EM");
     expect(within(publication).getByRole("link", { name: "doi.org/10.5555/12345678" })).toHaveAttribute("href", "https://doi.org/10.5555/12345678");
   });
 

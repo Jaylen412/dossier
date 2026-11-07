@@ -9,7 +9,7 @@ test.beforeAll(resetData);
 test("fills in the profile, keeps it and shows it on the base resume", async ({ page }) => {
   await page.goto("/profile");
   await page.getByLabel("Full name").fill("John Doe");
-  await page.getByLabel("City").fill("Utrecht");
+  await page.getByLabel("City").fill("Boston");
   await page.getByLabel("City").blur();
   await expect(page.getByText("Saved just now")).toBeVisible();
 

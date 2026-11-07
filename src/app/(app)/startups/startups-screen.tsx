@@ -200,7 +200,7 @@ function Filters({ filter, city, country, onChange }: { filter: StartupFilter; c
       onSubmit={submit}
       className="grid grid-cols-1 items-end gap-4 rounded-panel border border-line-card bg-card p-6 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]"
     >
-      <Input label="Search" value={q} placeholder="e.g. android, fintech, Berlin" onChange={(event) => setQ(event.target.value)} onBlur={() => q.trim() !== filter.q && onChange({ q: q.trim() })} />
+      <Input label="Search" value={q} placeholder="e.g. Robotics, Fintech, New York" onChange={(event) => setQ(event.target.value)} onBlur={() => q.trim() !== filter.q && onChange({ q: q.trim() })} />
       <Select label="Where" value={filter.place} onChange={(event) => onChange({ place: event.target.value as StartupFilter["place"] })}>
         <option value="any">Anywhere</option>
         {city && <option value="city">{city}</option>}

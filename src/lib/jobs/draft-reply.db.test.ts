@@ -21,13 +21,13 @@ vi.mock("@/lib/profile-data", async () => {
   return { loadProfile: async () => demoProfile(), loadFactTexts: async () => [] };
 });
 vi.mock("@/lib/google/availability", () => ({
-  workingHours: async () => ({ days: [1, 2, 3, 4, 5], start: "09:00", end: "17:00", timeZone: "Europe/Berlin", slotMinutes: 45, bufferMinutes: 15 }),
+  workingHours: async () => ({ days: [1, 2, 3, 4, 5], start: "09:00", end: "17:00", timeZone: "America/Chicago", slotMinutes: 45, bufferMinutes: 15 }),
   proposeSlots: async () => ({
-    timeZone: "Europe/Berlin",
+    timeZone: "America/Chicago",
     fromCalendar: true,
     slots: [
-      { start: new Date("2026-10-20T08:00:00Z"), end: new Date("2026-10-20T08:45:00Z") },
-      { start: new Date("2026-10-21T12:00:00Z"), end: new Date("2026-10-21T12:45:00Z") },
+      { start: new Date("2026-10-20T15:00:00Z"), end: new Date("2026-10-20T15:45:00Z") },
+      { start: new Date("2026-10-21T19:00:00Z"), end: new Date("2026-10-21T19:45:00Z") },
     ],
   }),
 }));
@@ -50,16 +50,16 @@ afterAll(async () => prisma().$disconnect());
 describe("draftReplyJob", () => {
   it("offers the calendar's free times and saves the draft", async () => {
     const result = await draftReplyJob.run({ emailId: "e1", note: "", slots: null }, context);
-    expect(result.slots).toEqual(["2026-10-20T08:00:00.000Z", "2026-10-21T12:00:00.000Z"]);
+    expect(result.slots).toEqual(["2026-10-20T15:00:00.000Z", "2026-10-21T19:00:00.000Z"]);
     const prompt = (provider.current as MockProvider).calls[0].messages[0].content;
-    expect(prompt).toContain("• Tue 20 Oct, 10:00–10:45 (Europe/Berlin)");
+    expect(prompt).toContain("• Tue 20 Oct, 10:00–10:45 (America/Chicago)");
     expect(prompt).toContain("The candidate wrote:\nI'm applying.");
     expect(await prisma().emailMessage.findUniqueOrThrow({ where: { id: "e1" } })).toMatchObject({ replyDraft: expect.stringContaining("Hi Anna,"), draftedWith: "draft-reply@3" });
   });
 
   it("offers only the times picked", async () => {
-    const result = await draftReplyJob.run({ emailId: "e1", note: "shorter", slots: ["2026-10-21T12:00:00.000Z"] }, context);
-    expect(result.slots).toEqual(["2026-10-21T12:00:00.000Z"]);
+    const result = await draftReplyJob.run({ emailId: "e1", note: "shorter", slots: ["2026-10-21T19:00:00.000Z"] }, context);
+    expect(result.slots).toEqual(["2026-10-21T19:00:00.000Z"]);
     const prompt = (provider.current as MockProvider).calls[0].messages[0].content;
     expect(prompt).toContain("Wed 21 Oct, 14:00–14:45");
     expect(prompt).not.toContain("Tue 20 Oct");

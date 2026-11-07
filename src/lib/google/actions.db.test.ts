@@ -23,7 +23,7 @@ const ai = vi.hoisted(() => ({ provider: undefined as unknown, ready: true }));
 vi.mock("@/lib/ai", () => ({ getAiProvider: async () => ai.provider }));
 vi.mock("@/lib/ai/config", () => ({ isAiConfigured: async () => ai.ready }));
 vi.mock("@/lib/ai/task-options", () => ({ loadTaskOptions: async () => ({ creativity: "BALANCED", strict: true, language: null }) }));
-vi.mock("@/lib/time-zone", () => ({ userTimeZone: async () => "Europe/Berlin", lastKnownTimeZone: async () => "Europe/Berlin" }));
+vi.mock("@/lib/time-zone", () => ({ userTimeZone: async () => "America/Chicago", lastKnownTimeZone: async () => "America/Chicago" }));
 vi.mock("@/lib/jobs/runner", () => ({
   defineJob: <T,>(definition: T) => definition,
   findUnfinishedJobs: async () => [],
@@ -172,7 +172,7 @@ describe("the reply's suggestions (E15-4)", () => {
 describe("the calendar (E15-5)", () => {
   it("offers free working-hour times", async () => {
     const result = await loadFreeSlots({});
-    expect(result).toMatchObject({ ok: true, data: { fromCalendar: true, timeZone: "Europe/Berlin" } });
+    expect(result).toMatchObject({ ok: true, data: { fromCalendar: true, timeZone: "America/Chicago" } });
     if (!result.ok) return;
     expect(result.data.slots.length).toBeGreaterThan(0);
     expect(result.data.slots[0].label).toMatch(/^\w{3} \d{1,2} \w{3}, \d{2}:\d{2}–\d{2}:\d{2}$/);

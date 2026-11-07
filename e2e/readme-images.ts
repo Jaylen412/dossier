@@ -9,7 +9,7 @@ test.use({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 });
 const IMAGES = ".github/images";
 
 const POSTING = `Ledgerly: Senior Product Designer, Payments
-Amsterdam (hybrid, 3 days in office) · €75,000–€90,000
+Seattle (hybrid, 3 days in office) · €75,000–€90,000
 
 What we're looking for
 - 5+ years of product design
@@ -148,7 +148,7 @@ test.describe("the dashboard's calendar", () => {
     await add("Lunch with Sam", week.lunch);
     await add("Dentist", week.dentist);
     await add("Portfolio review", week.review);
-    await inFakeCalendar("POST", undefined, { summary: "Weekend in Utrecht", start: { date: week.trip[0] }, end: { date: week.trip[1] } });
+    await inFakeCalendar("POST", undefined, { summary: "Weekend in Boston", start: { date: week.trip[0] }, end: { date: week.trip[1] } });
 
     await page.goto("/");
     await expect(page.getByRole("region", { name: "Calendar" }).getByRole("link", { name: /Interview · Lead Product Designer · Northstar Health/ })).toBeVisible();

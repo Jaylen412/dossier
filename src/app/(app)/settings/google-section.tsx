@@ -264,7 +264,7 @@ export function GoogleSection({
               </Select>
               <Input
                 label="Time zone"
-                placeholder={browserTimeZone ?? "Europe/Berlin"}
+                placeholder={browserTimeZone ?? "US/NY"}
                 hint={browserTimeZone ? `Empty uses your browser's: ${browserTimeZone}` : "Empty uses your browser's"}
                 value={timeZone}
                 spellCheck={false}

@@ -18,7 +18,7 @@ const posting = {
   "@type": "JobPosting",
   title: "Senior Product Designer, Payments",
   hiringOrganization: { "@type": "Organization", name: "Ledgerly" },
-  jobLocation: { "@type": "Place", address: { addressLocality: "Amsterdam", addressCountry: { name: "Netherlands" } } },
+  jobLocation: { "@type": "Place", address: { addressLocality: "Seattle", addressCountry: { name: "United States" } } },
   employmentType: "FULL_TIME",
   baseSalary: { currency: "EUR", value: { minValue: 75000, maxValue: 90000, unitText: "YEAR" } },
   validThrough: "2026-10-15T23:59:59Z",
@@ -41,7 +41,7 @@ describe("postingFromHtml (E7-8)", () => {
     expect(result?.text).toBe(
       [
         "Ledgerly: Senior Product Designer, Payments",
-        "Amsterdam, Netherlands · full time · EUR 75000–90000 per year · Apply by 2026-10-15",
+        "Seattle, United States · full time · EUR 75000–90000 per year · Apply by 2026-10-15",
         `${DESCRIPTION.trim()}\n- 5+ years of product design\n- Strong Figma skills`,
       ].join("\n\n"),
     );

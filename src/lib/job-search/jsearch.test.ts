@@ -7,7 +7,7 @@ import { JobSearchError } from "./errors";
 import { jsearch } from "./jsearch";
 import { EMPTY_QUERY, type SearchQuery } from "./search";
 
-const query: SearchQuery = { ...EMPTY_QUERY, keywords: "product designer", place: "Hamburg", country: "de", radiusMiles: 50, postedWithin: "week" };
+const query: SearchQuery = { ...EMPTY_QUERY, keywords: "product designer", place: "Chicago", country: "us", radiusMiles: 50, postedWithin: "week" };
 const ninja = { key: "ak_test", host: "openwebninja" as const };
 const rapid = { key: "rapid-test", host: "rapidapi" as const };
 
@@ -25,8 +25,8 @@ describe("JSearch search", () => {
     expect(`${url.origin}${url.pathname}`).toBe("https://api.openwebninja.com/jsearch/search-v2");
     expect(headers.get("x-api-key")).toBe("ak_test");
     expect(Object.fromEntries(url.searchParams)).toEqual({
-      query: "product designer in Hamburg",
-      country: "de",
+      query: "product designer in Chicago",
+      country: "us",
       date_posted: "week",
       radius: "80",
     });
@@ -55,7 +55,7 @@ describe("JSearch search", () => {
     expect(headers.get("x-rapidapi-host")).toBe("jsearch.p.rapidapi.com");
     expect(Object.fromEntries(url.searchParams)).toEqual({
       query: "product designer",
-      country: "de",
+      country: "us",
       date_posted: "all",
       work_from_home: "true",
     });
@@ -79,7 +79,7 @@ describe("JSearch search", () => {
         externalId: "aG9tZWQtZGVzaWduZXItbGVkZ2VybHk=",
         title: "Senior Product Designer, Payments",
         company: "Ledgerly",
-        place: "Hamburg",
+        place: "Chicago",
         remote: false,
         salary: "EUR 75,000–90,000 a year",
         postedAt: "2026-09-30T08:00:00.000Z",
@@ -93,13 +93,13 @@ describe("JSearch search", () => {
         externalId: "bm9ydGh3aW5kLXV4LXJlc2VhcmNo",
         title: "UX Researcher",
         company: "Northwind Studio",
-        place: "Berlin, Germany",
+        place: "Austin, United States",
         remote: true,
         salary: "",
         postedAt: new Date(1790582400 * 1000).toISOString(),
         url: "https://de.indeed.com/viewjob?jk=abc123&from=serp",
         via: "Indeed",
-        description: "Northwind Studio is looking for a UX Researcher, fully remote within Germany.",
+        description: "Northwind Studio is looking for a UX Researcher, fully remote within the United States.",
         complete: true,
       },
     ]);
@@ -179,12 +179,12 @@ describe("JSearch search", () => {
   });
 
   it("names the keys of an answer it can't read, never their values (#231)", async () => {
-    stubFetch(() => json({ status: "ERROR", message: "Invalid query: product designer in Hamburg" }));
+    stubFetch(() => json({ status: "ERROR", message: "Invalid query: product designer in Chicago" }));
     await expect(jsearch.search(query, ninja, null)).rejects.toMatchObject({
       problem: "changed",
       detail: "JSEARCH: /jsearch/search-v2: unexpected answer (keys: status, message)",
     });
-    stubFetch(() => json(["product designer in Hamburg"]));
+    stubFetch(() => json(["product designer in Chicago"]));
     await expect(jsearch.search(query, ninja, null)).rejects.toMatchObject({ detail: "JSEARCH: /jsearch/search-v2: unexpected answer" });
   });
 

@@ -14,7 +14,7 @@ const letter = {
   basics,
   units: demoLetterUnits(),
   company: "Ledgerly",
-  location: "Amsterdam",
+  location: "Seattle",
   tone: "WARM",
   date: new Date(Date.UTC(2026, 8, 27)),
   dateFormat: "DAY_MONTH_YEAR",
@@ -80,9 +80,9 @@ describe("CoverLetterDocument", () => {
 describe("the letter's own frame (E8-11)", () => {
   it("draws its stored sender, date, recipient, greeting and signature instead of the defaults", () => {
     const units = [
-      { id: "sender", label: "Sender", text: "Jane M. Doe\nRotterdam · jane@example.com\nwww.example.com" },
-      { id: "date", label: "Date", text: "Rotterdam, 3. Oktober 2026" },
-      { id: "recipient", label: "Recipient", text: "Ledgerly GmbH\nz. Hd. Frau Doe\nHamburg" },
+      { id: "sender", label: "Sender", text: "Jane M. Doe\nDenver · jane@example.com\nwww.example.com" },
+      { id: "date", label: "Date", text: "Denver, 3. Oktober 2026" },
+      { id: "recipient", label: "Recipient", text: "Ledgerly GmbH\nz. Hd. Frau Doe\nChicago" },
       { id: "greeting", label: "Greeting", text: "Sehr geehrte Frau Doe," },
       { id: "paragraph:1", label: "Opening", text: "Mit großem Interesse habe ich Ihre Anzeige gelesen." },
       { id: "sign-off", label: "Sign-off", text: "Mit freundlichen Grüßen" },
@@ -93,9 +93,9 @@ describe("the letter's own frame (E8-11)", () => {
     expect(page).toHaveAttribute("lang", "de");
     expect(page.querySelector("[data-unit='sender'] p")).toHaveTextContent("Jane M. Doe");
     // Each line after the name is a contact line, its items between " · ".
-    expect([...page.querySelectorAll("[data-unit='sender'] bdi")].map((item) => item.textContent)).toEqual(["Rotterdam", "jane@example.com", "www.example.com"]);
-    expect(screen.getByText("Rotterdam, 3. Oktober 2026")).toBeInTheDocument();
-    expect([...page.querySelectorAll("[data-unit='recipient'] p")].map((line) => line.textContent)).toEqual(["Ledgerly GmbH", "z. Hd. Frau Doe", "Hamburg"]);
+    expect([...page.querySelectorAll("[data-unit='sender'] bdi")].map((item) => item.textContent)).toEqual(["Denver", "jane@example.com", "www.example.com"]);
+    expect(screen.getByText("Denver, 3. Oktober 2026")).toBeInTheDocument();
+    expect([...page.querySelectorAll("[data-unit='recipient'] p")].map((line) => line.textContent)).toEqual(["Ledgerly GmbH", "z. Hd. Frau Doe", "Chicago"]);
     expect(screen.getByText("Sehr geehrte Frau Doe,")).toBeInTheDocument();
     expect(page).toHaveTextContent(/Mit freundlichen GrüßenJane M\. Doe$/);
     expect(page).not.toHaveTextContent(/Dear|Hiring team/);

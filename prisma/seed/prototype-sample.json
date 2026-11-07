@@ -4,9 +4,9 @@
     "name": "Jane Doe",
     "headline": "Senior Product Designer",
     "email": "jane.doe@example.com",
-    "phone": "+31 6 1234 5678",
-    "city": "Rotterdam",
-    "state": "South Holland",
+    "phone": "+1 303 555 0142",
+    "city": "Denver",
+    "state": "Colorado",
     "website": "example.com",
     "linkedin": "linkedin.com/in/janedoe-example",
     "summary": "Product designer with nine years of experience turning complicated operational tools into calm, usable software. I like working close to engineering and closer to the people who use what we build.",
@@ -15,8 +15,8 @@
         "id": "e1",
         "role": "Senior Product Designer",
         "company": "Northwind Logistics",
-        "location": "Rotterdam",
-        "descriptor": "Freight platform for European carriers, 300 people",
+        "location": "Denver",
+        "descriptor": "Freight platform for regional carriers, 300 people",
         "start": "Mar 2021",
         "end": "Present",
         "skills": [
@@ -31,7 +31,7 @@
         "id": "e2",
         "role": "Product Designer",
         "company": "Fieldnote",
-        "location": "Amsterdam",
+        "location": "Seattle",
         "descriptor": "Note-taking app for field researchers",
         "start": "Jun 2018",
         "end": "Feb 2021",
@@ -46,7 +46,7 @@
         "id": "e3",
         "role": "UX Designer",
         "company": "Studio Brik",
-        "location": "Rotterdam",
+        "location": "Denver",
         "descriptor": "",
         "start": "Sep 2015",
         "end": "May 2018",
@@ -75,7 +75,7 @@
     "education": [
       {
         "id": "d1",
-        "school": "TU Delft",
+        "school": "Georgia Tech",
         "degree": "MSc Design for Interaction",
         "start": "2013",
         "end": "2015",
@@ -104,7 +104,7 @@
     "publications": [
       {
         "id": "u1",
-        "citation": "**Doe, J.**, & Vermeer, K. (2016). Trust in automated scheduling: A field study with dispatch planners. *Proceedings of the Delft Design Conference*, 4, 112–121.",
+        "citation": "**Doe, J.**, & Vermeer, K. (2016). Trust in automated scheduling: A field study with dispatch planners. *Proceedings of the Georgia Design Conference*, 4, 112–121.",
         "link": "https://doi.org/10.5555/12345678"
       }
     ],
@@ -143,7 +143,7 @@
     ],
     "facts": [
       "I'd like to stay close to user research: it's the part of design work I enjoy most.",
-      "I can start at short notice, and I'd move anywhere in the Netherlands for the right team."
+      "I can start at short notice, and I'd move anywhere in the United States for the right team."
     ]
   },
   "applications": [
@@ -151,7 +151,7 @@
       "id": "s1",
       "company": "Oaken Studio",
       "role": "Design Systems Lead",
-      "location": "Amsterdam",
+      "location": "Seattle",
       "mode": "Hybrid",
       "salary": "€85,000–€100,000",
       "status": "Offer",
@@ -164,7 +164,7 @@
       "id": "s2",
       "company": "Northstar Health",
       "role": "Lead Product Designer",
-      "location": "Utrecht",
+      "location": "Boston",
       "mode": "Hybrid",
       "status": "Interview",
       "sent": "2 Sep",
@@ -177,7 +177,7 @@
       "id": "s3",
       "company": "Tidewater Energy",
       "role": "Senior UX Designer",
-      "location": "Rotterdam",
+      "location": "Denver",
       "mode": "On-site",
       "status": "Screening",
       "sent": "15 Sep",
@@ -201,7 +201,7 @@
       "id": "s5",
       "company": "Meridian Bank",
       "role": "Product Designer, Onboarding",
-      "location": "Amsterdam",
+      "location": "Seattle",
       "mode": "Hybrid",
       "status": "Sent",
       "sent": "23 Sep",
@@ -213,7 +213,7 @@
       "id": "s6",
       "company": "Brightline Transit",
       "role": "Senior Service Designer",
-      "location": "The Hague",
+      "location": "Providence",
       "mode": "Hybrid",
       "status": "Draft",
       "deadline": "3 Oct",
@@ -224,7 +224,7 @@
       "id": "s7",
       "company": "Parcelhub",
       "role": "Senior Product Designer",
-      "location": "Eindhoven",
+      "location": "Pittsburgh",
       "mode": "Hybrid",
       "status": "Rejected",
       "reached": "Screening",
@@ -249,12 +249,12 @@
   ],
   "ledgerly": {
     "facts": ["I've used Ledgerly for my own freelance invoicing, so I know the product as a customer."],
-    "posting": "Ledgerly: Senior Product Designer, Payments\nAmsterdam (hybrid, 3 days in office) · €75,000–€90,000 · Apply by 15 October\n\nLedgerly helps small businesses across Europe get paid on time. Our Payments team builds the flows that move money (invoicing, payouts, reconciliation), and we're looking for a senior designer to make them feel calm and trustworthy.\n\nWhat you'll do\n- Own the design of payment and payout flows end to end\n- Work closely with engineering and compliance on high-stakes interactions\n- Evolve our design system together with the platform team\n- Plan and run research with small-business owners\n\nWhat we're looking for\n- 5+ years of product design, ideally on complex B2B tools\n- You've built or maintained a design system\n- You run user research independently\n- Strong prototyping skills in Figma\n- Accessibility know-how (WCAG 2.2)\n- Experience with payments or fintech\n- Dutch is a plus",
+    "posting": "Ledgerly: Senior Product Designer, Payments\nSeattle (hybrid, 3 days in office) · €75,000–€90,000 · Apply by 15 October\n\nLedgerly helps small businesses across Europe get paid on time. Our Payments team builds the flows that move money (invoicing, payouts, reconciliation), and we're looking for a senior designer to make them feel calm and trustworthy.\n\nWhat you'll do\n- Own the design of payment and payout flows end to end\n- Work closely with engineering and compliance on high-stakes interactions\n- Evolve our design system together with the platform team\n- Plan and run research with small-business owners\n\nWhat we're looking for\n- 5+ years of product design, ideally on complex B2B tools\n- You've built or maintained a design system\n- You run user research independently\n- Strong prototyping skills in Figma\n- Accessibility know-how (WCAG 2.2)\n- Experience with payments or fintech\n- Dutch is a plus",
     "extract": {
       "title": "Senior Product Designer · Ledgerly Payments",
       "company": "Ledgerly",
       "role": "Senior Product Designer",
-      "location": "Amsterdam",
+      "location": "Seattle",
       "mode": "Hybrid · 3 days in office",
       "salary": "€75,000–€90,000",
       "deadline": "15 Oct 2026"
@@ -312,7 +312,7 @@
       },
       {
         "label": "Closing paragraph",
-        "text": "I'm based in Rotterdam and happy to work hybrid from your Amsterdam office. I'd love to talk about how I could help. Thank you for your time."
+        "text": "I'm based in Denver and happy to work hybrid from your Seattle office. I'd love to talk about how I could help. Thank you for your time."
       }
     ],
     "chat": {
