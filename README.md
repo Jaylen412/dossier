@@ -111,6 +111,15 @@ The first start downloads PostgreSQL's image and sets up the database. The Compo
 
 Changing `POSTGRES_PASSWORD` in `.env` later doesn't change the database's password, which was set on the first start, and Dossier then can't sign in. Put the old one back, or change it in the database to match: `docker compose exec db psql -U dossier -d dossier -c "ALTER ROLE dossier PASSWORD '<the new password>'"`.
 
+**`P1000: Authentication failed against database server`** is the same problem, usually met in the development setup from [DEVELOPMENT.md](DEVELOPMENT.md), where the role is `postgres`: the password in `.env` (`POSTGRES_PASSWORD`, and the one inside `DATABASE_URL`) no longer matches the one the `pgdata` volume was created with. Keeping your data, set the database's password to the one in `.env` from inside the container, which doesn't ask for a password:
+
+```bash
+docker compose exec db sh -c 'psql -U postgres -c "ALTER USER postgres PASSWORD '"'"'$POSTGRES_PASSWORD'"'"'"'
+docker compose restart app
+```
+
+Then make sure the password in `DATABASE_URL` is the same one, if you run Dossier outside Docker. If you don't need the data, `docker compose down -v` deletes the volume, and the next `docker compose up` makes it again with the current `.env`.
+
 **Without a database server:** Dossier can keep its data in an SQLite file instead, in one container. Put `DATABASE_URL=file:/data/dossier.db` in `.env` and run the image on its own, with a volume for `/data`:
 
 ```bash
