@@ -93,7 +93,10 @@ test("scores a posting against the profile, and keeps the score (#208)", async (
   // Before the test above, nothing was saved, dismissed or applied for.
   await resetData();
   await page.goto("/jobs");
-  await page.getByRole("search", { name: "Search postings" }).getByRole("button", { name: "Search" }).click();
+  const form = page.getByRole("search", { name: "Search postings" });
+  // The profile has no country, so the search is told one.
+  await form.getByLabel("Country").selectOption("nl");
+  await form.getByRole("button", { name: "Search" }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Senior Product Designer, Payments" })).toBeVisible();
   await page.getByRole("button", { name: "Score", exact: true }).click();
   await expect(page.getByText("Excellent fit · 91 of 100")).toBeVisible({ timeout: 30_000 });
@@ -125,7 +128,10 @@ test("scores with Jev once it's chosen in Settings → Scoring (#274)", async ({
   await expect(page.getByText(/^Connected · jev-1\.14\.0 answered in/)).toBeVisible();
 
   await page.goto("/jobs");
-  await page.getByRole("search", { name: "Search postings" }).getByRole("button", { name: "Search" }).click();
+  const form = page.getByRole("search", { name: "Search postings" });
+  // The profile has no country, so the search is told one.
+  await form.getByLabel("Country").selectOption("nl");
+  await form.getByRole("button", { name: "Search" }).click();
   await expect(page.getByRole("heading", { level: 2, name: "Senior Product Designer, Payments" })).toBeVisible();
   await page.getByRole("button", { name: "Score", exact: true }).click();
   await expect(page.getByText("Excellent fit · 90 of 100")).toBeVisible({ timeout: 30_000 });

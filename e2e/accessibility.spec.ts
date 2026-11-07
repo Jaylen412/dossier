@@ -205,7 +205,10 @@ test("axe: a resume's sections (#297, #298)", async ({ page }) => {
 
 test("axe: Find jobs with results, and its past searches (E14)", async ({ page }) => {
   await page.goto("/jobs");
-  await page.getByRole("search", { name: "Search postings" }).getByRole("button", { name: "Search" }).click();
+  const form = page.getByRole("search", { name: "Search postings" });
+  // The profile has no country, so the search is told one.
+  await form.getByLabel("Country").selectOption("nl");
+  await form.getByRole("button", { name: "Search" }).click();
   await expect(page.getByRole("list", { name: "Postings" })).toBeVisible();
   await page.waitForLoadState("networkidle");
   await expectAccessible(page);
