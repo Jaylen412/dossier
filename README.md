@@ -84,10 +84,12 @@ docker build --target production -t dossier-local .
 **2. Copy the Compose file** into a folder of its own, and make the secrets Dossier needs:
 
 ```bash
-mkdir ~/dossier && cp compose.production.yml ~/dossier/compose.yml && cd ~/dossier
+mkdir -p ~/Developer/tools/dossier-docker && cp compose.production.yml ~/Developer/tools/dossier-docker/compose.yml && cd ~/Developer/tools/dossier-docker
 echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" > .env
 echo "DOSSIER_SECRET=$(openssl rand -base64 32)" >> .env
 ```
+
+Keep it out of this repository's folder. Compose names a project after its folder, so `docker compose -f compose.production.yml up` run here shares the `dossier_pgdata` volume with the development setup in [DEVELOPMENT.md](DEVELOPMENT.md). PostgreSQL makes its user and password only when that volume is first created, so whichever setup starts first sets them, and the other then fails to sign in (`role "postgres" does not exist`, or `password authentication failed`). If you must run it here, give it its own project name: `docker compose -p dossier-prod -f compose.production.yml up -d`.
 
 **3. Choose your password.** This asks for it twice and prints a hash of it, one line that starts with `argon2id:`:
 
@@ -106,6 +108,8 @@ docker compose up -d
 The first start downloads PostgreSQL's image and sets up the database. The Compose file never pulls Dossier's image: without `dossier-local`, it stops with an error instead. Open [http://localhost:3000](http://localhost:3000), sign in with your password, and pick an AI model in **Settings → AI provider** (see [Choosing an AI provider](https://github.com/AienTech/dossier/wiki/Choosing-an-AI-provider)).
 
 `docker compose stop` stops it and `docker compose start` starts it again, with your data kept.
+
+Changing `POSTGRES_PASSWORD` in `.env` later doesn't change the database's password, which was set on the first start, and Dossier then can't sign in. Put the old one back, or change it in the database to match: `docker compose exec db psql -U dossier -d dossier -c "ALTER ROLE dossier PASSWORD '<the new password>'"`.
 
 **Without a database server:** Dossier can keep its data in an SQLite file instead, in one container. Put `DATABASE_URL=file:/data/dossier.db` in `.env` and run the image on its own, with a volume for `/data`:
 
