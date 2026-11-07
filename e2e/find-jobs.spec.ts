@@ -137,6 +137,29 @@ test("scores with Jev once it's chosen in Settings → Scoring (#274)", async ({
   await sql(`DELETE FROM "Setting" WHERE key IN ('scorer', 'typesafeKeyEnc')`);
 });
 
+test("finds postings through SerpApi", async ({ page }) => {
+  const chosen = async (source: string) =>
+    expect.poll(async () => (await sql<{ value: string }>(`SELECT value FROM "Setting" WHERE key = 'jobSource'`))[0]?.value).toContain(source);
+  await page.goto("/settings?section=jobs");
+  await page.getByRole("radio", { name: "SerpApi" }).click();
+  await chosen("SERPAPI");
+  // The key is saved when the field is left, and only "Saved" shows after.
+  await page.getByLabel("API key").fill("e2e-serpapi-key");
+  await page.getByLabel("API key").blur();
+  await expect(page.getByLabel("API key")).toHaveAttribute("placeholder", "Saved · type a new key to replace it");
+
+  await page.goto("/jobs?q=product+designer&where=Rotterdam&country=nl");
+  await page.getByRole("search", { name: "Search postings" }).getByRole("button", { name: "Search" }).click();
+  await expect(page.getByRole("heading", { level: 2, name: "Product Designer" })).toBeVisible();
+  await expect(page.getByText(/Ledgerly/).first()).toBeVisible();
+  await expect(page.getByText(/^1 posting from SerpApi · searched/)).toBeVisible();
+
+  // Back to JSearch, as the environment sets it, for the tests after.
+  await page.goto("/settings?section=jobs");
+  await page.getByRole("radio", { name: "JSearch" }).click();
+  await chosen("JSEARCH");
+});
+
 test("searches FreeHire, which needs no key and has no radius", async ({ page }) => {
   const chosen = async (source: string) =>
     expect.poll(async () => (await sql<{ value: string }>(`SELECT value FROM "Setting" WHERE key = 'jobSource'`))[0]?.value).toContain(source);

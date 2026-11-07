@@ -76,7 +76,7 @@ export function JobSearchSection({ initial }: { initial: JobSearchSettingsView }
     apply(toastResult(await track(saveJobSearchDetails({ adzunaAppId: appId }))));
   };
 
-  const saveKey = async (keySource: "JSEARCH" | "ADZUNA", change: { action: "set"; value: string } | { action: "clear" }) => {
+  const saveKey = async (keySource: "JSEARCH" | "SERPAPI" | "ADZUNA", change: { action: "set"; value: string } | { action: "clear" }) => {
     changed();
     return apply(toastResult(await track(saveJobSourceKey({ source: keySource, change }))));
   };
@@ -145,6 +145,15 @@ export function JobSearchSection({ initial }: { initial: JobSearchSettingsView }
                   onSave={(change) => saveKey("JSEARCH", change)}
                 />
               </>
+            )}
+            {source === "SERPAPI" && (
+              <KeyField
+                label="API key"
+                keyState={view.serpapi.keyState}
+                envName="DOSSIER_SERPAPI_KEY"
+                getKey={{ href: SOURCE_INFO.SERPAPI.keyUrl!, text: "SerpApi's sign-up page" }}
+                onSave={(change) => saveKey("SERPAPI", change)}
+              />
             )}
             {source === "ADZUNA" && (
               <div className="grid grid-cols-1 gap-x-[18px] gap-y-5 sm:grid-cols-2">
@@ -216,6 +225,9 @@ function HostChoice({ host, onChange }: { host: JSearchHost; onChange: (host: JS
   );
 }
 
+/** The sources whose plan counts searches, so a test costs one. */
+const PAID_SEARCHES: ReadonlySet<JobSource> = new Set(["JSEARCH", "SERPAPI"]);
+
 function ConnectionStatus({ connection, source }: { connection: Connection; source: JobSource }) {
   const [dot, text, message] =
     connection.status === "connected"
@@ -224,7 +236,7 @@ function ConnectionStatus({ connection, source }: { connection: Connection; sour
         ? ["bg-error", "text-error", connection.message]
         : connection.status === "testing"
           ? ["bg-status-offer", "text-muted", "Sending a small search…"]
-          : ["bg-faint", "text-muted", source === "JSEARCH" ? "Not tested since your last change · a test uses one search from your plan" : "Not tested since your last change"];
+          : ["bg-faint", "text-muted", PAID_SEARCHES.has(source) ? "Not tested since your last change · a test uses one search from your plan" : "Not tested since your last change"];
   return (
     <p role="status" className={cn("flex items-center gap-2 text-control", text)}>
       <span aria-hidden className={cn("size-2 flex-none rounded-full", dot)} />

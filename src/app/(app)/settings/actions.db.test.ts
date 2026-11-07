@@ -210,6 +210,20 @@ describe("job search settings (E14-4)", () => {
     expect((await settings()).adzunaAppId).toBeNull();
   });
 
+  it("saves a SerpApi key encrypted and never returns it", async () => {
+    await saveJobSource({ source: "SERPAPI" });
+    const result = await saveJobSourceKey({ source: "SERPAPI", change: { action: "set", value: " serp_secret " } });
+    expect(result).toMatchObject({ ok: true, data: { serpapi: { keyState: "set" } } });
+    expect(JSON.stringify(result)).not.toContain("serp_secret");
+    const stored = (await settings()).serpapiKeyEnc!;
+    expect(stored).not.toBeNull();
+    expect(stored).not.toContain("serp_secret");
+    expect(decryptSecret(JOB_SOURCE_KEY, stored)).toBe("serp_secret");
+
+    expect(await saveJobSourceKey({ source: "SERPAPI", change: { action: "clear" } })).toMatchObject({ ok: true, data: { serpapi: { keyState: "none" } } });
+    expect((await settings()).serpapiKeyEnc).toBeNull();
+  });
+
   it("saves where the JSearch key is from", async () => {
     expect(await saveJobSearchDetails({ jsearchHost: "rapidapi" })).toMatchObject({ ok: true, data: { jsearch: { host: "rapidapi" } } });
     expect((await settings()).jsearchHost).toBe("rapidapi");

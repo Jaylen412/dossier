@@ -1,3 +1,5 @@
+import { SOURCE_INFO } from "@/lib/job-search/sources";
+
 import { WIKI, type Instruction } from "./instructions";
 
 // The setup guide's job search step (E21-3): what kind of jobs, then the
@@ -13,7 +15,7 @@ export const JOB_KINDS: readonly { value: JobKind; name: string; description: st
 ];
 
 export type JobChoice = {
-  source: "FREEHIRE" | "ADZUNA" | "JSEARCH";
+  source: "FREEHIRE" | "ADZUNA" | "JSEARCH" | "SERPAPI";
   kind: Exclude<JobKind, "none">;
   name: string;
   about: string;
@@ -53,6 +55,17 @@ export const JOB_CHOICES: readonly JobChoice[] = [
     steps: [
       { text: "Sign up on OpenWeb Ninja's developer portal and choose JSearch's free plan.", link: { href: "https://app.openwebninja.com", label: "OpenWeb Ninja" } },
       { text: "Copy your API key and paste it below." },
+    ],
+  },
+  {
+    source: "SERPAPI",
+    kind: "any",
+    name: "SerpApi",
+    about: SOURCE_INFO.SERPAPI.description,
+    cost: "A free plan of 250 searches a month, no card needed. Paid plans start at $25 for 1,000.",
+    steps: [
+      { text: "Sign up for SerpApi's free plan.", link: { href: "https://serpapi.com/users/sign_up", label: "SerpApi's sign-up" } },
+      { text: "Copy the API key from your account's dashboard and paste it below." },
     ],
   },
 ];

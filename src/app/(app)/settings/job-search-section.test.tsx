@@ -78,6 +78,32 @@ describe("JobSearchSection", () => {
     expect(saveJobSourceKey).toHaveBeenCalledTimes(1);
   });
 
+  it("shows SerpApi's key field with its sign-up link when SerpApi is chosen", async () => {
+    render(<JobSearchSection initial={off} />);
+    await userEvent.click(screen.getByRole("radio", { name: "SerpApi" }));
+    expect(saveJobSource).toHaveBeenCalledWith({ source: "SERPAPI" });
+    expect(await screen.findByRole("note")).toHaveTextContent("Your searches (keywords, place and filters) go to SerpApi. Nothing from your profile does.");
+    expect(screen.getByRole("link", { name: "SerpApi's sign-up page" })).toHaveAttribute("href", "https://serpapi.com/users/sign_up");
+    expect(screen.getByLabelText("API key")).toHaveAttribute("placeholder", "Stored encrypted on your server");
+    expect(screen.getByRole("status")).toHaveTextContent("a test uses one search from your plan");
+  });
+
+  it("shows the SerpApi key from the environment by its name", () => {
+    render(<JobSearchSection initial={withSource({ source: "SERPAPI", serpapi: { keyState: "env" } })} />);
+    expect(screen.getByLabelText("API key")).toHaveAttribute("placeholder", "Using DOSSIER_SERPAPI_KEY · type one to save it here");
+  });
+
+  it("saves the key with source SERPAPI", async () => {
+    vi.mocked(saveJobSourceKey).mockResolvedValue({ ok: true, data: withSource({ source: "SERPAPI", serpapi: { keyState: "set" } }) });
+    render(<JobSearchSection initial={withSource({ source: "SERPAPI" })} />);
+    await userEvent.type(screen.getByLabelText("API key"), "serp_secret");
+    await userEvent.tab();
+    expect(saveJobSourceKey).toHaveBeenCalledWith({ source: "SERPAPI", change: { action: "set", value: "serp_secret" } });
+    await waitFor(() => expect(screen.getByLabelText("API key")).toHaveValue(""));
+    await userEvent.click(screen.getByRole("button", { name: "Remove saved key" }));
+    expect(saveJobSourceKey).toHaveBeenLastCalledWith({ source: "SERPAPI", change: { action: "clear" } });
+  });
+
   it("switches where the JSearch key is from", async () => {
     render(<JobSearchSection initial={withSource({ source: "JSEARCH" })} />);
     await userEvent.click(screen.getByRole("radio", { name: "RapidAPI" }));

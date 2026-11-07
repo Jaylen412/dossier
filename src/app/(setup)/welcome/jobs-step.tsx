@@ -62,7 +62,7 @@ function SourcePanel({ choice, initial, onConnected }: { choice: JobChoice; init
   const [appId, setAppId] = useState(initial.adzuna.appId);
   const [key, setKey] = useState("");
   const [status, setStatus] = useState<Status>({ state: "idle" });
-  const savedKey = choice.source === "ADZUNA" ? initial.adzuna.keyState : initial.jsearch.keyState;
+  const savedKey = choice.source === "ADZUNA" ? initial.adzuna.keyState : choice.source === "SERPAPI" ? initial.serpapi.keyState : initial.jsearch.keyState;
 
   const connect = async () => {
     setStatus({ state: "checking" });
@@ -70,7 +70,7 @@ function SourcePanel({ choice, initial, onConnected }: { choice: JobChoice; init
       () => saveJobSource({ source: choice.source }),
       ...(choice.source === "ADZUNA" ? [() => saveJobSearchDetails({ adzunaAppId: appId })] : []),
       ...(choice.source === "JSEARCH" ? [() => saveJobSearchDetails({ jsearchHost: "openwebninja" })] : []),
-      ...(choice.source !== "FREEHIRE" && key.trim() ? [() => saveJobSourceKey({ source: choice.source as "ADZUNA" | "JSEARCH", change: { action: "set", value: key } })] : []),
+      ...(choice.source !== "FREEHIRE" && key.trim() ? [() => saveJobSourceKey({ source: choice.source as "ADZUNA" | "JSEARCH" | "SERPAPI", change: { action: "set", value: key } })] : []),
     ];
     for (const step of steps) {
       if (!toastResult(await step()).ok) return setStatus({ state: "idle" });
@@ -109,7 +109,7 @@ function SourcePanel({ choice, initial, onConnected }: { choice: JobChoice; init
         {choice.source === "ADZUNA" && <Input label="Application ID" autoComplete="off" value={appId} onChange={(event) => setAppId(event.target.value)} />}
         {choice.source !== "FREEHIRE" && (
           <Input
-            label={choice.source === "ADZUNA" ? "Application key" : "JSearch API key"}
+            label={choice.source === "ADZUNA" ? "Application key" : `${choice.name} API key`}
             type="password"
             autoComplete="off"
             placeholder={savedKey === "set" ? "Saved · paste a new one to replace it" : "Paste it here"}
