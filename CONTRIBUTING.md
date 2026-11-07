@@ -1,5 +1,7 @@
 # Contributing to Dossier
 
+> **This is a private fork,** and it takes no pull requests. A fix that would help everyone belongs upstream, at [AienTech/dossier](https://github.com/AienTech/dossier), under the rules below, which are upstream's. Leave out this fork's own changes (the removed usage ping, update check and notices, and `src/lib/no-upstream.test.ts`) when you send one there.
+
 Thanks for wanting to help. Bugs and ideas go in the issue forms; this page is about pull requests. How to set Dossier up and run its checks is in [DEVELOPMENT.md](DEVELOPMENT.md).
 
 Please read the four rules below before you start. I'll close a pull request that doesn't follow them, however much work went into it.

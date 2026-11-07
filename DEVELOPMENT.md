@@ -235,30 +235,15 @@ The job agent (`src/lib/agent`, the `/agent` screen and Settings → Job agent) 
 
 The end-to-end spec `e2e/agent.spec.ts` runs it against the fake JSearch and the fake AI, which scores by title (`posting_score` in `e2e/fake-ai.mts`).
 
-## Usage ping
+## Nothing upstream
 
-The usage ping is opt-in. A production server asks once after sign-in (`src/app/(app)/usage-ping-dialog.tsx`, shown by the signed-in layout while nobody has answered and `DOSSIER_TELEMETRY` isn't set) and sends nothing before a yes. After one, on each day someone signed in opens a page, it sends `https://telemetry.dossier.aien.me/ping` the install's random ID and the version, once (`src/lib/usage-ping.ts`, called with `after()` from the signed-in layout). `DOSSIER_TELEMETRY=on` or `off` answers in advance and wins while it's set.
+This fork sends nothing to the upstream project. Upstream's usage ping (`telemetry.dossier.aien.me`), daily update check (GitHub's API for `AienTech/dossier`) and notices (`api.dossier.aien.me`) are taken out, with their dialog, sidebar notice, Settings → About switches, environment variables and tests. Their settings (`usagePing*`, `updateCheck`, `latestVersion*`, `updateDismissed`, `announcementFeed`, `announcementsDismissed`) stay in `src/lib/settings.ts`, unread, so databases and exports from upstream still read; exports leave them out (`INSTALL_SETTINGS` in `src/lib/data-export.ts`). `src/lib/announcements/contract.ts` stays only for `announcementFeed`'s shape.
 
-The answer, when it was given and the version of the question's text are the settings `usagePingChoice`, `usagePingChoiceAt` and `usagePingChoiceText`; the ID and the day of the last ping are `usagePingId` and `usagePingDay`. Exports leave them all out and imports keep them (`INSTALL_SETTINGS` in `src/lib/data-export.ts`). A no deletes the ID. When the question's text changes, raise `USAGE_PING_TEXT_VERSION`, and everyone is asked again. Development servers and tests never ask or send it (`NODE_ENV` isn't `production`). The end-to-end run is a production build: `resetData()` answers no, `e2e/usage-ping.spec.ts` asks, and a yes goes to the fake job sources (`DOSSIER_USAGE_PING_TEST_URL`), never the project.
+`src/lib/no-upstream.test.ts` reads every source file under `src/`, `prisma/` and `docker/`, the `Dockerfile` and `next.config.ts`, and fails on an upstream address (`aien.me`, `api.github.com` or the usage ping's mail address). When you merge an upstream release, read what it changes, and if that test fails, take the new call out before anything else. Links the user clicks, to the repository or the wiki, are fine: the server never asks them for anything. `compose.jetson.yml` points the upstream addresses at `0.0.0.0` too, so a call that slipped through would go nowhere.
 
-The receiving end is a small service on the project's own server that isn't published with the app. Change what the ping sends only together with it, the wiki's [Privacy](https://github.com/AienTech/dossier/wiki/Privacy) page and Settings → About.
-
-## Announcements
-
-The project can publish short notices, such as a security fix, and each page shows them in a card over the page (`src/app/(app)/announcement-notice.tsx`), one at a time, until they're dismissed. The sidebar's notice is for updates only. The signed-in layout starts the check after a page load, using the settings it read anyway, so a page costs nothing until a check is due (`src/lib/announcements/check.ts`). When to ask next comes from the answer's `Cache-Control`, between 1 hour and 7 days.
-
-- **The request carries nothing about the install,** only `User-Agent: Dossier`. Which notices apply (version range, expiry, dismissed) is decided on the install (`src/lib/announcements/visible.ts`).
-- **A failure changes nothing:** the last good answer stays, and nothing is shown or logged.
-- **Notices are plain text,** with one optional link, which can go anywhere on the web. Anything but `http` or `https` is dropped, because the link becomes an `href`. This is not a channel for advertising.
-
-The answer and the dismissed IDs are the settings `announcementFeed` and `announcementsDismissed`, which exports leave out and imports keep (`INSTALL_SETTINGS` in `src/lib/data-export.ts`).
-
-The backend is the project's own service and isn't published with the app. `src/lib/announcements/api-v1.schema.json` is a copy of its contract, and a test compares it with what the app reads, so update the copy when the contract grows. The API only grows, so the app ignores what it doesn't know.
-
-A production server asks `https://api.dossier.aien.me/v1`. A development server only asks while `DOSSIER_API_URL` is set, and then on every page, so a change shows without the wait: the first reload asks, and the next one shows it. To try it against a local copy of the backend, set that variable, for example in an untracked `compose.override.yml`. The variable isn't in `.env.example` or `compose.production.yml`, because nobody running the image needs it. `e2e/announcements.spec.ts` points it at the fake job sources.
 ## The desktop app
 
-`desktop/` is the app for Linux and Windows, built with Electron. One download, two modes, chosen on first launch: **On my server** opens the user's own Dossier in a window, and **On this computer** runs Dossier itself. There's no auto-update: people download each new version from the release page.
+`desktop/` is the app for Linux and Windows, built with Electron. One download, two modes, chosen on first launch: **On my server** opens the user's own Dossier in a window, and **On this computer** runs Dossier itself. There's no auto-update. This fork has no release workflow, so it never builds the app by itself: `yarn package:linux` or `yarn package:windows` in `desktop/`, after `yarn prepare-server`, makes one from this source.
 
 It has its own `package.json` and `yarn.lock`, so the image doesn't carry Electron.
 
@@ -288,7 +273,7 @@ Put tests next to the code they cover. `*.test.ts` files run in Node (server cod
 They refuse to run against a database whose name doesn't end in `_test`, so your development data is never touched.
 With an SQLite `DATABASE_URL`, they run against the file next to it with `_test` added to its name (`file:/app/data/dev_test.db`).
 
-GitHub Actions (`.github/workflows/ci.yml`) runs lint, type-check and tests with coverage, with a Postgres service for the database tests (then runs those again on SQLite), on release branches (`release/1.12.0`), when one is pushed and on each push after that, and shows the coverage in the job summary. A newer push to the same branch cancels the run it replaces. Nothing else runs them: pull requests aren't checked, so run the checks yourself before you open one. The public repository has no release branches: `image.yml` runs the same jobs there after each merge or publish to `main`, before it builds the image. The coverage thresholds in `vitest.config.mts` ratchet: they sit a few points below the coverage when they were set, and CI fails if coverage drops below them. Raise them when you add tests.
+This fork has no CI: `.github/workflows/` is gone and GitHub Actions are off, so nothing builds, tests or publishes on a push. Run the checks above yourself before you merge. The coverage thresholds in `vitest.config.mts` ratchet: they sit a few points below the coverage when they were set, and `test:coverage` fails if coverage drops below them. Raise them when you add tests.
 
 ### End-to-end tests
 
@@ -298,24 +283,24 @@ GitHub Actions (`.github/workflows/ci.yml`) runs lint, type-check and tests with
 docker/bin/yarn build && docker/bin/yarn test:e2e
 ```
 
-The run starts its own server on port 3100 with a separate `dossier_e2e` database (created and migrated on the way, reset to the demo data before the specs that change data), a fake OpenAI-compatible server on port 3999 (`e2e/fake-ai.mts`) that answers each AI task with plausible output, fake job sources on port 3998 (`e2e/fake-jobs.mts`), which the app reaches through `DOSSIER_JOBS_TEST_BASE_URL`, a variable for the tests only, and a fake Google on port 3997 (`e2e/fake-google.mts`) for sign-in, Gmail and Calendar (`DOSSIER_GOOGLE_TEST_BASE_URL`), which only comes into play once a spec enters an OAuth client in Settings → Google. The daily update check asks the same fake instead of GitHub (`DOSSIER_UPDATES_TEST_BASE_URL`), which says no release is out, so a spec can store the latest release itself, and so does Jev (`DOSSIER_TYPESAFE_TEST_BASE_URL`), with answers made from the questions. The same fake answers for the project's backend (`DOSSIER_API_URL`), with no notices until a spec says otherwise. Your development server and data are never touched: the tests refuse any database whose name doesn't end in `_e2e`. CI runs them in a job of their own and keeps the report of a failed run as an artifact.
+The run starts its own server on port 3100 with a separate `dossier_e2e` database (created and migrated on the way, reset to the demo data before the specs that change data), a fake OpenAI-compatible server on port 3999 (`e2e/fake-ai.mts`) that answers each AI task with plausible output, fake job sources on port 3998 (`e2e/fake-jobs.mts`), which the app reaches through `DOSSIER_JOBS_TEST_BASE_URL`, a variable for the tests only, and a fake Google on port 3997 (`e2e/fake-google.mts`) for sign-in, Gmail and Calendar (`DOSSIER_GOOGLE_TEST_BASE_URL`), which only comes into play once a spec enters an OAuth client in Settings → Google. Jev asks the same fake (`DOSSIER_TYPESAFE_TEST_BASE_URL`), with answers made from the questions. Your development server and data are never touched: the tests refuse any database whose name doesn't end in `_e2e`.
 
 ## The production image
 
 The `Dockerfile`'s last stage is the production image (the `dev` stage is what Compose runs here). It holds the standalone Next.js server, Playwright's Chromium for PDFs, and Prisma's CLI for migrations, runs as `node`, and starts with `docker/start.sh`: `prisma migrate deploy`, the seed (compiled with esbuild at build time), then the server. To build and try it next to the development stack:
 
 ```bash
-docker build -t dossier:local .
-DOSSIER_IMAGE=dossier:local DOSSIER_PORT=3300 docker compose -f compose.production.yml -p dossier-local up -d
+docker build --target production -t dossier-local .
+DOSSIER_PORT=3300 docker compose -f compose.production.yml -p dossier-local up -d
 ```
 
-In the public repository, `image.yml` pushes an image for every commit on `main` to `ghcr.io/<owner>/<repository>:<sha>` (lower case), once the checks and the end-to-end tests pass. A version tag (`v1.0.0`) then tags that commit's image with the version and `latest`.
+This is the only way the image is made: nothing publishes one, and `compose.production.yml` and `compose.jetson.yml` never pull (`pull_policy: never`). For the Jetson, build it for `linux/arm64` (see the README).
 
 ## The website
 
-`site/` is the project's website, plain HTML, CSS and a little JavaScript. `site/build.sh` puts it together in `_site/` with the README's screenshots (`.github/images/`), the app's icons and three of its fonts, so there's one copy of each. To look at it, serve `_site/` with any static server, for example `docker run --rm -p 8080:80 -v "$PWD/_site:/usr/share/nginx/html:ro" nginx:alpine`, then open http://localhost:8080. The public repository's Pages workflow publishes it when any of those change on `main`, and once a day. When the README's screenshots change, the site's change with them.
+`site/` is the upstream project's website (dossier.aien.me), kept so upstream merges stay simple; this fork doesn't publish it. It's plain HTML, CSS and a little JavaScript. `site/build.sh` puts it together in `_site/` with the README's screenshots (`.github/images/`), the app's icons and three of its fonts, so there's one copy of each. To look at it, serve `_site/` with any static server, for example `docker run --rm -p 8080:80 -v "$PWD/_site:/usr/share/nginx/html:ro" nginx:alpine`, then open http://localhost:8080.
 
-The number above the hero's buttons is the Docker image's download count. GitHub's API has no download counts for `ghcr.io`, so `build.sh` reads it from the package page (the `title` of the number under "Total downloads") and writes it into `_site/index.html`, rounded down. The daily run keeps it current. If the page can't be read (you're offline, or GitHub changed its markup), the build prints a warning and keeps the floor written in `site/index.html`. Raise that floor now and then, and update the `sed` in `build.sh` if the warning keeps coming.
+The number above the hero's buttons is the upstream image's download count. GitHub's API has no download counts for `ghcr.io`, so `build.sh` reads it from upstream's package page on github.com (the `title` of the number under "Total downloads") and writes it into `_site/index.html`, rounded down. If the page can't be read (you're offline, or GitHub changed its markup), the build prints a warning and keeps the floor written in `site/index.html`. Raise that floor now and then, and update the `sed` in `build.sh` if the warning keeps coming.
 
 ## Reset
 

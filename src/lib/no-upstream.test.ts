@@ -1,4 +1,4 @@
-import { globSync, readFileSync } from "node:fs";
+import { globSync, readFileSync, statSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
@@ -18,7 +18,7 @@ const sources = [
   ...globSync("docker/**/*"),
   "Dockerfile",
   "next.config.ts",
-].filter((file) => !/\.test\.tsx?$/.test(file) && !file.startsWith("src/generated/"));
+].filter((file) => statSync(file).isFile() && !/\.test\.tsx?$/.test(file) && !file.startsWith("src/generated/"));
 
 describe("nothing upstream", () => {
   it("finds the sources", () => {

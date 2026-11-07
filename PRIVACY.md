@@ -1,8 +1,8 @@
 # Privacy
 
-Dossier is a single-user app you run on your own server. This page is for whoever runs it: what Dossier keeps and for how long, what leaves your server and who receives it, and what deleting something removes. For how the data is protected, see [SECURITY.md](SECURITY.md).
+Dossier is a single-user app you run on your own server. This page describes this fork, which sends nothing to the upstream Dossier project: its usage ping, update check and notices request are taken out (`src/lib/no-upstream.test.ts` keeps them out). This page is for whoever runs it: what Dossier keeps and for how long, what leaves your server and who receives it, and what deleting something removes. For how the data is protected, see [SECURITY.md](SECURITY.md).
 
-In short: everything you enter is kept in your own database (PostgreSQL, or an SQLite file, as in the desktop app) and data directory. What leaves your server goes to the AI provider and job source you choose, to Google if you connect Gmail and Calendar, to Hacker News and startups' own sites once you use Startups, to TypeSafe if you choose Jev for scoring, to Anthropic through Claude, or another app you connect, if you turn on the MCP connector, plus an update check you can turn off, a request for the project's current notices, and a daily usage ping, only if you agree to it. With a local model, your profile, postings and documents never leave your server. With a hosted one, keeping the database on your server covers only part of where your data goes.
+In short: everything you enter is kept in your own database (PostgreSQL, or an SQLite file, as on a Jetson with `compose.jetson.yml`) and data directory. What leaves your server goes to the AI provider and job source you choose, to Google if you connect Gmail and Calendar, to Hacker News and startups' own sites once you use Startups, to TypeSafe if you choose Jev for scoring, and to Anthropic through Claude, or another app you connect, if you turn on the MCP connector. Nothing goes to the Dossier project. With a local model, your profile, postings and documents never leave your server. With a hosted one, keeping the database on your server covers only part of where your data goes.
 
 ## What Dossier keeps
 
@@ -24,7 +24,7 @@ In short: everything you enter is kept in your own database (PostgreSQL, or an S
 | Zips from **Download all PDFs** | Data directory, `downloads` | Downloaded, or an hour |
 | The tokens each AI request used: for each request to your AI model or to Jev, which task asked, the provider and model, when, and the token counts its server reported, for the Usage screen. Never the prompt or the answer | Database | Delete everything. Exports leave them out |
 | Failed sign-ins: the client IP and how many failed | Database | A successful sign-in from that IP. Otherwise, once they're a day old, the next failed sign-in clears them |
-| Your answer to whether to send the usage ping, when you gave it and to which version of the question, the usage ping's random install ID and the day of the last ping, the latest release the update check found, your browser's time zone, so the inbox check reads times in it, and when you last opened Startups and what its last refresh found | Database | Delete everything |
+| Your browser's time zone, so the inbox check reads times in it, and when you last opened Startups and what its last refresh found | Database | Delete everything |
 
 Exports you download and database dumps you take are copies outside Dossier's reach: keep them safe, and delete them yourself. Dossier logs errors without the data involved; what your server, Docker or reverse proxy log otherwise is up to your setup.
 
@@ -48,11 +48,8 @@ Exports you download and database dumps you take are copies outside Dossier's re
 | Anthropic, through Claude | Only while the MCP connector is on (Settings → MCP connector, off by default), and only for the Claude you signed in and allowed: each time Claude uses one of Dossier's tools | What that tool answers. See [MCP connector](#mcp-connector) |
 | Another MCP app you connect, such as n8n | Only while the MCP connector is on, only for an app whose callback address you added in Settings → MCP connector, and only after you signed in and allowed it: each time it uses one of Dossier's tools | What that tool answers, to whoever runs the app. See [MCP connector](#mcp-connector) |
 | The site a posting is on | When you press **Fetch** on a new application, and for a Find jobs posting that came with only its start | A request for the posting's page, from your server, never to an address on your own network |
-| GitHub | Once on each day Dossier is used, while **Check for updates daily** is on in Settings → About (it is by default), and when you press **Check for updates** | A request for the latest release, from your server. Nothing about you or your install, though GitHub sees your server's address, as with any request |
-| `api.dossier.aien.me` | While Dossier is used, at most once an hour | A request for the project's current notices, from your server. Nothing about you or your install, though the project's server sees your server's address, as with any request |
-| `telemetry.dossier.aien.me` | Once on each day Dossier is used, only after you agree (Dossier asks once, after you sign in) or set `DOSSIER_TELEMETRY=on` | A random install ID and the version number. See [Usage ping](#usage-ping) |
 
-Nothing else is sent. Your browser loads nothing from other sites (the Content-Security-Policy forbids it), and Next.js telemetry is off in the image.
+Nothing else is sent: no usage ping, no update check and no notices request, to the Dossier project or anyone else. Your browser loads nothing from other sites (the Content-Security-Policy forbids it), and Next.js telemetry is off in the image. If you upgraded from upstream, settings the usage ping and update check left in the database stay there unread, and exports leave them out.
 
 ### What a hosted AI provider receives
 
@@ -77,25 +74,6 @@ What happens to the data then depends on the provider and your account with them
 With **Jev by TypeSafe** chosen in Settings → Scoring, each posting you score goes to TypeSafe AI, Inc. instead of your AI provider: the posting's text (up to 20,000 characters) with its title, company, place, salary and whether it's remote, and your profile without your name, contact details or references: your headline, city and country, summary, skills, languages, roles with their companies, places, dates and bullet points, projects (not their links), education, the certifications you show on resumes (not their links or credential IDs), the publications you show on resumes and your facts about you. Dossier's questions quote the posting's lines. **Test connection** sends one sentence of Dossier's own. Nothing else is sent, and Dossier keeps only the score, reasons and red flags it makes from the answers.
 
 TypeSafe's [privacy policy](https://typesafe.ai/legal/privacy-policy) says it doesn't train or fine-tune models on what you send, that its service is hosted in the United States, and that it keeps data as long as it needs to provide the service, without a fixed period. Its [data processing agreement](https://typesafe.ai/legal/data-processing) covers transfers from the EU with standard contractual clauses. The key and the account are yours, with TypeSafe: read their terms before you choose Jev.
-
-### Usage ping
-
-Dossier asks once, after you first sign in, whether to send a usage ping, and sends nothing until you agree. If you do, on each day you use Dossier your server sends `telemetry.dossier.aien.me` a random install ID and the version number, once, so the project knows how many installs are in use and how often. The ID is made at random and kept in your database. It isn't derived from anything about you or your server, and exports leave it out. Nothing else is sent: no profile, documents, applications, settings, server address or time of day. Dossier works the same either way.
-
-The receiver runs on the project's own server. It keeps the ID, the day and the version, and deletes them after a year. It doesn't keep the address the ping came from, and no other service handles the ping on the way.
-
-- **Change your answer:** the switch in Settings → About, at any time. Saying no forgets the install ID, so what was sent before and anything sent after a later yes can't be linked. `DOSSIER_TELEMETRY=on` or `off` answers for the server and hides the question; while it's set, it decides.
-- **Delete what was sent:** note the install ID in Settings → About, switch the ping off, then send the ID to `dossier.app@pm.me`. Everything kept under it is deleted, and you get a confirmation.
-
-What the usage ping sends is received by the project, not by you, so the project is responsible for it under the GDPR:
-
-- **Controller:** the maintainer of the Dossier project, reachable at `dossier.app@pm.me`.
-- **Purpose and lawful basis:** counting the installs in use and how often they're used, with your consent (Art. 6(1)(a) GDPR), given in the question after sign-in, with the switch in Settings → About, or with `DOSSIER_TELEMETRY=on`. Reading the install ID on your server to send it rests on the same consent (§ 25(1) TDDDG). Dossier keeps your answer, when you gave it and which version of the question you answered.
-- **Pings from before 1.8.0:** until 1.8.0, the ping was sent unless `DOSSIER_TELEMETRY=off`. What those pings left is kept until its year is up, on the basis of the project's legitimate interest in knowing how many installs are in use (Art. 6(1)(f) GDPR). You can object to that and have it deleted as above.
-- **Recipients:** Hetzner Online GmbH hosts the receiver's server in Germany, as a processor. Nobody else receives the data, and it doesn't leave the EEA.
-- **How long:** a year from the day of each ping.
-- **Your rights:** you can withdraw your consent at any time, which doesn't affect what was sent before (Art. 7(3) GDPR), and ask for access to what's kept under your install ID, for its erasure, or object to its use (Art. 15, 17 and 21). You can also complain to a data protection authority (Art. 77), for example the one where you live.
-- No decisions are made automatically from the ping, and it isn't used for profiling.
 
 ### Startups
 

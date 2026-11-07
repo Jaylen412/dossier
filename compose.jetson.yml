@@ -6,18 +6,18 @@
 # Build the image on an arm64 machine (an Apple Silicon Mac is one) from this
 # fork's source, never pull ghcr.io/aientech/dossier:
 #
-#   docker buildx build --platform linux/arm64 --target production -t dossier-local:1.12.0 --load .
-#   docker save dossier-local:1.12.0 | ssh jetson docker load
+#   docker buildx build --platform linux/arm64 --target production -t dossier-local --load .
+#   docker save dossier-local | ssh jetson docker load
 #
 # On the Jetson, put DOSSIER_PASSWORD (a hash: `docker run --rm -it
-# dossier-local:1.12.0 hash-password`), DOSSIER_SECRET (`openssl rand -base64
+# dossier-local hash-password`), DOSSIER_SECRET (`openssl rand -base64
 # 32`), DOSSIER_LAN_IP and DOSSIER_AI_MODEL in a .env file next to this one, then:
 #
 #   docker compose -f compose.jetson.yml up -d
 
 services:
   app:
-    image: ${DOSSIER_IMAGE:-dossier-local:1.12.0}
+    image: ${DOSSIER_IMAGE:-dossier-local}
     pull_policy: never
     restart: unless-stopped
     environment:
