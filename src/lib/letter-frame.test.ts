@@ -17,7 +17,7 @@ describe("the letter's frame (E8-11)", () => {
       greeting: "Dear Ledgerly team,",
       signature: "Jane Doe",
     });
-    expect(defaultFrame({ ...context, basics: { ...basics, name: " ", email: "", phone: "", website: "", linkedin: "", city: "", country: "", address: "" }, company: "", location: "" })).toEqual({
+    expect(defaultFrame({ ...context, basics: { ...basics, name: " ", email: "", phone: "", website: "", linkedin: "", city: "", state: "" }, company: "", location: "" })).toEqual({
       sender: "Your name",
       date: "3 October 2026",
       recipient: "Hiring team",
@@ -27,9 +27,8 @@ describe("the letter's frame (E8-11)", () => {
   });
 
   it("draws the parts the AI didn't write in the letter's language", () => {
-    const frame = defaultFrame({ ...context, basics: { ...basics, showAge: true }, labels: documentLabels("German") });
+    const frame = defaultFrame({ ...context, labels: documentLabels("German") });
     expect(frame).toMatchObject({ recipient: "Ledgerly · Personalabteilung\nAmsterdam", greeting: "Sehr geehrte Damen und Herren," });
-    expect(frame.sender).toMatch(/ · 34 Jahre$/);
     expect(defaultFrame({ ...context, company: "", labels: documentLabels("Spanish") })).toMatchObject({
       recipient: "Equipo de selección\nAmsterdam",
       greeting: "Estimado equipo de selección:",

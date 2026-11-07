@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import { LanguageLevel } from "@/generated/prisma/enums";
 
 import {
-  ageOn,
   BASICS_FIELDS,
   basicsFromFields,
   byStartDateDesc,
@@ -105,30 +104,21 @@ describe("dates", () => {
 
 describe("basics", () => {
   const empty = {
-    name: "", headline: "", email: "", phone: "", dob: "", website: "",
-    address: "", city: "", country: "", linkedin: "", summary: "",
+    name: "", headline: "", email: "", phone: "", website: "",
+    city: "", state: "", linkedin: "", summary: "",
   };
 
   it("counts filled required fields, ignoring whitespace", () => {
-    expect(BASICS_FIELDS).toHaveLength(11);
+    expect(BASICS_FIELDS).toHaveLength(9);
     expect(filledBasics(empty)).toBe(0);
     expect(filledBasics({ ...empty, name: "Jane", email: "jane.doe@example.com", city: "  " })).toBe(2);
-  });
-
-  it("computes the age from the date of birth", () => {
-    const today = new Date(2026, 8, 28); // 28 September 2026, local time
-    expect(ageOn("1992-04-18", today)).toBe(34);
-    expect(ageOn("1992-09-28", today)).toBe(34); // birthday today
-    expect(ageOn("1992-09-29", today)).toBe(33); // birthday tomorrow
-    expect(ageOn("", today)).toBeNull();
-    expect(ageOn("2030-01-01", today)).toBeNull();
   });
 });
 
 describe("profile strength", () => {
   const basics = Object.fromEntries(BASICS_FIELDS.map((field) => [field, ""])) as Record<(typeof BASICS_FIELDS)[number], string>;
   const none = { basics, experience: 0, education: 0, skills: 0 };
-  const required = { ...basics, name: "L", headline: "h", email: "e", city: "c", country: "n", summary: "s" };
+  const required = { ...basics, name: "L", headline: "h", email: "e", city: "c", state: "n", summary: "s" };
 
   it("weighs the required basics 40, experience 30, education 15 and skills 15", () => {
     expect(profileStrength(none).percent).toBe(0);
@@ -139,7 +129,7 @@ describe("profile strength", () => {
   });
 
   it("leaves out the optional basics (#216)", () => {
-    const optional = { ...basics, phone: "p", dob: "1992-04-18", website: "w", address: "a", linkedin: "l" };
+    const optional = { ...basics, phone: "p", website: "w", linkedin: "l" };
     expect(profileStrength({ ...none, basics: optional }).percent).toBe(0);
     expect(filledBasics(optional)).toBe(0);
   });
@@ -163,19 +153,16 @@ describe("stored basics", () => {
   const basics = {
     ...(Object.fromEntries(BASICS_FIELDS.map((field) => [field, ""])) as Record<(typeof BASICS_FIELDS)[number], string>),
     name: "Jane Doe",
-    dob: "1992-04-18",
-    showAge: true,
   };
 
   it("stores filled-in fields as text and marks empty ones for removal", () => {
-    expect(fieldsFromBasics(basics)).toMatchObject({ name: "Jane Doe", dob: "1992-04-18", showAge: "true", email: null });
-    expect(fieldsFromBasics({ ...basics, showAge: false }).showAge).toBeNull();
+    expect(fieldsFromBasics(basics)).toMatchObject({ name: "Jane Doe", email: null });
   });
 
   it("reads them back, with missing keys empty and unknown ones ignored", () => {
     const rows = Object.entries(fieldsFromBasics(basics)).flatMap(([key, value]) => (value === null ? [] : [{ key, value }]));
     expect(basicsFromFields(rows)).toEqual(basics);
-    expect(basicsFromFields([{ key: "nickname", value: "Lee" }])).toEqual({ ...basics, name: "", dob: "", showAge: false });
+    expect(basicsFromFields([{ key: "nickname", value: "Lee" }])).toEqual({ ...basics, name: "" });
   });
 });
 

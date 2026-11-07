@@ -29,14 +29,11 @@ export const saveBasics = action(
     headline: text(300),
     email: text(320),
     phone: text(60),
-    dob: z.union([z.literal(""), z.iso.date()]),
     website: text(500),
-    address: text(300),
     city: text(120),
-    country: text(120),
+    state: text(120),
     linkedin: text(500),
     summary: text(5000),
-    showAge: z.boolean(),
   }),
   async (basics) => {
     const before = await loadProfileName();

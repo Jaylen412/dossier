@@ -38,7 +38,7 @@ exports[`ResumeDocument > renders the demo profile in Atlas 1`] = `
       <bdi
         dir="ltr"
       >
-        Rotterdam, Netherlands
+        Rotterdam, South Holland
       </bdi>
         ·  
       <bdi
@@ -508,7 +508,7 @@ exports[`ResumeDocument > renders the demo profile in Chronicle 1`] = `
       <bdi
         dir="ltr"
       >
-        Rotterdam, Netherlands
+        Rotterdam, South Holland
       </bdi>
         ·  
       <bdi
@@ -978,7 +978,7 @@ exports[`ResumeDocument > renders the demo profile in Classic 1`] = `
       <bdi
         dir="ltr"
       >
-        Rotterdam, Netherlands
+        Rotterdam, South Holland
       </bdi>
         ·  
       <bdi
@@ -1466,7 +1466,7 @@ exports[`ResumeDocument > renders the demo profile in Console 1`] = `
             <bdi
               dir="ltr"
             >
-              Rotterdam, Netherlands
+              Rotterdam, South Holland
             </bdi>
           </li>
           <li>
@@ -1937,7 +1937,7 @@ exports[`ResumeDocument > renders the demo profile in Editorial 1`] = `
       <bdi
         dir="ltr"
       >
-        Rotterdam, Netherlands
+        Rotterdam, South Holland
       </bdi>
         ·  
       <bdi
@@ -2407,7 +2407,7 @@ exports[`ResumeDocument > renders the demo profile in Folio 1`] = `
       <bdi
         dir="ltr"
       >
-        Rotterdam, Netherlands
+        Rotterdam, South Holland
       </bdi>
         ·  
       <bdi
@@ -2895,7 +2895,7 @@ exports[`ResumeDocument > renders the demo profile in Ledger 1`] = `
             <bdi
               dir="ltr"
             >
-              Rotterdam, Netherlands
+              Rotterdam, South Holland
             </bdi>
           </li>
           <li>
@@ -3366,7 +3366,7 @@ exports[`ResumeDocument > renders the demo profile in Minimal 1`] = `
       <bdi
         dir="ltr"
       >
-        Rotterdam, Netherlands
+        Rotterdam, South Holland
       </bdi>
         ·  
       <bdi
@@ -3854,7 +3854,7 @@ exports[`ResumeDocument > renders the demo profile in Modern 1`] = `
             <bdi
               dir="ltr"
             >
-              Rotterdam, Netherlands
+              Rotterdam, South Holland
             </bdi>
           </li>
           <li>
@@ -4325,7 +4325,7 @@ exports[`ResumeDocument > renders the demo profile in Signal 1`] = `
       <bdi
         dir="ltr"
       >
-        Rotterdam, Netherlands
+        Rotterdam, South Holland
       </bdi>
         ·  
       <bdi
@@ -5188,7 +5188,7 @@ exports[`ResumeDocument > renders the demo profile in Studio 1`] = `
             <bdi
               dir="ltr"
             >
-              Rotterdam, Netherlands
+              Rotterdam, South Holland
             </bdi>
           </li>
           <li>
@@ -5302,7 +5302,7 @@ exports[`ResumeDocument > renders the demo profile in Technical 1`] = `
             <bdi
               dir="ltr"
             >
-              Rotterdam, Netherlands
+              Rotterdam, South Holland
             </bdi>
           </li>
           <li>

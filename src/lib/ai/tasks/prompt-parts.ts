@@ -59,7 +59,7 @@ export function profileForPrompt(profile: ProfileData, { includeReferences = fal
     {
       name: basics.name,
       headline: basics.headline,
-      basedIn: [basics.city, basics.country].filter(Boolean).join(", "),
+      basedIn: [basics.city, basics.state].filter(Boolean).join(", "),
       summary: basics.summary,
       ...(facts.length > 0 ? { factsAboutMe: facts } : {}),
       skills: profile.skills.map((skill) => skill.name),

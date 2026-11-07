@@ -10,38 +10,37 @@ import { ResumeDocument } from "./resume-document";
 const themes = BUILT_IN_THEMES;
 const theme = (id: string) => themes.find((entry) => entry.id === id)!;
 const profile = demoProfile();
-const today = new Date(2026, 8, 28);
 
 const sectionTitles = () => screen.getAllByRole("heading", { level: 2 }).map((heading) => heading.textContent);
 
 describe("ResumeDocument", () => {
   it.each(themes.map((entry) => [entry.name, entry] as const))("renders the demo profile in %s", (_, entry) => {
-    const { container } = render(<ResumeDocument theme={entry} profile={profile} paper="A4" today={today} />);
+    const { container } = render(<ResumeDocument theme={entry} profile={profile} paper="A4" />);
     expect(container.firstChild).toMatchSnapshot();
   });
 
   it("puts contact details in the header of single-column layouts", () => {
-    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" />);
     expect(screen.getByText("jane.doe@example.com").parentElement?.textContent).toBe(
-      "jane.doe@example.com  ·  +31 6 1234 5678  ·  Rotterdam, Netherlands  ·  example.com  ·  linkedin.com/in/janedoe-example",
+      "jane.doe@example.com  ·  +31 6 1234 5678  ·  Rotterdam, South Holland  ·  example.com  ·  linkedin.com/in/janedoe-example",
     );
     expect(sectionTitles()).toEqual(["Profile", "Experience", "Projects", "Education", "Certifications", "Publications", "Skills", "Languages"]);
   });
 
   it("lists contact details first in the sidebar of sidebar layouts", () => {
-    render(<ResumeDocument theme={theme("modern")} profile={profile} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("modern")} profile={profile} paper="A4" />);
     expect(sectionTitles()).toEqual(["Contact", "Skills", "Languages", "Profile", "Experience", "Projects", "Education", "Certifications", "Publications"]);
     const contact = screen.getByRole("heading", { name: "Contact" }).parentElement!;
     expect(within(contact).getAllByRole("listitem").map((item) => item.textContent)).toContain("example.com");
   });
 
   it("renders a sidebar theme in a single column when asked", () => {
-    render(<ResumeDocument theme={theme("modern")} profile={profile} paper="A4" layout="SINGLE" today={today} />);
+    render(<ResumeDocument theme={theme("modern")} profile={profile} paper="A4" layout="SINGLE" />);
     expect(sectionTitles()).toEqual(["Profile", "Experience", "Projects", "Education", "Certifications", "Publications", "Skills", "Languages"]);
   });
 
   it("reads a sidebar at the end of the line after the main column, on its tinted panel", () => {
-    render(<ResumeDocument theme={theme("studio")} profile={profile} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("studio")} profile={profile} paper="A4" />);
     expect(sectionTitles()).toEqual(["Profile", "Experience", "Projects", "Education", "Certifications", "Publications", "Contact", "Skills", "Languages"]);
     const panel = screen.getByRole("heading", { name: "Contact" }).closest("section")!.parentElement!;
     expect(panel.className).toMatch(/sidebarPanel/);
@@ -49,20 +48,20 @@ describe("ResumeDocument", () => {
   });
 
   it("leaves out the tinted panel when the sidebar has nothing in it", () => {
-    const noContacts = { email: "", phone: "", city: "", country: "", website: "", linkedin: "", showAge: false };
+    const noContacts = { email: "", phone: "", city: "", state: "", website: "", linkedin: "" };
     const empty = { ...profile, basics: { ...profile.basics, ...noContacts }, skills: [], languages: [] };
-    const { container } = render(<ResumeDocument theme={theme("studio")} profile={empty} paper="A4" today={today} />);
+    const { container } = render(<ResumeDocument theme={theme("studio")} profile={empty} paper="A4" />);
     expect(container.innerHTML).not.toMatch(/sidebarPanel/);
   });
 
   it("puts each role's dates before its title in a timeline", () => {
-    render(<ResumeDocument theme={theme("chronicle")} profile={profile} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("chronicle")} profile={profile} paper="A4" />);
     expect(screen.getByText("UX Designer").closest("[data-unit]")).toHaveTextContent("Sep 2015 – May 2018UX Designer, Studio Brik");
     expect(screen.getByRole("article", { name: "Resume" }).className).toMatch(/timeline/);
   });
 
   it("marks the page with the theme's structure, and gives a banner its text colour", () => {
-    render(<ResumeDocument theme={theme("atlas")} profile={profile} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("atlas")} profile={profile} paper="A4" />);
     const page = screen.getByRole("article", { name: "Resume" });
     expect(page.className).toMatch(/banner/);
     expect(page.className).toMatch(/centered/);
@@ -70,13 +69,13 @@ describe("ResumeDocument", () => {
   });
 
   it("keeps side headings in a single column", () => {
-    render(<ResumeDocument theme={theme("folio")} profile={profile} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("folio")} profile={profile} paper="A4" />);
     expect(sectionTitles()).toEqual(["Profile", "Experience", "Projects", "Education", "Certifications", "Publications", "Skills", "Languages"]);
     expect(screen.getByRole("article", { name: "Resume" }).className).toMatch(/sideHeadings/);
   });
 
   it("shows the skills used in each role and the education notes", () => {
-    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" />);
     const role = screen.getByText("UX Designer").closest("[data-unit]")!;
     expect(role).toHaveAttribute("data-unit", "experience:e3");
     expect(role).toHaveTextContent("UX Designer, Studio BrikSep 2015 – May 2018");
@@ -84,18 +83,16 @@ describe("ResumeDocument", () => {
     expect(screen.getByText("Thesis on trust in automated scheduling tools")).toBeInTheDocument();
   });
 
-  it("writes its headings, dates, levels and age in the document's language", () => {
-    const withAge = { ...profile, basics: { ...profile.basics, showAge: true } };
-    render(<ResumeDocument theme={theme("modern")} profile={withAge} paper="A4" today={today} language="German" includeReferences />);
+  it("writes its headings, dates and levels in the document's language", () => {
+    render(<ResumeDocument theme={theme("modern")} profile={profile} paper="A4" language="German" includeReferences />);
     expect(sectionTitles()).toEqual(["Kontakt", "Kenntnisse", "Sprachen", "Profil", "Berufserfahrung", "Projekte", "Ausbildung", "Zertifizierungen", "Publikationen", "Referenzen"]);
     expect(screen.getByText("März 2021 – Heute")).toBeInTheDocument();
     expect(screen.getByText("UX Designer").closest("[data-unit]")).toHaveTextContent("Kenntnisse · HTML & CSS, Interaction design");
     expect(screen.getByText(/^Dutch: Muttersprache · English: Fließend \(C2\)/)).toBeInTheDocument();
-    expect(screen.getByText("34 Jahre")).toBeInTheDocument();
   });
 
   it("keeps English headings for a language without its own", () => {
-    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" today={today} language="Hebrew" />);
+    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" language="Hebrew" />);
     expect(sectionTitles()).toEqual(["Profile", "Experience", "Projects", "Education", "Certifications", "Publications", "Skills", "Languages"]);
     expect(screen.getByText("Mar 2021 – Present")).toBeInTheDocument();
   });
@@ -110,7 +107,7 @@ describe("ResumeDocument", () => {
 
   it("puts the line about a role's company under its title, as written, tailored or not (#257)", () => {
     for (const units of [undefined, demoResumeUnits()]) {
-      const { unmount } = render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" units={units} today={today} />);
+      const { unmount } = render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" units={units} />);
       const line = screen.getByText("Freight platform for European carriers, 300 people");
       expect(line.previousElementSibling).toHaveTextContent("Senior Product Designer, Northwind Logistics");
       expect(line.nextElementSibling?.tagName).toBe("UL");
@@ -126,7 +123,7 @@ describe("ResumeDocument", () => {
       ...profile,
       skills: profile.skills.map((skill) => ({ ...skill, group: ["Figma", "Prototyping"].includes(skill.name) ? "Tools" : skill.name === "User research" ? "Research" : "" })),
     };
-    render(<ResumeDocument theme={theme("editorial")} profile={grouped} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("editorial")} profile={grouped} paper="A4" />);
     const lines = [...document.querySelectorAll('[data-unit="skills"] p')];
     expect(lines.map((line) => line.textContent)).toEqual([
       "Interaction design · Design systems · HTML & CSS · Workshop facilitation",
@@ -170,7 +167,7 @@ describe("ResumeDocument", () => {
   });
 
   it("shows projects like roles, with their link, dates and skills (PRO-13)", () => {
-    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" />);
     const project = screen.getByText("Tidewater design tokens").closest("[data-unit]")!;
     expect(project).toHaveAttribute("data-unit", "project:p1");
     expect(project).toHaveTextContent("Tidewater design tokens, github.com/janedoe/tidewater");
@@ -180,7 +177,7 @@ describe("ResumeDocument", () => {
   });
 
   it("shows publications with their bold, italics and a link that opens (#218)", () => {
-    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" />);
     const publication = screen.getByRole("heading", { name: "Publications" }).closest("section")!;
     expect(publication).toHaveTextContent(
       "Doe, J., & Vermeer, K. (2016). Trust in automated scheduling: A field study with dispatch planners. Proceedings of the Delft Design Conference, 4, 112–121. doi.org/10.5555/12345678",
@@ -191,7 +188,7 @@ describe("ResumeDocument", () => {
   });
 
   it("shows certifications with their issuer, dates, ID and a link that opens (#293)", () => {
-    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" today={today} language="German" />);
+    render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" language="German" />);
     const certification = screen.getByText("Certified Accessibility Specialist").closest("[data-unit]")!;
     expect(certification).toHaveAttribute("data-unit", "certification:c1");
     expect(certification).toHaveTextContent("Certified Accessibility Specialist, Inclusive Design InstituteJuni 2022");
@@ -204,14 +201,14 @@ describe("ResumeDocument", () => {
 
   it("leaves a certification's details out when it has none", () => {
     const plain = { ...profile, certifications: profile.certifications.map((entry) => ({ ...entry, expiryYear: null, expiryMonth: null, credentialId: "", link: "" })) };
-    render(<ResumeDocument theme={theme("editorial")} profile={plain} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme("editorial")} profile={plain} paper="A4" />);
     const certification = screen.getByText("Certified Accessibility Specialist").closest("[data-unit]")!;
     expect(certification).toHaveTextContent(/^Certified Accessibility Specialist, Inclusive Design InstituteJun 2022$/);
   });
 
   it("shows volunteering under its own heading, after Experience (#294)", () => {
     const mentor = { ...profile.experience[2], id: "v1", role: "Mentor", company: "Code Club", volunteering: true };
-    render(<ResumeDocument theme={theme("editorial")} profile={{ ...profile, experience: [...profile.experience, mentor] }} paper="A4" today={today} language="German" />);
+    render(<ResumeDocument theme={theme("editorial")} profile={{ ...profile, experience: [...profile.experience, mentor] }} paper="A4" language="German" />);
     expect(sectionTitles()).toEqual([
       "Profil",
       "Berufserfahrung",
@@ -287,7 +284,7 @@ describe("ResumeDocument", () => {
     const photo = () => screen.queryByRole("img", { name: profile.basics.name });
 
     it("sits at the end of the header, beside the name, headline and contacts", () => {
-      render(<ResumeDocument theme={theme("editorial")} profile={withPhoto} paper="A4" today={today} />);
+      render(<ResumeDocument theme={theme("editorial")} profile={withPhoto} paper="A4" />);
       const header = photo()!.parentElement!;
       expect(header.tagName).toBe("HEADER");
       expect(header.className).toMatch(/headerWithPhoto/);
@@ -299,18 +296,18 @@ describe("ResumeDocument", () => {
     });
 
     it("goes where the theme puts it: the start of the header, above the name, or atop the sidebar", () => {
-      const { unmount } = render(<ResumeDocument theme={theme("signal")} profile={withPhoto} paper="A4" today={today} />);
+      const { unmount } = render(<ResumeDocument theme={theme("signal")} profile={withPhoto} paper="A4" />);
       expect(photo()!.parentElement!.firstElementChild).toBe(photo());
       unmount();
 
-      const classic = render(<ResumeDocument theme={theme("classic")} profile={withPhoto} paper="A4" today={today} />);
+      const classic = render(<ResumeDocument theme={theme("classic")} profile={withPhoto} paper="A4" />);
       const header = photo()!.parentElement!;
       expect(header.firstElementChild).toBe(photo());
       expect(header.className).not.toMatch(/headerWithPhoto/);
       expect(photo()!.className).toMatch(/photoAbove/);
       classic.unmount();
 
-      render(<ResumeDocument theme={theme("modern")} profile={withPhoto} paper="A4" today={today} />);
+      render(<ResumeDocument theme={theme("modern")} profile={withPhoto} paper="A4" />);
       const column = photo()!.parentElement!;
       expect(column.tagName).not.toBe("HEADER");
       expect(column.firstElementChild).toBe(photo());
@@ -320,13 +317,13 @@ describe("ResumeDocument", () => {
     });
 
     it("moves from the sidebar to the end of the header in a single column", () => {
-      render(<ResumeDocument theme={theme("modern")} profile={withPhoto} paper="A4" layout="SINGLE" today={today} />);
+      render(<ResumeDocument theme={theme("modern")} profile={withPhoto} paper="A4" layout="SINGLE" />);
       expect(photo()!.parentElement!.tagName).toBe("HEADER");
       expect(photo()!.parentElement!.lastElementChild).toBe(photo());
     });
 
     it("draws a portrait 3:4, without rounding", () => {
-      render(<ResumeDocument theme={theme("chronicle")} profile={withPhoto} paper="A4" today={today} />);
+      render(<ResumeDocument theme={theme("chronicle")} profile={withPhoto} paper="A4" />);
       expect(photo()!.style.getPropertyValue("--photo-width")).toBe("72");
       expect(photo()!.style.getPropertyValue("--photo-height")).toBe("96");
       expect(photo()!.className).not.toMatch(/photoCircle|photoRounded/);
@@ -343,14 +340,14 @@ describe("ResumeDocument", () => {
         { profile, showPhoto: true, shown: false },
       ];
       for (const { profile: entry, showPhoto, shown } of cases) {
-        const { unmount } = render(<ResumeDocument theme={theme("editorial")} profile={entry} paper="A4" showPhoto={showPhoto} today={today} />);
+        const { unmount } = render(<ResumeDocument theme={theme("editorial")} profile={entry} paper="A4" showPhoto={showPhoto} />);
         expect(photo() !== null).toBe(shown);
         unmount();
       }
     });
 
     it("leaves the header as it was without a photo", () => {
-      render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" today={today} />);
+      render(<ResumeDocument theme={theme("editorial")} profile={profile} paper="A4" />);
       const header = screen.getByRole("heading", { level: 1 }).parentElement!;
       expect(header.tagName).toBe("HEADER");
       expect(header.className).not.toMatch(/headerWithPhoto/);
@@ -363,20 +360,20 @@ describe("ResumeDocument's sections (#297)", () => {
 
   it("follows the order it's given in a single column, Skills among the rest", () => {
     const order = ["skills", "summary", "experience", "projects", "education", "languages"];
-    render(<ResumeDocument theme={editorial} profile={profile} paper="A4" today={today} sections={{ order, off: [] }} />);
+    render(<ResumeDocument theme={editorial} profile={profile} paper="A4" sections={{ order, off: [] }} />);
     const drawn = sectionTitles();
     expect(drawn[0]).toBe("Skills");
     expect(drawn.indexOf("Experience")).toBeLessThan(drawn.indexOf("Projects"));
   });
 
   it("leaves out sections that are off", () => {
-    render(<ResumeDocument theme={editorial} profile={profile} paper="A4" today={today} sections={{ order: [], off: ["projects"] }} />);
+    render(<ResumeDocument theme={editorial} profile={profile} paper="A4" sections={{ order: [], off: ["projects"] }} />);
     expect(sectionTitles()).not.toContain("Projects");
     expect(sectionTitles()).toContain("Experience");
   });
 
   it("keeps Skills in the sidebar of a sidebar layout, wherever it is in the order", () => {
-    render(<ResumeDocument theme={theme("modern")} profile={profile} paper="A4" today={today} sections={{ order: ["skills", "summary"], off: [] }} />);
+    render(<ResumeDocument theme={theme("modern")} profile={profile} paper="A4" sections={{ order: ["skills", "summary"], off: [] }} />);
     const drawn = sectionTitles();
     // The sidebar comes first: Contact, Skills, Languages; then the main column, whatever the list says.
     expect(drawn.slice(0, 3)).toEqual(["Contact", "Skills", "Languages"]);
@@ -388,7 +385,7 @@ describe("ResumeDocument's own headings (#339)", () => {
   it("draws what this resume calls a section, built-in or custom", () => {
     const awards = { id: "a1", title: "Awards", format: "LINES" as const, items: [{ id: "i1", title: "Best Paper", subtitle: "", startYear: null, startMonth: null, endYear: null, endMonth: null, current: false, details: "", link: "", onResumes: true }] };
     const titles = { experience: "Relevant experience", "custom:a1": "Honours" };
-    render(<ResumeDocument theme={theme("editorial")} profile={{ ...profile, customSections: [awards] }} paper="A4" today={today} sections={{ order: [], off: [], titles }} />);
+    render(<ResumeDocument theme={theme("editorial")} profile={{ ...profile, customSections: [awards] }} paper="A4" sections={{ order: [], off: [], titles }} />);
     expect(screen.getByRole("heading", { name: "Relevant experience" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Experience" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Honours" })).toBeInTheDocument();
@@ -400,7 +397,7 @@ describe("ResumeDocument's custom sections (#298)", () => {
   const item = { id: "i1", title: "**Best** Paper", subtitle: "CHI", startYear: 2023, startMonth: null, endYear: 2023, endMonth: null, current: false, details: "Out of 900 papers", link: "https://example.org/award", onResumes: true };
   const withSection = (format: "ENTRIES" | "LINES" | "INLINE", items = [item]) => ({ ...profile, customSections: [{ id: "s1", title: "Awards", format, items }] });
   const draw = (format: "ENTRIES" | "LINES" | "INLINE", themeId = "editorial", items = [item]) =>
-    render(<ResumeDocument theme={theme(themeId)} profile={withSection(format, items)} paper="A4" today={today} />);
+    render(<ResumeDocument theme={theme(themeId)} profile={withSection(format, items)} paper="A4" />);
 
   it.each(themes.map((entry) => [entry.name, entry.id] as const))("draws all three formats in %s", (_, themeId) => {
     const custom = {
@@ -411,7 +408,7 @@ describe("ResumeDocument's custom sections (#298)", () => {
         { id: "s3", title: "Interests", format: "INLINE" as const, items: [{ ...item, id: "i3", title: "Chess" }] },
       ],
     };
-    const { container } = render(<ResumeDocument theme={theme(themeId)} profile={custom} paper="A4" today={today} />);
+    const { container } = render(<ResumeDocument theme={theme(themeId)} profile={custom} paper="A4" />);
     expect(sectionTitles()).toEqual(expect.arrayContaining(["Awards", "Leadership", "Interests"]));
     expect(container.querySelector("[data-unit='custom-line:i1']")).toBeInTheDocument();
     expect(container.querySelector("[data-unit='custom-entry:i2'] li")).toHaveTextContent("Out of 900 papers");

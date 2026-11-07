@@ -7,7 +7,7 @@ import { importedProfileSchema, type ImportedProfile } from "@/lib/profile-impor
 
 import { system, type Task } from "./prompt-parts";
 
-export const EXTRACT_PROFILE_VERSION = "extract-profile@5";
+export const EXTRACT_PROFILE_VERSION = "extract-profile@6";
 
 // What the model returns; code checks every part of it (E4-10).
 const text = z.string().nullable();
@@ -24,11 +24,9 @@ const answerSchema = z.object({
     headline: text,
     email: text,
     phone: text,
-    dob: text,
     website: text,
-    address: text,
     city: text,
-    country: text,
+    state: text,
     linkedin: text,
     summary: text,
   }),
@@ -58,7 +56,7 @@ const answerSchema = z.object({
 const INSTRUCTIONS = `You turn the text of a candidate's resume into their profile, as JSON.
 
 Take everything only from the resume: never add, guess or improve facts. Use null, an empty string or an empty list for anything it doesn't say.
-- basics: name; headline (their current title or one-line description); email; phone; dob (date of birth as YYYY-MM-DD, only if the resume gives the full date); website; address (street and number); city; country; linkedin (the URL or handle); summary (their profile or summary paragraph, in their words).
+- basics: name; headline (their current title or one-line description); email; phone; website; city; state (the state or region, spelled out); linkedin (the URL or handle); summary (their profile or summary paragraph, in their words).
 - skills: skills, tools and methods the resume lists or clearly names, each short ("Figma", "Design systems", "User research"), once each.
 - languages: spoken languages with a level: NATIVE, or the CEFR level C2, C1, B2, B1, A2 or A1 ("fluent" is C1, "business" B2, "basic" A2). Use null when no level is given.
 - experience: every role, most recent first. startYear and endYear as four-digit years, startMonth and endMonth as 1–12 (null when only a year is given); current is true when the role hasn't ended ("present", "today"). descriptor: a line under the role's title that describes the company or the role rather than what they did ("Series B fintech, 40 people"), word for word, if there is one. volunteering: true for unpaid volunteer work, such as an entry under a volunteering heading, false for a job. bullets: what they did, one item per point, in the resume's words. skills: the skills from your skills list this role mentions.
@@ -120,7 +118,6 @@ export function checkedProfile(answer: z.infer<typeof answerSchema>, resume: str
   for (const field of BASICS_FIELDS) {
     const value = clean(answer.basics[field]);
     if (!value) continue;
-    if (field === "dob" && !(/^\d{4}-\d{2}-\d{2}$/.test(value) && z.iso.date().safeParse(value).success)) continue;
     basics[field] = value;
   }
 

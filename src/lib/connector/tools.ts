@@ -133,7 +133,7 @@ export function createDossierServer(origin: string): McpServer {
     {
       instructions:
         "Dossier is the user's own job search app: one profile, tailored resumes and cover letters, and every application tracked. " +
-        "Search jobs with search_jobs (in the profile's city and country unless the user says otherwise), " +
+        "Search jobs with search_jobs (in the profile's city; ask the user for the country), " +
         "and when the user wants to know which fit best, score them against the profile and save the scores with save_job_scores. " +
         "To draft an application, you write it yourself: call get_profile and get_posting, write a tailored resume and cover letter " +
         "from facts in the profile only (never invent experience, employers, numbers or degrees; say what's missing instead), " +
@@ -166,7 +166,7 @@ export function createDossierServer(origin: string): McpServer {
       inputSchema: z.object({
         keywords: z.string().trim().min(1).max(200).describe("Job title, skill or company, e.g. 'product designer'"),
         place: z.string().max(200).optional().describe("City or region. Defaults to the profile's city. Use '' for the whole country."),
-        country: z.string().max(60).optional().describe("Country name or ISO code, e.g. 'Germany' or 'de'. Defaults to the profile's country."),
+        country: z.string().max(60).optional().describe("Country name or ISO code, e.g. 'Germany' or 'de'. Required: the profile doesn't store one."),
         remote_only: z.boolean().optional().describe("Only remote postings."),
         radius_km: z.literal(RADII_KM).optional(),
         posted_within: z.enum(POSTED).optional().describe("any, day, 3days, week or month. Defaults to month."),
@@ -175,7 +175,7 @@ export function createDossierServer(origin: string): McpServer {
     },
     async (input) => {
       const { basics } = await loadProfile();
-      const country = countryCodeFor(input.country ?? basics.country) || (input.country?.trim().length === 2 ? input.country.trim().toLowerCase() : "");
+      const country = countryCodeFor(input.country ?? "") || (input.country?.trim().length === 2 ? input.country.trim().toLowerCase() : "");
       if (!country) return failure("Say which country to search in, e.g. country: 'Germany'.");
       const remoteOnly = input.remote_only ?? false;
       const query: SearchQuery = {

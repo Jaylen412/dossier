@@ -12,8 +12,8 @@ vi.mock("./actions", () => ({ saveBasics: vi.fn(async () => ({ ok: true, data: n
 vi.mock("@/components/toast", () => ({ toast: vi.fn() }));
 
 const empty: Basics = {
-  name: "", headline: "", email: "", phone: "", dob: "", website: "",
-  address: "", city: "", country: "", linkedin: "", summary: "", showAge: false,
+  name: "", headline: "", email: "", phone: "", website: "",
+  city: "", state: "", linkedin: "", summary: "",
 };
 
 function Harness({ initial = empty }: { initial?: Basics }) {
@@ -34,12 +34,11 @@ describe("BasicsSection", () => {
   it("has every Basics field, labelled, with the optional ones marked (#216)", () => {
     render(<Harness />);
     for (const label of [
-      "Full name", "Headline", "Email", "Phone (optional)", "Date of birth (optional)", "Website (optional)",
-      "Street address (optional)", "City", "Country", "LinkedIn (optional)",
+      "Full name", "Headline", "Email", "Phone (optional)", "Website (optional)",
+      "City", "State", "LinkedIn (optional)",
     ]) {
       expect(screen.getByLabelText(label)).toBeInTheDocument();
     }
-    expect(screen.getByLabelText("Date of birth (optional)")).toHaveAttribute("type", "date");
   });
 
   it("autosaves 500 ms after typing stops", async () => {
@@ -56,16 +55,6 @@ describe("BasicsSection", () => {
     fireEvent.change(screen.getByLabelText("City"), { target: { value: "Rotterdam" } });
     await act(async () => fireEvent.blur(screen.getByLabelText("City")));
     expect(saveBasics).toHaveBeenCalledWith({ ...empty, city: "Rotterdam" });
-  });
-
-  it("explains the age option, with the computed age once there's a date of birth", () => {
-    render(<Harness />);
-    const option = screen.getByRole("checkbox", { name: /Show my age on resumes/ });
-    expect(option).not.toBeChecked();
-    expect(option).toHaveAccessibleName("Show my age on resumes (add your date of birth first)");
-
-    fireEvent.change(screen.getByLabelText("Date of birth (optional)"), { target: { value: "1992-04-18" } });
-    expect(option).toHaveAccessibleName(/^Show my age on resumes \(you're \d+; off by default, as many places advise leaving it out\)$/);
   });
 
   it("hints at malformed email and web addresses once you leave the field, without blocking the save", async () => {
@@ -87,12 +76,5 @@ describe("BasicsSection", () => {
     expect(website).not.toHaveAccessibleDescription();
     fireEvent.change(website, { target: { value: "my site" } });
     expect(website).toHaveAccessibleDescription(/doesn't look like a web address/);
-  });
-
-  it("saves the age option", async () => {
-    render(<Harness initial={{ ...empty, dob: "1992-04-18" }} />);
-    fireEvent.click(screen.getByRole("checkbox", { name: /Show my age/ }));
-    await act(async () => vi.advanceTimersByTimeAsync(500));
-    expect(saveBasics).toHaveBeenCalledWith({ ...empty, dob: "1992-04-18", showAge: true });
   });
 });

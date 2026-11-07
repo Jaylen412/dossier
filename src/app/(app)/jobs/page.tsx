@@ -65,12 +65,11 @@ async function latestQuery() {
   return (await loadSearch())?.query ?? null;
 }
 
-/** The first search: the current or latest role, in the profile's city and country. */
+/** The first search: the current or latest role, in the profile's city; the country is chosen in the form. */
 async function profileSearch() {
-  const [fields, experience] = await Promise.all([
-    prisma.profileField.findMany({ where: { key: { in: ["city", "country"] } } }),
+  const [city, experience] = await Promise.all([
+    prisma.profileField.findUnique({ where: { key: "city" } }),
     prisma.experience.findMany({ select: { role: true, current: true, startYear: true, startMonth: true, endYear: true, endMonth: true } }),
   ]);
-  const field = (key: string) => fields.find((entry) => entry.key === key)?.value ?? "";
-  return defaultSearch({ role: latestRole(experience), city: field("city"), country: field("country") });
+  return defaultSearch({ role: latestRole(experience), city: city?.value ?? "", country: "" });
 }

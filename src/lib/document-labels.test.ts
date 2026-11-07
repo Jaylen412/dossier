@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { LanguageLevel } from "@/generated/prisma/enums";
 
-import { ageLabel, documentLabels, ENGLISH_LABELS, languagesLine } from "./document-labels";
+import { documentLabels, ENGLISH_LABELS, languagesLine } from "./document-labels";
 import { DOCUMENT_LANGUAGES } from "./document-language";
 import { LANGUAGE_LEVELS } from "./profile";
 
@@ -38,12 +38,6 @@ describe("document labels", () => {
     expect(languagesLine(languages, ENGLISH_LABELS)).toBe("Dutch: Native · English: Fluent (C2)");
     expect(languagesLine(languages, documentLabels("German"))).toBe("Dutch: Muttersprache · English: Fließend (C2)");
     expect(languagesLine([], ENGLISH_LABELS)).toBe("");
-  });
-
-  it("writes the age in the language's words and digits", () => {
-    expect(ageLabel(34, ENGLISH_LABELS)).toBe("Age 34");
-    expect(ageLabel(34, documentLabels("Dutch"))).toBe("34 jaar");
-    expect(ageLabel(34, documentLabels("Persian"))).toBe("۳۴ سال");
   });
 
   it("greets the company's team where the language does, and a cover-all greeting otherwise", () => {

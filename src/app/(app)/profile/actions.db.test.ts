@@ -24,8 +24,8 @@ beforeEach(() => resetDatabase(prisma()));
 afterAll(() => prisma().$disconnect());
 
 const basics = {
-  name: "Jane Doe", headline: "", email: "", phone: "", dob: "1992-04-18", website: "",
-  address: "", city: "", country: "", linkedin: "", summary: "", showAge: true,
+  name: "Jane Doe", headline: "", email: "", phone: "", website: "",
+  city: "", state: "", linkedin: "", summary: "",
 };
 
 describe("profile actions", () => {
@@ -33,14 +33,12 @@ describe("profile actions", () => {
     const fields = () => prisma().profileField.findMany({ select: { key: true, value: true }, orderBy: { key: "asc" } });
     await expect(saveBasics(basics)).resolves.toEqual({ ok: true, data: null });
     expect(await fields()).toEqual([
-      { key: "dob", value: "1992-04-18" },
       { key: "name", value: "Jane Doe" },
-      { key: "showAge", value: "true" },
     ]);
     expect((await loadProfile()).basics).toEqual(basics);
 
-    await saveBasics({ ...basics, dob: "", showAge: false });
-    expect(await fields()).toEqual([{ key: "name", value: "Jane Doe" }]);
+    await saveBasics({ ...basics, name: "" });
+    expect(await fields()).toEqual([]);
   });
 
   it("adds skills in order and ignores duplicates in any case", async () => {

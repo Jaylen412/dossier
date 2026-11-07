@@ -5,30 +5,24 @@ import type { ProfileData } from "@/lib/profile";
 
 import { contactItems, displayLink, resumeContent, sectionsWithContent } from "./resume-content";
 
-const today = new Date(2026, 8, 28);
 
 describe("contactItems", () => {
   const { basics } = demoProfile();
 
-  it("lists email, phone, city and country, website and LinkedIn", () => {
-    expect(contactItems(basics, today)).toEqual([
+  it("lists email, phone, city and state, website and LinkedIn", () => {
+    expect(contactItems(basics)).toEqual([
       "jane.doe@example.com",
       "+31 6 1234 5678",
-      "Rotterdam, Netherlands",
+      "Rotterdam, South Holland",
       "example.com",
       "linkedin.com/in/janedoe-example",
     ]);
   });
 
-  it("adds the age only when show-age is on", () => {
-    expect(contactItems({ ...basics, showAge: true }, today).at(-1)).toBe("Age 34");
-    expect(contactItems({ ...basics, showAge: true, dob: "" }, today)).toHaveLength(5);
-  });
-
   it("skips what's empty", () => {
-    expect(contactItems({ ...basics, phone: " ", city: "", website: "" }, today)).toEqual([
+    expect(contactItems({ ...basics, phone: " ", city: "", website: "" })).toEqual([
       "jane.doe@example.com",
-      "Netherlands",
+      "South Holland",
       "linkedin.com/in/janedoe-example",
     ]);
   });
@@ -38,7 +32,7 @@ describe("resumeContent", () => {
   const profile = demoProfile();
 
   it("builds the base resume from the profile", () => {
-    const content = resumeContent(profile, { today });
+    const content = resumeContent(profile);
     expect(content.name).toBe("Jane Doe");
     expect(content.experience.map((role) => [role.company, role.dates])).toEqual([
       ["Northwind Logistics", "Mar 2021 – Present"],
@@ -66,7 +60,7 @@ describe("resumeContent", () => {
 
   it("leaves an empty profile empty, apart from a placeholder name", () => {
     const empty: ProfileData = {
-      basics: { ...profile.basics, ...Object.fromEntries(Object.keys(profile.basics).map((key) => [key, ""])), showAge: false },
+      basics: { ...profile.basics, ...Object.fromEntries(Object.keys(profile.basics).map((key) => [key, ""])) },
       skills: [],
       languages: [],
       experience: [],

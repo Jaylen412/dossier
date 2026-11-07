@@ -47,7 +47,7 @@ export function defaultFrame({ basics, company, location, date, dateFormat, labe
   const name = basics.name.trim() || "Your name";
   const to = company.trim();
   return {
-    sender: [name, contactItems(basics, date, labels).join(SENDER_SEPARATOR)].filter(Boolean).join("\n"),
+    sender: [name, contactItems(basics).join(SENDER_SEPARATOR)].filter(Boolean).join("\n"),
     date: letterDate(date, dateFormat, labels.locale),
     recipient: [to ? `${to} · ${labels.hiringTeam}` : labels.hiringTeam, location.trim()].filter(Boolean).join("\n"),
     greeting: labels.greeting(to),

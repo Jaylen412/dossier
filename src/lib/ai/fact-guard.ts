@@ -64,7 +64,7 @@ export function factSources(parts: string[]): FactSources {
 export function sourcesFor(profile: ProfileData, extracted: Extracted | null, posting: string, experienceYears?: number): FactSources {
   const { basics } = profile;
   const parts = [
-    basics.name, basics.headline, basics.city, basics.country, basics.summary,
+    basics.name, basics.headline, basics.city, basics.state, basics.summary,
     ...profile.skills.map((skill) => skill.name),
     ...profile.languages.map((language) => `${language.name} ${languageLevelLabel(language.level)}`),
     ...profile.experience.flatMap((entry) => [entry.role, entry.company, entry.location, entry.descriptor, formatDateRange(entry), entry.bullets]),

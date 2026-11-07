@@ -201,7 +201,7 @@ describe("a copy (#299)", () => {
       includeReferences: false,
       followedBase: false,
     });
-    expect(copy?.profile.basics).toMatchObject({ name: "Jane", summary: "", showAge: false });
+    expect(copy?.profile.basics).toMatchObject({ name: "Jane", summary: "" });
     expect(copy?.profile.experience[0]).toMatchObject({ company: "", volunteering: false, startYear: null, skillIds: [] });
     expect(copy?.profile.customSections).toEqual([]);
     // A theme that no longer reads gives way to the document's.

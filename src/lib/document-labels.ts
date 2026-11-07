@@ -3,7 +3,7 @@ import { knownLanguage } from "@/lib/document-language";
 import { LANGUAGE_LEVELS } from "@/lib/profile";
 
 // The words a document adds around the profile's own: section headings,
-// "Present", language levels, "Age 34", and a cover letter's recipient and
+// "Present", language levels, and a cover letter's recipient and
 // greeting where the AI didn't write them. Each language in the "Write
 // documents in" list has its own; any other language gets English ones,
 // like the app around them.
@@ -29,8 +29,6 @@ export type DocumentLabels = {
   validUntil: (date: string) => string;
   /** Before a certification's ID: "Credential ID IDI-20481". */
   credentialId: string;
-  /** "Age 34", given the number in the locale's digits. */
-  age: (years: string) => string;
   levels: Record<LanguageLevel, string>;
   /** A cover letter's recipient, after the company's name: "Northwind · Hiring team". */
   hiringTeam: string;
@@ -68,7 +66,6 @@ const WORDS: Record<string, Words> = {
     present: "Present",
     validUntil: (date) => `Valid until ${date}`,
     credentialId: "Credential ID",
-    age: (years) => `Age ${years}`,
     // As the profile editor names them.
     levels: Object.fromEntries(LANGUAGE_LEVELS.map(({ value, label }) => [value, label])) as Record<LanguageLevel, string>,
     hiringTeam: "Hiring team",
@@ -89,7 +86,6 @@ const WORDS: Record<string, Words> = {
     present: "Heden",
     validUntil: (date) => `Geldig tot ${date}`,
     credentialId: "Certificaat-ID",
-    age: (years) => `${years} jaar`,
     levels: levels(["Moedertaal", "Vloeiend (C2)", "Zeer goed (C1)", "Goed (B2)", "Redelijk (B1)", "Basis (A2)", "Beginner (A1)"]),
     hiringTeam: "Recruitmentteam",
     greeting: (company) => (company ? `Beste team van ${company},` : "Geachte heer, mevrouw,"),
@@ -109,7 +105,6 @@ const WORDS: Record<string, Words> = {
     present: "Heute",
     validUntil: (date) => `Gültig bis ${date}`,
     credentialId: "Zertifikats-ID",
-    age: (years) => `${years} Jahre`,
     levels: levels(["Muttersprache", "Fließend (C2)", "Fortgeschritten (C1)", "Gute Kenntnisse (B2)", "Mittelstufe (B1)", "Grundkenntnisse (A2)", "Anfänger (A1)"]),
     hiringTeam: "Personalabteilung",
     greeting: () => "Sehr geehrte Damen und Herren,",
@@ -129,7 +124,6 @@ const WORDS: Record<string, Words> = {
     present: "Aujourd’hui",
     validUntil: (date) => `Valable jusqu’en ${date}`,
     credentialId: "ID de certification",
-    age: (years) => `${years} ans`,
     levels: levels(["Langue maternelle", "Courant (C2)", "Avancé (C1)", "Intermédiaire supérieur (B2)", "Intermédiaire (B1)", "Élémentaire (A2)", "Débutant (A1)"]),
     hiringTeam: "Service recrutement",
     greeting: () => "Madame, Monsieur,",
@@ -149,7 +143,6 @@ const WORDS: Record<string, Words> = {
     present: "Actualidad",
     validUntil: (date) => `Válida hasta ${date}`,
     credentialId: "ID de credencial",
-    age: (years) => `${years} años`,
     levels: levels(["Nativo", "Fluido (C2)", "Avanzado (C1)", "Intermedio alto (B2)", "Intermedio (B1)", "Básico (A2)", "Principiante (A1)"]),
     hiringTeam: "Equipo de selección",
     greeting: (company) => (company ? `Estimado equipo de ${company}:` : "Estimado equipo de selección:"),
@@ -169,7 +162,6 @@ const WORDS: Record<string, Words> = {
     present: "Oggi",
     validUntil: (date) => `Valida fino a ${date}`,
     credentialId: "ID credenziale",
-    age: (years) => `${years} anni`,
     levels: levels(["Madrelingua", "Fluente (C2)", "Avanzato (C1)", "Intermedio superiore (B2)", "Intermedio (B1)", "Elementare (A2)", "Principiante (A1)"]),
     hiringTeam: "Ufficio selezione",
     greeting: (company) => (company ? `Gentile team di ${company},` : "Gentili responsabili della selezione,"),
@@ -189,7 +181,6 @@ const WORDS: Record<string, Words> = {
     present: "Atual",
     validUntil: (date) => `Válida até ${date}`,
     credentialId: "ID da credencial",
-    age: (years) => `${years} anos`,
     levels: levels(["Nativo", "Fluente (C2)", "Avançado (C1)", "Intermediário superior (B2)", "Intermediário (B1)", "Básico (A2)", "Iniciante (A1)"]),
     hiringTeam: "Equipe de recrutamento",
     greeting: (company) => (company ? `Prezada equipe de ${company},` : "Prezada equipe de recrutamento,"),
@@ -209,7 +200,6 @@ const WORDS: Record<string, Words> = {
     present: "Obecnie",
     validUntil: (date) => `Ważny do ${date}`,
     credentialId: "Identyfikator certyfikatu",
-    age: (years) => `Wiek: ${years}`,
     levels: levels(["Język ojczysty", "Biegły (C2)", "Zaawansowany (C1)", "Wyższy średnio zaawansowany (B2)", "Średnio zaawansowany (B1)", "Podstawowy (A2)", "Początkujący (A1)"]),
     hiringTeam: "Dział rekrutacji",
     greeting: () => "Szanowni Państwo,",
@@ -229,7 +219,6 @@ const WORDS: Record<string, Words> = {
     present: "Nu",
     validUntil: (date) => `Giltig till ${date}`,
     credentialId: "Certifikat-ID",
-    age: (years) => `${years} år`,
     levels: levels(["Modersmål", "Flytande (C2)", "Avancerad (C1)", "Övre medelnivå (B2)", "Medelnivå (B1)", "Grundläggande (A2)", "Nybörjare (A1)"]),
     hiringTeam: "Rekryteringsteamet",
     greeting: () => "Hej,",
@@ -249,7 +238,6 @@ const WORDS: Record<string, Words> = {
     present: "Nu",
     validUntil: (date) => `Gyldig til ${date}`,
     credentialId: "Certifikat-ID",
-    age: (years) => `${years} år`,
     levels: levels(["Modersmål", "Flydende (C2)", "Avanceret (C1)", "Øvre mellemniveau (B2)", "Mellemniveau (B1)", "Grundlæggende (A2)", "Begynder (A1)"]),
     hiringTeam: "Rekrutteringsteamet",
     greeting: () => "Kære rekrutteringsansvarlige,",
@@ -269,7 +257,6 @@ const WORDS: Record<string, Words> = {
     present: "Nå",
     validUntil: (date) => `Gyldig til ${date}`,
     credentialId: "Sertifikat-ID",
-    age: (years) => `${years} år`,
     levels: levels(["Morsmål", "Flytende (C2)", "Avansert (C1)", "Øvre middels (B2)", "Middels (B1)", "Grunnleggende (A2)", "Nybegynner (A1)"]),
     hiringTeam: "Rekrutteringsteamet",
     greeting: () => "Hei,",
@@ -289,7 +276,6 @@ const WORDS: Record<string, Words> = {
     present: "Nyt",
     validUntil: (date) => `Voimassa ${date} asti`,
     credentialId: "Sertifikaatin tunnus",
-    age: (years) => `${years} vuotta`,
     levels: levels(["Äidinkieli", "Sujuva (C2)", "Edistynyt (C1)", "Hyvä (B2)", "Keskitaso (B1)", "Perustaso (A2)", "Alkeet (A1)"]),
     hiringTeam: "Rekrytointitiimi",
     greeting: () => "Hyvä vastaanottaja,",
@@ -309,7 +295,6 @@ const WORDS: Record<string, Words> = {
     present: "Dosud",
     validUntil: (date) => `Platný do ${date}`,
     credentialId: "ID certifikátu",
-    age: (years) => `Věk: ${years}`,
     levels: levels(["Mateřský jazyk", "Plynulá znalost (C2)", "Pokročilý (C1)", "Středně pokročilý (B2)", "Mírně pokročilý (B1)", "Základní (A2)", "Začátečník (A1)"]),
     hiringTeam: "Personální oddělení",
     greeting: () => "Vážená paní, vážený pane,",
@@ -329,7 +314,6 @@ const WORDS: Record<string, Words> = {
     present: "Σήμερα",
     validUntil: (date) => `Ισχύει έως ${date}`,
     credentialId: "Αριθμός πιστοποίησης",
-    age: (years) => `${years} ετών`,
     levels: levels(["Μητρική γλώσσα", "Άπταιστα (C2)", "Προχωρημένο (C1)", "Ανώτερο μέσο (B2)", "Μέσο (B1)", "Βασικό (A2)", "Αρχάριο (A1)"]),
     hiringTeam: "Τμήμα προσλήψεων",
     greeting: () => "Αξιότιμες κυρίες και κύριοι,",
@@ -349,7 +333,6 @@ const WORDS: Record<string, Words> = {
     present: "Günümüz",
     validUntil: (date) => `${date} tarihine kadar geçerli`,
     credentialId: "Sertifika numarası",
-    age: (years) => `${years} yaşında`,
     levels: levels(["Anadil", "Akıcı (C2)", "İleri (C1)", "Orta üstü (B2)", "Orta (B1)", "Temel (A2)", "Başlangıç (A1)"]),
     hiringTeam: "İnsan Kaynakları",
     greeting: () => "Sayın Yetkili,",
@@ -369,7 +352,6 @@ const WORDS: Record<string, Words> = {
     present: "حتى الآن",
     validUntil: (date) => `صالحة حتى ${date}`,
     credentialId: "رقم الشهادة",
-    age: (years) => `العمر: ${years}`,
     levels: levels(["اللغة الأم", "طلاقة (C2)", "متقدم (C1)", "فوق المتوسط (B2)", "متوسط (B1)", "أساسي (A2)", "مبتدئ (A1)"]),
     hiringTeam: "فريق التوظيف",
     greeting: () => "السادة المحترمون،",
@@ -389,7 +371,6 @@ const WORDS: Record<string, Words> = {
     present: "تاکنون",
     validUntil: (date) => `معتبر تا ${date}`,
     credentialId: "شناسه گواهینامه",
-    age: (years) => `${years} سال`,
     levels: levels(["زبان مادری", "مسلط (C2)", "پیشرفته (C1)", "بالاتر از متوسط (B2)", "متوسط (B1)", "مقدماتی (A2)", "مبتدی (A1)"]),
     hiringTeam: "واحد منابع انسانی",
     greeting: () => "با سلام و احترام،",
@@ -409,7 +390,6 @@ const WORDS: Record<string, Words> = {
     present: "वर्तमान",
     validUntil: (date) => `${date} तक मान्य`,
     credentialId: "प्रमाणपत्र आईडी",
-    age: (years) => `आयु ${years} वर्ष`,
     levels: levels(["मातृभाषा", "धाराप्रवाह (C2)", "उन्नत (C1)", "उच्च-मध्यम (B2)", "मध्यम (B1)", "प्रारंभिक (A2)", "शुरुआती (A1)"]),
     hiringTeam: "भर्ती टीम",
     greeting: () => "आदरणीय महोदय/महोदया,",
@@ -429,7 +409,6 @@ const WORDS: Record<string, Words> = {
     present: "至今",
     validUntil: (date) => `有效期至${date}`,
     credentialId: "证书编号",
-    age: (years) => `${years}岁`,
     levels: levels(["母语", "流利（C2）", "高级（C1）", "中高级（B2）", "中级（B1）", "初级（A2）", "入门（A1）"]),
     hiringTeam: "招聘团队",
     greeting: (company) => (company ? `尊敬的${company}招聘团队：` : "尊敬的招聘负责人："),
@@ -449,7 +428,6 @@ const WORDS: Record<string, Words> = {
     present: "現在",
     validUntil: (date) => `${date}まで有効`,
     credentialId: "認定番号",
-    age: (years) => `${years}歳`,
     levels: levels(["ネイティブ", "流暢（C2）", "上級（C1）", "中上級（B2）", "中級（B1）", "初級（A2）", "入門（A1）"]),
     hiringTeam: "人事部",
     greeting: () => "採用ご担当者様",
@@ -469,7 +447,6 @@ const WORDS: Record<string, Words> = {
     present: "현재",
     validUntil: (date) => `${date}까지 유효`,
     credentialId: "자격증 번호",
-    age: (years) => `${years}세`,
     levels: levels(["원어민", "유창함 (C2)", "고급 (C1)", "중상급 (B2)", "중급 (B1)", "초급 (A2)", "입문 (A1)"]),
     hiringTeam: "채용 담당자",
     greeting: (company) => (company ? `${company} 채용 담당자님께` : "채용 담당자님께"),
@@ -490,6 +467,3 @@ export function documentLabels(language: string | null | undefined): DocumentLab
 export function languagesLine(languages: readonly { name: string; level: LanguageLevel }[], labels: DocumentLabels): string {
   return languages.map((language) => `${language.name}: ${labels.levels[language.level]}`).join(" · ");
 }
-
-/** "Age 34", in the document's language and digits. */
-export const ageLabel = (years: number, labels: DocumentLabels) => labels.age(new Intl.NumberFormat(labels.locale).format(years));
