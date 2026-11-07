@@ -162,8 +162,8 @@ export type Place = {
   countryName: string;
 };
 
-/** The place to read posts against, from the profile's city and country. */
-export function placeOf({ city, country }: { city: string; country: string }): Place {
+/** The place to read posts against, from the profile's city; the profile has no country, so `country` is "" unless given. */
+export function placeOf({ city, country = "" }: { city: string; country?: string }): Place {
   const name = fold(city.trim());
   const code = countryCodeFor(country);
   return {

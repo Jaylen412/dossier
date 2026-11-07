@@ -43,11 +43,9 @@ const answer = {
     headline: "Senior Product Designer",
     email: "robin@example.com",
     phone: "+31 6 1234 5678",
-    dob: "1990-03-12",
     website: null,
-    address: null,
     city: "Utrecht",
-    country: "Netherlands",
+    state: "Utrecht",
     linkedin: "",
     summary: null,
   },
@@ -120,15 +118,14 @@ describe("extractProfile (E4-10)", () => {
   it("checks the answer: dates in range, levels, one of each skill, and names looked up in the resume", async () => {
     const provider = new MockProvider({ reply: () => answer });
     const { data, promptVersion } = await extractProfile(provider, { resume: RESUME, today: new Date("2026-09-29") }, options);
-    expect(promptVersion).toBe("extract-profile@5");
+    expect(promptVersion).toBe("extract-profile@6");
     expect(data.basics).toEqual({
       name: "John Doe",
       headline: "Senior Product Designer",
       email: "robin@example.com",
       phone: "+31 6 1234 5678",
-      dob: "1990-03-12",
       city: "Utrecht",
-      country: "Netherlands",
+      state: "Utrecht",
     });
     // "Accessibility" comes from a role, and isn't in the resume.
     expect(data.skills).toEqual([
@@ -238,11 +235,5 @@ describe("extractProfile (E4-10)", () => {
     ]);
     // Not in the resume: marked for checking.
     expect(data.references).toEqual([{ name: "Jane Doe", relation: "Former manager", company: "Fieldnote", email: "", phone: "", unverified: ["Jane Doe"] }]);
-  });
-
-  it("drops a date of birth that isn't a whole, real date", async () => {
-    const provider = new MockProvider({ reply: () => ({ ...answer, basics: { ...answer.basics, dob: "1990-02-30" } }) });
-    const { data } = await extractProfile(provider, { resume: RESUME }, options);
-    expect(data.basics.dob).toBeUndefined();
   });
 });

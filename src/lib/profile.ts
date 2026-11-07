@@ -66,45 +66,43 @@ export const BASICS_FIELDS = [
   "headline",
   "email",
   "phone",
-  "dob",
   "website",
-  "address",
   "city",
-  "country",
+  "state",
   "linkedin",
   "summary",
 ] as const;
 export type BasicsField = (typeof BASICS_FIELDS)[number];
 
 /** The Basics fields a profile needs (#216); the rest are optional, and the section count is "filled/6". */
-export const REQUIRED_BASICS = ["name", "headline", "email", "city", "country", "summary"] as const satisfies readonly BasicsField[];
+export const REQUIRED_BASICS = ["name", "headline", "email", "city", "state", "summary"] as const satisfies readonly BasicsField[];
 
-/** Whether a Basics field is optional: phone, date of birth, address, website and LinkedIn. */
+/** Whether a Basics field is optional: phone, website and LinkedIn. */
 export const isOptionalBasic = (field: BasicsField) => !(REQUIRED_BASICS as readonly BasicsField[]).includes(field);
 
-// The profile as the editor works with it: plain values (dates of birth as
-// "YYYY-MM-DD"), loaded by loadProfile() in src/lib/profile-data.ts.
+// The profile as the editor works with it: plain values, loaded by
+// loadProfile() in src/lib/profile-data.ts.
 
-export type Basics = Record<BasicsField, string> & { showAge: boolean };
+export type Basics = Record<BasicsField, string>;
 
 // The basics are stored in the ProfileField table, one text row per filled-in
-// field: text as typed, the date of birth as "YYYY-MM-DD", showAge as "true".
+// field, as typed.
 
 /** The keys in the ProfileField table. */
-export const PROFILE_KEYS = [...BASICS_FIELDS, "showAge"] as const;
+export const PROFILE_KEYS = BASICS_FIELDS;
 export type ProfileKey = (typeof PROFILE_KEYS)[number];
 
 /** The basics from ProfileField rows; a missing key is empty, and keys it doesn't know are ignored. */
 export function basicsFromFields(rows: readonly { key: string; value: string }[]): Basics {
   const values = new Map(rows.map((row) => [row.key, row.value]));
   const basics = Object.fromEntries(BASICS_FIELDS.map((field) => [field, values.get(field) ?? ""]));
-  return { ...(basics as Record<BasicsField, string>), showAge: values.get("showAge") === "true" };
+  return basics as Record<BasicsField, string>;
 }
 
 /** The value to store for each key, or null for an empty one, whose row is removed. */
 export function fieldsFromBasics(basics: Basics): Record<ProfileKey, string | null> {
   const fields = Object.fromEntries(BASICS_FIELDS.map((field) => [field, basics[field] || null]));
-  return { ...(fields as Record<BasicsField, string | null>), showAge: basics.showAge ? "true" : null };
+  return fields as Record<BasicsField, string | null>;
 }
 
 /** `group` is the group it's printed under on resumes, empty for none (#280). */
@@ -216,18 +214,6 @@ export function resumePublications(publications: readonly PublicationItem[]): Pu
 /** How many required Basics fields have something in them. */
 export function filledBasics(basics: Record<BasicsField, string>): number {
   return REQUIRED_BASICS.filter((field) => basics[field].trim() !== "").length;
-}
-
-/** Age in whole years on `today`, from a "YYYY-MM-DD" date of birth; null without a valid one. */
-export function ageOn(dob: string, today: Date): number | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dob);
-  if (!match) return null;
-  const [year, month, day] = match.slice(1).map(Number);
-  let age = today.getFullYear() - year;
-  const beforeBirthday =
-    today.getMonth() + 1 < month || (today.getMonth() + 1 === month && today.getDate() < day);
-  if (beforeBirthday) age -= 1;
-  return age >= 0 && age < 150 ? age : null;
 }
 
 /**

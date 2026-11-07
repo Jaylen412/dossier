@@ -3,11 +3,10 @@
 import { useState } from "react";
 
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useAutosave } from "@/hooks/use-autosave";
 import type { ProfilePhoto } from "@/lib/photo";
-import { ageOn, isOptionalBasic, type Basics, type BasicsField } from "@/lib/profile";
+import { isOptionalBasic, type Basics, type BasicsField } from "@/lib/profile";
 
 import { saveBasics } from "./actions";
 import { PhotoField } from "./photo-field";
@@ -28,11 +27,9 @@ const FIELDS: FieldSpec[] = [
   { field: "headline", label: "Headline", wide: true, placeholder: "Senior Product Designer" },
   { field: "email", label: "Email", type: "email", placeholder: "john.doe@example.com", autoComplete: "email" },
   { field: "phone", label: "Phone", type: "tel", placeholder: "+1 555 010 0000", autoComplete: "tel" },
-  { field: "dob", label: "Date of birth", type: "date", autoComplete: "bday" },
   { field: "website", label: "Website", placeholder: "johndoe.example.com", autoComplete: "url" },
-  { field: "address", label: "Street address", wide: true, placeholder: "12 Main Street", autoComplete: "street-address" },
   { field: "city", label: "City", placeholder: "Springfield", autoComplete: "address-level2" },
-  { field: "country", label: "Country", placeholder: "United States", autoComplete: "country-name" },
+  { field: "state", label: "State", placeholder: "Illinois", autoComplete: "address-level1" },
   { field: "linkedin", label: "LinkedIn", wide: true, placeholder: "linkedin.com/in/johndoe" },
 ];
 
@@ -81,7 +78,6 @@ export function BasicsSection({
     setVisited((fields) => new Set(fields).add(field));
     flush();
   };
-  const age = ageOn(basics.dob, new Date());
 
   return (
     <Card className="grid grid-cols-2 gap-x-[18px] gap-y-5">
@@ -100,21 +96,6 @@ export function BasicsSection({
           hint={visited.has(field) ? formatHint(field, basics[field]) : undefined}
         />
       ))}
-      <Checkbox
-        className="col-span-2 pt-1"
-        label={
-          <>
-            Show my age on resumes{" "}
-            <span className="text-meta text-muted">
-              {age === null
-                ? "(add your date of birth first)"
-                : `(you're ${age}; off by default, as many places advise leaving it out)`}
-            </span>
-          </>
-        }
-        checked={basics.showAge}
-        onChange={(event) => onChange({ ...basics, showAge: event.target.checked })}
-      />
     </Card>
   );
 }

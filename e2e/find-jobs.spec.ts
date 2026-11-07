@@ -11,10 +11,10 @@ test.beforeAll(resetData);
 test("searches, keeps postings, and starts an application from one", async ({ page }) => {
   await page.goto("/jobs");
   const form = page.getByRole("search", { name: "Search postings" });
-  // The first search starts from the current role and the profile's city and country.
+  // The first search starts from the current role and the profile's city; the country is chosen here.
   await expect(form.getByLabel("What")).toHaveValue("Senior Product Designer");
   await expect(form.getByLabel("Where")).toHaveValue("Rotterdam");
-  await expect(form.getByLabel("Country")).toHaveValue("nl");
+  await form.getByLabel("Country").selectOption("nl");
   await form.getByRole("button", { name: "Search" }).click();
 
   await expect(page).toHaveURL(/\/jobs\?search=c/);

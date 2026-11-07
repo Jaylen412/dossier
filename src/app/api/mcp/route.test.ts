@@ -113,12 +113,18 @@ describe("the Claude connector at /api/mcp (#221)", () => {
     expect(text).not.toContain(demoProfile().basics.phone || "no phone");
   });
 
-  it("searches the profile's city and country by default", async () => {
-    const { isError, text } = await tool("search_jobs", { keywords: "product designer" });
+  it("searches the profile's city by default, in the country Claude names", async () => {
+    const { isError, text } = await tool("search_jobs", { keywords: "product designer", country: "Netherlands" });
     expect(isError).toBe(false);
     const { city } = demoProfile().basics;
-    expect(searches.ran.at(-1)).toMatchObject({ keywords: "product designer", place: city, radiusKm: 25, remoteOnly: false, postedWithin: "month" });
+    expect(searches.ran.at(-1)).toMatchObject({ keywords: "product designer", place: city, country: "nl", radiusKm: 25, remoteOnly: false, postedWithin: "month" });
     expect(JSON.parse(text)).toMatchObject({ search_id: "s1", searched: `product designer in ${city}`, link: "https://dossier.example/jobs?search=s1" });
+  });
+
+  it("asks which country to search in, since the profile has none", async () => {
+    const { isError, text } = await tool("search_jobs", { keywords: "product designer" });
+    expect(isError).toBe(true);
+    expect(text).toContain("Say which country");
   });
 
   it("asks Claude to write the application itself when Dossier has no AI model", async () => {

@@ -27,11 +27,9 @@ const BASICS_LABELS: Record<BasicsField, string> = {
   headline: "Headline",
   email: "Email",
   phone: "Phone",
-  dob: "Date of birth",
   website: "Website",
-  address: "Street address",
   city: "City",
-  country: "Country",
+  state: "State",
   linkedin: "LinkedIn",
   summary: "About you",
 };

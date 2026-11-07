@@ -1,8 +1,8 @@
 import type { CustomSectionFormat } from "@/generated/prisma/enums";
 import type { Unit } from "@/lib/application-data";
-import { ageLabel, ENGLISH_LABELS, languagesLine, type DocumentLabels } from "@/lib/document-labels";
+import { ENGLISH_LABELS, languagesLine, type DocumentLabels } from "@/lib/document-labels";
 import { publicationHref, publicationLink } from "@/lib/citation";
-import { ageOn, formatDateRange, formatMonthYear, paidRoles, resumeCertifications, resumeCustomSections, resumePublications, type Basics, type CustomItem, type ProfileData } from "@/lib/profile";
+import { formatDateRange, formatMonthYear, paidRoles, resumeCertifications, resumeCustomSections, resumePublications, type Basics, type CustomItem, type ProfileData } from "@/lib/profile";
 import { BUILT_IN_SECTIONS, customKey, type BuiltInSection } from "@/lib/resume-sections";
 import { inEditorOrder, skillsText } from "@/lib/skill-groups";
 import { webHref } from "@/lib/web-link";
@@ -15,7 +15,7 @@ export type ResumeContent = {
   headline: string;
   /** The profile photo's data URL, or null when the resume has none (#224). */
   photo: string | null;
-  /** Email, phone, "City, Country", website, LinkedIn and "Age N", whichever are filled in. */
+  /** Email, phone, "City, State", website and LinkedIn, whichever are filled in. */
   contacts: string[];
   summary: string;
   /** The paid roles. */
@@ -101,23 +101,19 @@ export type ResumeOptions = {
   includeReferences?: boolean;
   /** An application's Photo switch (#224); null or left out follows the profile's "Show on resumes". */
   showPhoto?: boolean | null;
-  /** For "Age N"; defaults to now. */
-  today?: Date;
 };
 
 /** The separator between contact details on one line. */
 export const CONTACT_SEPARATOR = "  ·  ";
 
 /** Contact details in the order the resume header lists them. */
-export function contactItems(basics: Basics, today = new Date(), labels = ENGLISH_LABELS): string[] {
-  const age = basics.showAge ? ageOn(basics.dob, today) : null;
+export function contactItems(basics: Basics): string[] {
   return [
     basics.email,
     basics.phone,
-    [basics.city, basics.country].map((part) => part.trim()).filter(Boolean).join(", "),
+    [basics.city, basics.state].map((part) => part.trim()).filter(Boolean).join(", "),
     basics.website,
     basics.linkedin,
-    age === null ? "" : ageLabel(age, labels),
   ]
     .map((item) => item.trim())
     .filter(Boolean);
@@ -157,7 +153,7 @@ export function sectionsWithContent(content: ResumeContent): string[] {
 /** What the resume shows, with its dates and levels in the words of `labels`. */
 export function resumeContent(
   profile: ProfileData,
-  { units, includeReferences = false, showPhoto, today = new Date() }: ResumeOptions = {},
+  { units, includeReferences = false, showPhoto }: ResumeOptions = {},
   labels: DocumentLabels = ENGLISH_LABELS,
 ): ResumeContent {
   const { basics } = profile;
@@ -221,7 +217,7 @@ export function resumeContent(
     name: basics.name.trim() || "Your name",
     headline: basics.headline.trim(),
     photo: profile.photo && (showPhoto ?? profile.photo.onResumes) ? profile.photo.src : null,
-    contacts: contactItems(basics, today, labels),
+    contacts: contactItems(basics),
     summary: basics.summary.trim(),
     experience: paidRoles(profile.experience).map((entry) => experience(entry, entry.bullets)),
     volunteering: profile.experience.filter((entry) => entry.volunteering).map((entry) => experience(entry, entry.bullets)),

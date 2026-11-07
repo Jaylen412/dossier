@@ -134,13 +134,12 @@ describe("applyImportedProfile (E4-10)", () => {
     await existingProfile();
     await prisma().setting.create({ data: { key: "experienceOrder", value: "manual" } });
     await prisma().setting.create({ data: { key: "projectOrder", value: "manual" } });
-    await prisma().profileField.create({ data: { key: "showAge", value: "false" } });
     // A resume's text has no photo, so the profile's stays (#224).
     await prisma().profileField.createMany({ data: [{ key: "photo", value: "data:image/png;base64,iVBORw0KGgo=" }, { key: "photoOnResumes", value: "false" }] });
     await applyImportedProfile(prisma(), imported, "replace");
 
     const fields = Object.fromEntries((await prisma().profileField.findMany()).map((field) => [field.key, field.value]));
-    expect(fields).toEqual({ name: "John Doe", city: "Utrecht", showAge: "false", photo: "data:image/png;base64,iVBORw0KGgo=", photoOnResumes: "false" });
+    expect(fields).toEqual({ name: "John Doe", city: "Utrecht", photo: "data:image/png;base64,iVBORw0KGgo=", photoOnResumes: "false" });
     expect((await prisma().skill.findMany()).map((skill) => skill.name).sort()).toEqual(["User research", "figma"]);
     expect((await prisma().experience.findMany()).map((role) => role.company).sort()).toEqual(["Acme Payments", "fieldnote"]);
     expect((await prisma().setting.findUnique({ where: { key: "experienceOrder" } }))?.value).toBe("date");

@@ -53,9 +53,8 @@ describe("demo seed", () => {
     expect(await basics()).toMatchObject({
       name: "Jane Doe",
       headline: "Senior Product Designer",
-      dob: "1992-04-18",
       city: "Rotterdam",
-      showAge: false,
+      state: "South Holland",
     });
     const counts = await Promise.all([
       db.experience.count(),
