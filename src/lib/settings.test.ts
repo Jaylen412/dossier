@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { DateFormat } from "@/generated/prisma/enums";
 
-import { DATE_FORMATS, formatDocumentDate, maxPages, pagesInWords, settingsFromRows, settingValue, type SettingsData } from "./settings";
+import { DATE_FORMATS, formatDocumentDate, maxPages, pagesInWords, settingsFromRows, settingsSchema, settingValue, type SettingsData } from "./settings";
 
 const date = new Date(Date.UTC(2026, 8, 7));
 
@@ -27,6 +27,10 @@ describe("document dates", () => {
 });
 
 describe("stored settings", () => {
+  it("has no settings for the job sources that were removed", () => {
+    for (const key of ["adzunaAppId", "adzunaKeyEnc", "arbeitsagenturAcceptedAt"]) expect(settingsSchema.shape).not.toHaveProperty(key);
+  });
+
   it("reads an empty table as the prototype's defaults", () => {
     expect(settingsFromRows([])).toEqual({
       setupGuide: null,
@@ -65,9 +69,6 @@ describe("stored settings", () => {
       jsearchKeyEnc: null,
       jsearchHost: "openwebninja",
       serpapiKeyEnc: null,
-      adzunaAppId: null,
-      adzunaKeyEnc: null,
-      arbeitsagenturAcceptedAt: null,
       scorer: null,
       typesafeKeyEnc: null,
       agentEnabled: false,

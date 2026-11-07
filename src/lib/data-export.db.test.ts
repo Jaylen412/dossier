@@ -7,7 +7,7 @@ import { createTestClient, resetDatabase } from "@/test/db";
 import { seedBuiltIns } from "../../prisma/seed/built-ins";
 import { seedDemo } from "../../prisma/seed/demo";
 
-import { buildExport, EXPORT_SCHEMA_VERSION, exportFileName, exportSchema } from "./data-export";
+import { buildExport, EXPORT_SCHEMA_VERSION, exportFileName, exportSchema, SECRET_SETTINGS } from "./data-export";
 
 vi.mock("@/lib/env", () => ({ env: { DOSSIER_SECRET: "s".repeat(32) } }));
 
@@ -87,19 +87,28 @@ describe("buildExport (E10-4)", () => {
     await prisma().setting.createMany({
       data: [
         { key: "jsearchKeyEnc", value: encryptSecret(JOB_SOURCE_KEY, "ak-test", "s".repeat(32)) },
-        // Unreadable here: left out rather than exported broken.
-        { key: "adzunaKeyEnc", value: encryptSecret(JOB_SOURCE_KEY, "adz-test", "x".repeat(32)) },
+        { key: "serpapiKeyEnc", value: encryptSecret(JOB_SOURCE_KEY, "serp-test", "s".repeat(32)) },
       ],
     });
     await prisma().posting.create({ data: { source: "JSEARCH", externalId: "job-1", title: "Designer", savedAt: now } });
 
     const without = await buildExport(prisma(), { now });
     expect(without).not.toHaveProperty("jobSourceKeys");
-    expect(JSON.stringify(without)).not.toMatch(/jsearchKeyEnc|adzunaKeyEnc/);
+    expect(JSON.stringify(without)).not.toMatch(/jsearchKeyEnc|serpapiKeyEnc/);
     expect(without.postings).toEqual([expect.objectContaining({ externalId: "job-1", title: "Designer", savedAt: now })]);
 
     const withKeys = await buildExport(prisma(), { now, includeApiKey: true });
-    expect(withKeys.jobSourceKeys).toEqual({ jsearch: "ak-test" });
+    expect(withKeys.jobSourceKeys).toEqual({ jsearch: "ak-test", serpapi: "serp-test" });
+
+    // Unreadable here: left out rather than exported broken.
+    await prisma().setting.update({ where: { key: "serpapiKeyEnc" }, data: { value: encryptSecret(JOB_SOURCE_KEY, "serp-test", "x".repeat(32)) } });
+    expect((await buildExport(prisma(), { now, includeApiKey: true })).jobSourceKeys).toEqual({ jsearch: "ak-test" });
+  });
+
+  it("is version 10, and counts SerpApi's key among the secret settings", () => {
+    expect(EXPORT_SCHEMA_VERSION).toBe(10);
+    expect(SECRET_SETTINGS).toContain("serpapiKeyEnc");
+    expect(SECRET_SETTINGS).not.toContain("adzunaKeyEnc");
   });
 
   it("names the file after the day", () => {

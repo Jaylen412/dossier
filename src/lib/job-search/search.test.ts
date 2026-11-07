@@ -70,9 +70,9 @@ describe("a search in a line", () => {
   it("names the radius only for a source that has one", () => {
     const query = { ...EMPTY_QUERY, keywords: "product designer", place: "Hamburg", country: "de", remoteOnly: true, postedWithin: "week" as const };
     expect(describeSearch(query, "Germany")).toBe("product designer · Hamburg, 25 km · Remote only · Past week");
-    expect(describeSearch(query, "Germany", "ADZUNA")).toBe("product designer · Hamburg, 25 km · Remote only · Past week");
-    expect(describeSearch(query, "Germany", "FREEHIRE")).toBe("product designer · Hamburg · Remote only · Past week");
-    expect(describeSearch({ ...query, place: "" }, "Germany", "FREEHIRE")).toBe("product designer · Germany · Remote only · Past week");
+    expect(describeSearch(query, "Germany", "JSEARCH")).toBe("product designer · Hamburg, 25 km · Remote only · Past week");
+    expect(describeSearch(query, "Germany", "SERPAPI")).toBe("product designer · Hamburg · Remote only · Past week");
+    expect(describeSearch({ ...query, place: "" }, "Germany", "SERPAPI")).toBe("product designer · Germany · Remote only · Past week");
   });
 });
 
@@ -191,14 +191,13 @@ describe("countries", () => {
 
 describe("errors", () => {
   it("words each problem for the screen", () => {
-    expect(jobSearchError("no-key", "ADZUNA").message).toBe("Add your Adzuna app ID and key in Settings → Job search first.");
+    expect(jobSearchError("no-key", "SERPAPI").message).toBe("Add your SerpApi key in Settings → Job search first.");
     expect(jobSearchError("no-key", "JSEARCH").message).toBe("Add your JSearch key in Settings → Job search first.");
     expect(jobSearchError("quota", "JSEARCH").message).toBe("You've used up your JSearch searches for this month. Try again then, or move to a bigger plan.");
-    expect(jobSearchError("quota", "ARBEITSAGENTUR").message).toBe("Bundesagentur für Arbeit is limiting searches right now. Wait a minute and try again.");
-    expect(jobSearchError("country", "ADZUNA", { country: "jp" }).message).toBe(
-      "Adzuna doesn't list jobs in Japan. Choose another country, or another source in Settings → Job search.",
+    expect(jobSearchError("country", "SERPAPI", { country: "jp" }).message).toBe(
+      "SerpApi doesn't list jobs in Japan. Choose another country, or another source in Settings → Job search.",
     );
-    expect(jobSearchError("changed", "ARBEITSAGENTUR").message).toMatch(/^The Arbeitsagentur's job search has changed/);
+    expect(jobSearchError("changed", "SERPAPI").message).toBe("SerpApi answered in a way Dossier doesn't understand; its service may have changed. Try again later.");
     expect(jobSearchError("key", "JSEARCH", { detail: "HTTP 401" }).detail).toBe("JSEARCH: HTTP 401");
   });
 });

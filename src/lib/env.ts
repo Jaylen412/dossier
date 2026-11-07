@@ -11,7 +11,7 @@ const GENERATE_SECRET = "for example the output of `openssl rand -base64 32`";
 const HASH_PASSWORD = "Make one with `docker run --rm -it dossier-local hash-password`";
 
 export const AI_PROVIDERS = ["local", "openai", "anthropic", "mistral", "lmstudio"] as const;
-export const JOB_SOURCE_NAMES = ["jsearch", "serpapi", "adzuna", "arbeitsagentur", "freehire", "off"] as const;
+export const JOB_SOURCE_NAMES = ["jsearch", "serpapi", "off"] as const;
 export const SCORER_NAMES = ["ai", "jev"] as const;
 
 // An empty value (`DOSSIER_AI_KEY=` in .env) counts as unset.
@@ -119,22 +119,6 @@ const schema = z.object({
     }),
   ),
   DOSSIER_SERPAPI_KEY: optional(z.string()),
-  DOSSIER_ADZUNA_APP_ID: optional(z.string()),
-  DOSSIER_ADZUNA_KEY: optional(z.string()),
-  // FreeHire origin; unset uses https://freehire.me. Point at a self-hosted
-  // FreeHire, or leave unset for the public catalogue.
-  DOSSIER_FREEHIRE_URL: optional(
-    z.url({ protocol: /^https?$/, error: "DOSSIER_FREEHIRE_URL must be an http:// or https:// URL." }).transform((url) => url.replace(/\/+$/, "")),
-  ),
-  // Off takes the Bundesagentur für Arbeit out everywhere (#223): it isn't an
-  // official API, so a server can choose not to offer it. Unset means on.
-  DOSSIER_JOBS_ARBEITSAGENTUR: optional(
-    z
-      .string()
-      .trim()
-      .toLowerCase()
-      .pipe(z.enum(["on", "off"], { error: (issue) => `DOSSIER_JOBS_ARBEITSAGENTUR must be on or off (got "${String(issue.input)}").` })),
-  ),
   // Defaults for Settings → Scoring (#274), until a choice is saved there:
   // ai scores postings with the AI provider, jev with TypeSafe's Jev.
   DOSSIER_SCORER: optional(
@@ -177,14 +161,6 @@ const schema = z.object({
   DOSSIER_TYPESAFE_TEST_BASE_URL: optional(
     z.url({ protocol: /^https?$/, error: "DOSSIER_TYPESAFE_TEST_BASE_URL must be an http:// or https:// URL." }),
   ),
-}).check((context) => {
-  if (context.value.DOSSIER_JOBS_SOURCE === "arbeitsagentur" && context.value.DOSSIER_JOBS_ARBEITSAGENTUR === "off") {
-    context.issues.push({
-      code: "custom",
-      input: context.value,
-      message: "DOSSIER_JOBS_SOURCE is arbeitsagentur, but DOSSIER_JOBS_ARBEITSAGENTUR is off. Choose another source, or remove one of the two.",
-    });
-  }
 });
 
 export type Env = z.infer<typeof schema>;

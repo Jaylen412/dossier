@@ -14,7 +14,7 @@ import { cn } from "@/lib/cn";
 import type { PostingFit } from "@/lib/fit";
 import type { JobView } from "@/lib/jobs/runner";
 import { postedAgo, postingKey, type FoundPosting, type PostingState, type ShownPosting, type StoredSearch } from "@/lib/job-search/search";
-import { arbeitsagenturPage, SOURCE_INFO } from "@/lib/job-search/sources";
+import { SOURCE_INFO } from "@/lib/job-search/sources";
 
 import { dismissFoundPosting, loadFullText, restorePosting, savePostingForLater, showMorePostings, startScoringPosting, unsavePosting } from "./actions";
 import { useStartApplication } from "./use-start-application";
@@ -366,7 +366,7 @@ function PostingList({
                 </button>
               </span>
             )}
-            {/* Adzuna's label is a link, so it lies over room the card keeps too (E14-2). */}
+            {/* A linked label lies over room the card keeps too (E14-2). */}
             {linksAttribution(posting.source) && (
               <span className="pointer-events-none absolute inset-0 flex items-end justify-end border border-transparent px-4 py-3.5">
                 <SourceAttribution source={posting.source} url={posting.url} className="pointer-events-auto" />
@@ -423,7 +423,6 @@ function PostingDetail({
   children?: ReactNode;
 }) {
   const headingId = useId();
-  const sourcePage = arbeitsagenturPage(posting);
   // The posting as first shown; the component is keyed by it.
   const [initial] = useState(posting);
   const [text, setText] = useState<Text>(initial.complete ? { status: "ready", text: initial.description } : { status: "loading" });
@@ -484,13 +483,6 @@ function PostingDetail({
         {posting.url && (
           <a href={posting.url} target="_blank" rel="noopener noreferrer" className={buttonClassName("secondary", "sm")}>
             Open posting<span aria-hidden>↗</span>
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
-        )}
-        {/* A BA posting with a link of its own still links to its ad on arbeitsagentur.de (#223). */}
-        {sourcePage && sourcePage !== posting.url && (
-          <a href={sourcePage} target="_blank" rel="noopener noreferrer" className={buttonClassName("secondary", "sm")}>
-            On arbeitsagentur.de<span aria-hidden>↗</span>
             <span className="sr-only"> (opens in a new tab)</span>
           </a>
         )}

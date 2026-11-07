@@ -21,7 +21,8 @@ vi.mock("@/lib/prisma", async () => {
   return { prisma: db.client };
 });
 // Settings → Scoring reads DOSSIER_SCORER (#274).
-vi.mock("@/lib/env", () => ({ env: { DOSSIER_SECRET: "a".repeat(32) } }));
+// DOSSIER_JOBS_SOURCE chooses JSearch, with a key, for the run that reads Settings.
+vi.mock("@/lib/env", () => ({ env: { DOSSIER_SECRET: "a".repeat(32), DOSSIER_JOBS_SOURCE: "jsearch", DOSSIER_JSEARCH_KEY: "env-key" } }));
 // Drafts are their own jobs; here it's enough to see them queued.
 vi.mock("@/lib/jobs/runner", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/jobs/runner")>()),
@@ -38,7 +39,8 @@ vi.mock("@/lib/profile-data", async () => {
 const fake = vi.hoisted(() => ({
   postings: [] as FoundPosting[],
   searches: 0,
-  source: "JSEARCH" as "JSEARCH" | "ADZUNA" | "ARBEITSAGENTUR" | null,
+  /** "settings": the source as Settings and the environment say. */
+  source: "JSEARCH" as "JSEARCH" | "SERPAPI" | "settings" | null,
   ai: true,
   failOn: null as string | null,
   onScore: (() => {}) as (title: string) => void,
@@ -49,16 +51,22 @@ vi.mock("@/lib/job-search", () => ({
     return { postings: fake.postings, next: "page-2" };
   }),
 }));
-vi.mock("@/lib/job-search/config", () => ({
-  loadJobSearchConfig: async () => ({
-    source: fake.source,
-    saved: true,
-    jsearch: { key: "jsearch-key", host: "openwebninja", keyState: "set" },
-    adzuna: { appId: "app", key: "adzuna-key", keyState: "set" },
-  }),
-  credentialsFor: () => ({ key: "jsearch-key", host: "openwebninja" }),
-  requestContext: () => ({}),
-}));
+vi.mock("@/lib/job-search/config", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/job-search/config")>();
+  return {
+    loadJobSearchConfig: async () =>
+      fake.source === "settings"
+        ? actual.loadJobSearchConfig()
+        : {
+            source: fake.source,
+            saved: true,
+            jsearch: { key: "jsearch-key", host: "openwebninja", keyState: "set" },
+            serpapi: { key: "serpapi-key", keyState: "set" },
+          },
+    credentialsFor: () => ({ key: "jsearch-key", host: "openwebninja" }),
+    requestContext: () => ({}),
+  };
+});
 vi.mock("@/lib/ai/config", () => ({ isAiConfigured: async () => fake.ai }));
 vi.mock("@/lib/ai", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/ai")>()),
@@ -177,11 +185,11 @@ describe("runAgentScan (E16-3)", () => {
     const again = await runAgentScan({ manual: true }, context(), new Date(now.getTime() + 2 * hour));
     expect(again).toEqual({ found: 3, fresh: 0, scored: 0, drafted: 0, skipped: 3, message: "No new postings this time." });
 
-    // The same jobs from Adzuna: one by its link, one by company, title and place.
+    // The same jobs from SerpApi: one by its link, one by company, title and place.
     fake.postings = [
-      posting("az-1", "Senior Product Designer", "2026-10-19T00:00:00Z", { source: "ADZUNA", url: "https://jobs.example/a?utm_medium=y" }),
-      posting("az-2", "Office  Manager", "2026-10-18T00:00:00Z", { source: "ADZUNA", url: "", company: "COMPANY c" }),
-      posting("az-3", "Brand Designer", "2026-10-20T00:00:00Z", { source: "ADZUNA" }),
+      posting("serp-1", "Senior Product Designer", "2026-10-19T00:00:00Z", { source: "SERPAPI", url: "https://jobs.example/a?utm_medium=y" }),
+      posting("serp-2", "Office  Manager", "2026-10-18T00:00:00Z", { source: "SERPAPI", url: "", company: "COMPANY c" }),
+      posting("serp-3", "Brand Designer", "2026-10-20T00:00:00Z", { source: "SERPAPI" }),
     ];
     const third = await runAgentScan({ manual: true }, context(), new Date(now.getTime() + 4 * hour));
     expect(third).toMatchObject({ found: 3, fresh: 1, scored: 1, skipped: 2 });
@@ -211,11 +219,26 @@ describe("runAgentScan (E16-3)", () => {
     fake.ai = true;
     fake.source = null;
     expect(await stop()).toBe("Choose a job source in Settings → Job search first.");
-    // It never searches the Bundesagentur für Arbeit on its own (#223).
-    fake.source = "ARBEITSAGENTUR";
-    expect(await stop()).toBe("The job agent doesn't search the Bundesagentur für Arbeit. Choose JSearch, Adzuna or FreeHire in Settings → Job search for it.");
     fake.source = "JSEARCH";
     expect(fake.searches).toBe(0);
+    expect((await loadSettings()).agentRuns).toEqual([]);
+  });
+
+  it("runs without a source and says to choose one", async () => {
+    // An upgrade turns a saved source that was removed into Off; the environment's JSearch doesn't take its place.
+    fake.source = "settings";
+    await saveSettings({ jobSource: "OFF" });
+    expect(await runAgentScan({ manual: true }, context(), now)).toEqual({
+      found: 0,
+      fresh: 0,
+      scored: 0,
+      drafted: 0,
+      skipped: 0,
+      message: "Choose a job source in Settings → Job search first.",
+    });
+    expect(fake.searches).toBe(0);
+    expect(await prisma().agentCandidate.count()).toBe(0);
+    expect(await prisma().postingScore.count()).toBe(0);
     expect((await loadSettings()).agentRuns).toEqual([]);
   });
 

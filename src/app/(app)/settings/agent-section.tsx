@@ -96,16 +96,7 @@ export function AgentSection({
         Once a day it runs one search, scores the new postings against your profile, and keeps the best on the Agent screen. It never sends or applies.
       </SettingsSectionIntro>
 
-      {source === "ARBEITSAGENTUR" ? (
-        // It searches on its own, which the BA's terms forbid most clearly (#223).
-        <p role="note" className="rounded-card bg-warning-surface px-4 py-3 text-meta text-warning">
-          The agent doesn&apos;t search the Bundesagentur für Arbeit. Choose JSearch, Adzuna or FreeHire in{" "}
-          <Link href="/settings?section=jobs" className="font-medium text-warning underline underline-offset-2">
-            Settings → Job search
-          </Link>{" "}
-          for it.
-        </p>
-      ) : !source ? (
+      {!source ? (
         <SetupNote before="The agent searches the source you choose in " section="jobs" after=", which is off. Choose one first." />
       ) : scoring.ready ? null : scoring.scorer === "JEV" ? (
         <SetupNote before="The agent scores postings with Jev, which needs your TypeSafe key in " section="scoring" after="." />
@@ -142,7 +133,7 @@ export function AgentSection({
         <div className="grid grid-cols-1 items-start gap-x-4 gap-y-4 sm:grid-cols-2" onBlur={flush}>
           <SearchFields value={settings.query} onChange={setQuery} source={source} countries={countries} errors={errors} />
           <div className="sm:col-span-2">
-            <RemoteOnlyField value={settings.query} onChange={setQuery} source={source} />
+            <RemoteOnlyField value={settings.query} onChange={setQuery} />
           </div>
         </div>
       </Card>

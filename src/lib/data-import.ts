@@ -3,6 +3,7 @@ import "server-only";
 import { Prisma, type PrismaClient } from "@/generated/prisma/client";
 import { encryptApiKey } from "@/lib/ai/api-key";
 import { EXPORT_FORMAT, EXPORT_SCHEMA_VERSION, EXPORT_SCHEMA_VERSIONS, exportSchema, INSTALL_SETTINGS, SECRET_SETTINGS, type DossierExport } from "@/lib/data-export";
+import { JOB_SOURCES } from "@/lib/job-search/search";
 import { encryptSecret, JOB_SOURCE_KEY } from "@/lib/secrets";
 
 // Restoring from an export file (E10-6, SET-10): everything is replaced in
@@ -66,6 +67,9 @@ function omit<T extends object, K extends keyof T>(value: T, ...keys: K[]): Omit
   return Object.fromEntries(Object.entries(value).filter(([key]) => !keys.includes(key as K))) as Omit<T, K>;
 }
 
+/** What the jobSource setting can hold. */
+const JOB_SOURCE_CHOICES: readonly string[] = [...JOB_SOURCES, "OFF"];
+
 const json = (value: unknown) => (value === null || value === undefined ? Prisma.DbNull : (value as Prisma.InputJsonValue));
 /** A JSON list for a column that can't be null (#222): anything else reads as empty. */
 const jsonList = (value: unknown) => (Array.isArray(value) ? value : []) as Prisma.InputJsonValue;
@@ -82,7 +86,7 @@ export async function importExport(db: PrismaClient, data: DossierExport): Promi
   const fromFile: Record<string, string | null> = {
     apiKeyEnc: apiKey ? encryptApiKey(apiKey) : null,
     jsearchKeyEnc: jobSourceKeys?.jsearch ? encryptSecret(JOB_SOURCE_KEY, jobSourceKeys.jsearch) : null,
-    adzunaKeyEnc: jobSourceKeys?.adzuna ? encryptSecret(JOB_SOURCE_KEY, jobSourceKeys.adzuna) : null,
+    serpapiKeyEnc: jobSourceKeys?.serpapi ? encryptSecret(JOB_SOURCE_KEY, jobSourceKeys.serpapi) : null,
   };
   const keptKeys = [...SECRET_SETTINGS.filter((key) => !fromFile[key]), ...INSTALL_SETTINGS];
   await db.$transaction(
@@ -137,7 +141,12 @@ export async function importExport(db: PrismaClient, data: DossierExport): Promi
       await tx.reference.createMany({ data: profile.references });
       await tx.fact.createMany({ data: profile.facts });
       await tx.theme.createMany({ data: themes.map((theme) => ({ ...theme, builtIn: false })) });
-      await tx.setting.createMany({ data: settings.filter((setting) => !SECRET_SETTINGS.includes(setting.key) && !INSTALL_SETTINGS.includes(setting.key)) });
+      await tx.setting.createMany({
+        data: settings
+          .filter((setting) => !SECRET_SETTINGS.includes(setting.key) && !INSTALL_SETTINGS.includes(setting.key))
+          // A source Dossier no longer has (in files before version 10) reads as Off, not as "use DOSSIER_JOBS_SOURCE".
+          .map((setting) => (setting.key === "jobSource" && !JOB_SOURCE_CHOICES.includes(setting.value) ? { ...setting, value: "OFF" } : setting)),
+      });
       for (const [key, value] of Object.entries(fromFile)) if (value) await tx.setting.create({ data: { key, value } });
 
       const themeIds = new Set((await tx.theme.findMany({ select: { id: true } })).map((theme) => theme.id));

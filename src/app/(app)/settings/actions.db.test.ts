@@ -163,30 +163,11 @@ describe("job search settings (E14-4)", () => {
         source: "JSEARCH",
         jsearch: { host: "openwebninja", keyState: "none" },
         serpapi: { keyState: "none" },
-        adzuna: { appId: "", keyState: "none" },
-        arbeitsagentur: { offered: true, acceptedAt: null },
-        freehire: { host: "freehire.me" },
       },
     });
     await saveJobSource({ source: "OFF" });
     expect((await settings()).jobSource).toBe("OFF");
     expect(await saveJobSource({ source: "LINKEDIN" as never })).toMatchObject({ ok: false });
-  });
-
-  it("saves the Bundesagentur für Arbeit only with its note accepted (#223)", async () => {
-    expect(await saveJobSource({ source: "ARBEITSAGENTUR" })).toEqual({
-      ok: false,
-      error: "Tick “I understand” under the note about the Bundesagentur für Arbeit first.",
-    });
-    expect((await settings()).jobSource).toBeNull();
-    const saved = await saveJobSource({ source: "ARBEITSAGENTUR", accepted: true });
-    expect(saved).toMatchObject({ ok: true, data: { source: "ARBEITSAGENTUR", arbeitsagentur: { offered: true, acceptedAt: expect.any(String) } } });
-    const { jobSource, arbeitsagenturAcceptedAt } = await settings();
-    expect(jobSource).toBe("ARBEITSAGENTUR");
-    expect(Date.parse(arbeitsagenturAcceptedAt!)).toBeGreaterThan(Date.now() - 60_000);
-    // Once accepted, switching back needs no second tick.
-    await saveJobSource({ source: "JSEARCH" });
-    expect(await saveJobSource({ source: "ARBEITSAGENTUR" })).toMatchObject({ ok: true });
   });
 
   it("stores each source's key encrypted, keeps it when switching, and only says it's set", async () => {
@@ -198,16 +179,14 @@ describe("job search settings (E14-4)", () => {
     expect(stored).not.toContain("ak_secret");
     expect(decryptSecret(JOB_SOURCE_KEY, stored)).toBe("ak_secret");
 
-    await saveJobSource({ source: "ADZUNA" });
-    await saveJobSearchDetails({ adzunaAppId: " app-1 " });
-    await saveJobSourceKey({ source: "ADZUNA", change: { action: "set", value: "adz" } });
+    await saveJobSource({ source: "SERPAPI" });
+    await saveJobSourceKey({ source: "SERPAPI", change: { action: "set", value: "serp" } });
     await saveJobSource({ source: "JSEARCH" });
-    expect(await settings()).toMatchObject({ jobSource: "JSEARCH", adzunaAppId: "app-1", jsearchKeyEnc: stored });
+    expect(await settings()).toMatchObject({ jobSource: "JSEARCH", jsearchKeyEnc: stored });
+    expect(decryptSecret(JOB_SOURCE_KEY, (await settings()).serpapiKeyEnc!)).toBe("serp");
 
     await saveJobSourceKey({ source: "JSEARCH", change: { action: "clear" } });
     expect((await settings()).jsearchKeyEnc).toBeNull();
-    await saveJobSearchDetails({ adzunaAppId: "" });
-    expect((await settings()).adzunaAppId).toBeNull();
   });
 
   it("saves a SerpApi key encrypted and never returns it", async () => {

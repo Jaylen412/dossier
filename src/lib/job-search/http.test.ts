@@ -21,12 +21,12 @@ describe("requestJson", () => {
 
   it("names the path and status for the log, never the search", async () => {
     stubFetch(() => json({}, { status: 500 }));
-    await expect(requestJson("ADZUNA", url)).rejects.toMatchObject({ problem: "unavailable", detail: "ADZUNA: /api/search: HTTP 500" });
+    await expect(requestJson("SERPAPI", url)).rejects.toMatchObject({ problem: "unavailable", detail: "SERPAPI: /api/search: HTTP 500" });
   });
 
   it("says the source changed when the answer isn't JSON", async () => {
     stubFetch(() => new Response("<html>Moved</html>", { status: 200 }));
-    await expect(requestJson("ARBEITSAGENTUR", url)).rejects.toMatchObject({ problem: "changed", detail: "ARBEITSAGENTUR: /api/search: not JSON" });
+    await expect(requestJson("SERPAPI", url)).rejects.toMatchObject({ problem: "changed", detail: "SERPAPI: /api/search: not JSON" });
   });
 
   it("refuses answers over 5 MB", async () => {
@@ -59,7 +59,7 @@ describe("requestJson", () => {
   it("gives a source 10 seconds unless it asks for longer (#231)", async () => {
     const timeout = vi.spyOn(AbortSignal, "timeout");
     stubFetch(() => json({ ok: true }));
-    await requestJson("ADZUNA", url);
+    await requestJson("SERPAPI", url);
     await requestJson("JSEARCH", url, { timeoutMs: 45_000 });
     expect(timeout.mock.calls).toEqual([[10_000], [45_000]]);
   });

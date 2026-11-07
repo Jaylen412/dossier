@@ -94,14 +94,7 @@ export function SearchFields({
   );
 }
 
-/** "Remote only", with what it means on Adzuna, which has no such filter. */
-export function RemoteOnlyField({ value, onChange, source }: { value: SearchQuery; onChange: (patch: Partial<SearchQuery>) => void; source: JobSource | null }) {
-  return (
-    <Checkbox
-      label="Remote only"
-      checked={value.remoteOnly}
-      onChange={(event) => onChange({ remoteOnly: event.target.checked })}
-      hint={source === "ADZUNA" && value.remoteOnly ? "Adzuna has no remote filter, so this adds “remote” to your search." : undefined}
-    />
-  );
+/** "Remote only". */
+export function RemoteOnlyField({ value, onChange }: { value: SearchQuery; onChange: (patch: Partial<SearchQuery>) => void }) {
+  return <Checkbox label="Remote only" checked={value.remoteOnly} onChange={(event) => onChange({ remoteOnly: event.target.checked })} />;
 }

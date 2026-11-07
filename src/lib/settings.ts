@@ -164,10 +164,6 @@ export const settingsSchema = z.object({
   /** Where the JSearch key is from: OpenWeb Ninja, or the RapidAPI marketplace. */
   jsearchHost: z.enum(JSEARCH_HOSTS).catch("openwebninja"),
   serpapiKeyEnc: z.string().nullable().catch(null),
-  adzunaAppId: z.string().nullable().catch(null),
-  adzunaKeyEnc: z.string().nullable().catch(null),
-  /** When "I understand" was ticked under the Bundesagentur für Arbeit's note (#223); its searches wait for it. */
-  arbeitsagenturAcceptedAt: z.iso.datetime().nullable().catch(null),
   // Scoring (#274): what Score in Find jobs and the job agent score postings
   // with. Null means "not set in the app": DOSSIER_SCORER decides, else the
   // AI model. Jev's key is encrypted like the others, under its own key.

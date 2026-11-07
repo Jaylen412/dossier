@@ -65,16 +65,9 @@ describe("searchPostings", () => {
     expect(log).toHaveBeenCalledTimes(1);
   });
 
-  it("says when a source doesn't cover the country, before asking it", async () => {
-    const requests = stubFetch(() => json(jsearchV2Page));
-    await expect(searchPostings("ARBEITSAGENTUR", {}, { ...query, country: "fr" })).rejects.toMatchObject({
-      problem: "country",
-      message: "Bundesagentur für Arbeit doesn't list jobs in France. Choose another country, or another source in Settings → Job search.",
-    });
-    expect(requests).toHaveLength(0);
-    expect(sourceCovers("ADZUNA", "de")).toBe(true);
-    expect(sourceCovers("ADZUNA", "jp")).toBe(false);
+  it("searches every country with either source", () => {
     expect(sourceCovers("JSEARCH", "jp")).toBe(true);
+    expect(sourceCovers("SERPAPI", "jp")).toBe(true);
   });
 });
 

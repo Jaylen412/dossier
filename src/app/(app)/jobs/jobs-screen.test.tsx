@@ -1,13 +1,13 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ComponentProps } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { toast } from "@/components/toast";
 import { EMPTY_QUERY, type PostingState, type ShownPosting, type StoredSearch } from "@/lib/job-search/search";
+import { SOURCE_INFO } from "@/lib/job-search/sources";
 
 import {
-  acceptArbeitsagenturNote,
   dismissFoundPosting,
   loadFullText,
   removeJobSearch,
@@ -25,7 +25,6 @@ vi.mock("next/navigation", () => ({ useRouter: () => router, usePathname: () => 
 vi.mock("next/link", () => ({ default: ({ href, ...props }: ComponentProps<"a">) => <a href={href} {...props} /> }));
 vi.mock("@/components/toast", () => ({ toast: vi.fn(), toastResult: (result: unknown) => result }));
 vi.mock("./actions", () => ({
-  acceptArbeitsagenturNote: vi.fn(),
   startApplicationFrom: vi.fn(),
   runJobSearch: vi.fn(),
   removeJobSearch: vi.fn(),
@@ -151,23 +150,9 @@ describe("the search form", () => {
   });
 
   it("has no radius for a source without one", () => {
-    renderScreen({ source: "FREEHIRE" });
+    renderScreen({ source: "SERPAPI" });
     expect(screen.getByLabelText("Within")).toBeDisabled();
-    expect(screen.getByText("FreeHire has no distance filter")).toBeInTheDocument();
-  });
-
-  it("says when the source doesn't cover the country", async () => {
-    renderScreen({ source: "ARBEITSAGENTUR" });
-    await userEvent.selectOptions(screen.getByLabelText("Country"), "fr");
-    expect(screen.getByText("Bundesagentur für Arbeit doesn't list jobs in France.")).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Search" }));
-    expect(runJobSearch).not.toHaveBeenCalled();
-  });
-
-  it("warns that Adzuna can only add 'remote' to the words", async () => {
-    renderScreen({ source: "ADZUNA" });
-    await userEvent.click(screen.getByLabelText("Remote only"));
-    expect(screen.getByText("Adzuna has no remote filter, so this adds “remote” to your search.")).toBeInTheDocument();
+    expect(screen.getByText("SerpApi has no distance filter")).toBeInTheDocument();
   });
 
   it("follows the URL's search on Back and forward", () => {
@@ -318,26 +303,53 @@ describe("the results", () => {
   });
 
   it("says when nothing was found on a source without a radius", () => {
-    renderScreen({ source: "FREEHIRE", search: { ...stored([]), source: "FREEHIRE" } });
+    renderScreen({ source: "SERPAPI", search: { ...stored([]), source: "SERPAPI" } });
     expect(screen.getByText("No postings for “product designer” in Hamburg. Try fewer words.")).toBeInTheDocument();
   });
 
-  it("labels each of Adzuna's postings with a link to its site for the posting's country, as its terms ask", () => {
-    const url = "https://www.adzuna.de/land/ad/4721394012?se=abc&utm_medium=api&utm_source=dossier&v=1";
-    renderScreen({ source: "ADZUNA", search: stored([posting("a", { source: "ADZUNA", url }), posting("b", { source: "ADZUNA", url })]) });
-    const labels = screen.getAllByRole("link", { name: "Jobs by Adzuna (opens in a new tab)" });
+});
+
+// No source has a label, or lists jobs in some countries only, now; SerpApi
+// stands in for one that does both, and JSearch for one with a plain label.
+describe("a source's terms and countries", () => {
+  const original = { SERPAPI: { ...SOURCE_INFO.SERPAPI }, JSEARCH: { ...SOURCE_INFO.JSEARCH } };
+  beforeEach(() => {
+    Object.assign(SOURCE_INFO.SERPAPI, {
+      attribution: "Jobs by Example",
+      attributionLink: { home: "https://www.example.co.uk", local: /^www\.example\.[a-z]{2}$/ },
+      countries: ["de"],
+    });
+    Object.assign(SOURCE_INFO.JSEARCH, { attribution: "Source: Example" });
+  });
+  afterEach(() => {
+    Object.assign(SOURCE_INFO.SERPAPI, original.SERPAPI);
+    Object.assign(SOURCE_INFO.JSEARCH, original.JSEARCH);
+  });
+
+  it("says when the source doesn't cover the country", async () => {
+    renderScreen({ source: "SERPAPI" });
+    await userEvent.selectOptions(screen.getByLabelText("Country"), "fr");
+    expect(screen.getByText("SerpApi doesn't list jobs in France.")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Search" }));
+    expect(runJobSearch).not.toHaveBeenCalled();
+  });
+
+  it("labels each posting with a link to the source's site for the posting's country, as its terms ask", () => {
+    const url = "https://www.example.de/land/ad/4721394012?se=abc";
+    renderScreen({ source: "SERPAPI", search: { ...stored([posting("a", { source: "SERPAPI", url }), posting("b", { source: "SERPAPI", url })]), source: "SERPAPI" } });
+    const labels = screen.getAllByRole("link", { name: "Jobs by Example (opens in a new tab)" });
     // One on each card and one on the posting shown.
     expect(labels).toHaveLength(3);
     for (const label of labels) {
-      expect(label).toHaveAttribute("href", "https://www.adzuna.de");
+      expect(label).toHaveAttribute("href", "https://www.example.de");
       expect(label).toHaveAttribute("target", "_blank");
     }
   });
 
-  it("names the Bundesagentur für Arbeit in plain text, on the posting only", () => {
-    renderScreen({ source: "ARBEITSAGENTUR", search: stored([posting("a", { source: "ARBEITSAGENTUR" })]) });
-    expect(screen.getAllByText("Source: Bundesagentur für Arbeit")).toHaveLength(1);
-    expect(screen.queryByRole("link", { name: /Source: Bundesagentur/ })).not.toBeInTheDocument();
+  it("names the source in plain text, on the posting only", () => {
+    renderScreen({ search: stored([posting("a")]) });
+    expect(screen.getAllByText("Source: Example")).toHaveLength(1);
+    expect(screen.queryByRole("link", { name: /Source: Example/ })).not.toBeInTheDocument();
   });
 });
 
@@ -363,35 +375,6 @@ describe("problems", () => {
   });
 });
 
-describe("the Bundesagentur für Arbeit (#223)", () => {
-  it("shows its note above the search until it's ticked", async () => {
-    vi.mocked(acceptArbeitsagenturNote).mockResolvedValue({ ok: true, data: null });
-    renderScreen({ source: "ARBEITSAGENTUR", arbeitsagenturNote: true });
-    expect(screen.getByRole("note")).toHaveTextContent(/has no official API.*on your own responsibility/);
-    await userEvent.click(screen.getByRole("checkbox", { name: "I understand, and choose this source myself" }));
-    expect(acceptArbeitsagenturNote).toHaveBeenCalledWith({});
-    expect(router.refresh).toHaveBeenCalled();
-  });
-
-  it("leaves the note out once it's accepted, and for other sources", () => {
-    renderScreen({ source: "ARBEITSAGENTUR" });
-    expect(screen.queryByRole("checkbox", { name: /I understand/ })).not.toBeInTheDocument();
-  });
-
-  it("links each posting to its ad on arbeitsagentur.de, next to the employer's own link", () => {
-    const ba = posting("10000-1234-S", { source: "ARBEITSAGENTUR", url: "https://careers.example/1" });
-    renderScreen({ source: "ARBEITSAGENTUR", search: stored([ba]) });
-    expect(screen.getByRole("link", { name: /Open posting/ })).toHaveAttribute("href", "https://careers.example/1");
-    expect(screen.getByRole("link", { name: /On arbeitsagentur\.de/ })).toHaveAttribute("href", "https://www.arbeitsagentur.de/jobsuche/jobdetail/10000-1234-S");
-  });
-
-  it("has one link when the posting's own link is its ad", () => {
-    const ba = posting("10000-1234-S", { source: "ARBEITSAGENTUR", url: "https://www.arbeitsagentur.de/jobsuche/jobdetail/10000-1234-S" });
-    renderScreen({ source: "ARBEITSAGENTUR", search: stored([ba]) });
-    expect(screen.queryByRole("link", { name: /On arbeitsagentur\.de/ })).not.toBeInTheDocument();
-  });
-});
-
 describe("past searches (E14-10)", () => {
   const history = [
     {
@@ -401,7 +384,7 @@ describe("past searches (E14-10)", () => {
         { id: "s2", source: "JSEARCH" as const, query: { ...query, keywords: "researcher", place: "" }, found: 1, time: "09:05" },
       ],
     },
-    { day: "Mon 28 Sep", searches: [{ id: "s3", source: "ADZUNA" as const, query: { ...query, keywords: "writer" }, found: 0, time: "10:00" }] },
+    { day: "Mon 28 Sep", searches: [{ id: "s3", source: "SERPAPI" as const, query: { ...query, keywords: "writer" }, found: 0, time: "10:00" }] },
   ];
 
   it("lists them by day, each opening without asking the source again", () => {
@@ -412,7 +395,7 @@ describe("past searches (E14-10)", () => {
       ["product designer · Hamburg, 50 km · Remote only · Past week14:32 · 16 postings · JSearch", "/jobs?search=s1"],
       ["researcher · Germany09:05 · 1 posting · JSearch", "/jobs?search=s2"],
     ]);
-    expect(within(screen.getByRole("region", { name: "Mon 28 Sep" })).getByRole("link")).toHaveTextContent("writer · Hamburg, 25 km10:00 · 0 postings · Adzuna");
+    expect(within(screen.getByRole("region", { name: "Mon 28 Sep" })).getByRole("link")).toHaveTextContent("writer · Hamburg10:00 · 0 postings · SerpApi");
   });
 
   it("removes a search", async () => {

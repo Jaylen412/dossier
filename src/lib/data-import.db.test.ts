@@ -146,7 +146,7 @@ describe("importExport (E10-6)", () => {
   it("restores Find jobs' postings with their applications, and leaves a missing one unlinked (E14-9)", async () => {
     const ledgerly = await prisma().application.findFirstOrThrow({ where: { documents: { some: {} } } });
     await prisma().posting.create({ data: { source: "JSEARCH", externalId: "job-1", title: "Designer", savedAt: now, applicationId: ledgerly.id } });
-    await prisma().posting.create({ data: { source: "ADZUNA", externalId: "job-2", dismissedAt: now } });
+    await prisma().posting.create({ data: { source: "SERPAPI", externalId: "job-2", dismissedAt: now } });
     const file = await asFile();
     expect(file.postings).toHaveLength(2);
 
@@ -183,7 +183,7 @@ describe("importExport (E10-6)", () => {
     await prisma().agentCandidate.create({
       data: { source: "JSEARCH", externalId: "job-1", title: "Data Scientist", score: 88, reasons: ["Python"], status: "DRAFTED", applicationId: draft.id, dedupeKey: "key-1" },
     });
-    await prisma().agentCandidate.create({ data: { source: "ADZUNA", externalId: "az-1", title: "Gone", status: "DISMISSED", dedupeKey: "key-2" } });
+    await prisma().agentCandidate.create({ data: { source: "SERPAPI", externalId: "serp-1", title: "Gone", status: "DISMISSED", dedupeKey: "key-2" } });
     const file = await asFile();
     expect(file.agentCandidates).toHaveLength(2);
     expect(file.applications.find((application) => application.id === draft.id)).toMatchObject({ origin: "AGENT", agentScore: 88, awaitingReview: true });
@@ -195,8 +195,8 @@ describe("importExport (E10-6)", () => {
     await importExport(prisma(), file);
     expect(await prisma().postingScore.count()).toBe(0);
     expect(await prisma().agentCandidate.findMany({ orderBy: { externalId: "asc" }, select: { externalId: true, status: true, applicationId: true, reasons: true } })).toEqual([
-      { externalId: "az-1", status: "DISMISSED", applicationId: null, reasons: null },
       { externalId: "job-1", status: "DRAFTED", applicationId: draft.id, reasons: ["Python"] },
+      { externalId: "serp-1", status: "DISMISSED", applicationId: null, reasons: null },
     ]);
     expect(await prisma().application.findUniqueOrThrow({ where: { id: draft.id } })).toMatchObject({ origin: "AGENT", awaitingReview: true });
 
@@ -384,6 +384,50 @@ describe("importExport (E10-6)", () => {
     expect(await prisma().fact.findMany({ select: { applicationId: true, text: true } })).toEqual([{ applicationId: first.id, text: "Relocating in January." }]);
   });
 
+  it("imports a version 9 export and skips rows from removed sources", async () => {
+    const ledgerly = await prisma().application.findFirstOrThrow({ where: { documents: { some: {} } } });
+    await prisma().posting.create({ data: { source: "JSEARCH", externalId: "job-1", title: "Designer", savedAt: now } });
+    await prisma().postingSearch.create({ data: { source: "JSEARCH", query: { keywords: "designer" }, postings: [], found: 0, createdAt: now } });
+    await prisma().agentCandidate.create({ data: { source: "JSEARCH", externalId: "job-1", title: "Designer", status: "SCORED", dedupeKey: "key-1" } });
+    await prisma().setting.create({ data: { key: "paper", value: "LETTER" } });
+    const current = JSON.parse(JSON.stringify(await buildExport(prisma(), { now })));
+    // Rows from Adzuna, the Bundesagentur für Arbeit and FreeHire, as a version 9 file has them; the Adzuna posting holds an application.
+    const removed = ["ADZUNA", "ARBEITSAGENTUR", "FREEHIRE"];
+    const [posting] = current.postings;
+    const [search] = current.searches;
+    const [candidate] = current.agentCandidates;
+    const v9 = {
+      ...current,
+      schemaVersion: 9,
+      settings: [...current.settings, { key: "jobSource", value: "ADZUNA" }],
+      jobSourceKeys: { adzuna: "x" },
+      postings: [
+        posting,
+        ...removed.map((source, index) => ({ ...posting, id: `old-posting-${index}`, source, externalId: `old-${index}`, applicationId: source === "ADZUNA" ? ledgerly.id : null })),
+      ],
+      searches: [search, ...removed.map((source, index) => ({ ...search, id: `old-search-${index}`, source }))],
+      agentCandidates: [candidate, ...removed.map((source, index) => ({ ...candidate, id: `old-candidate-${index}`, source, externalId: `old-${index}`, dedupeKey: `old-${index}` }))],
+    };
+    await prisma().posting.deleteMany();
+    await prisma().postingSearch.deleteMany();
+    await prisma().agentCandidate.deleteMany();
+
+    const parsed = parseExport(JSON.stringify(v9));
+    expect(parsed).toMatchObject({ ok: true, data: { schemaVersion: 9 } });
+    if (!parsed.ok) return;
+    await importExport(prisma(), parsed.data);
+
+    expect(await prisma().posting.findMany({ select: { source: true, externalId: true } })).toEqual([{ source: "JSEARCH", externalId: "job-1" }]);
+    expect(await prisma().postingSearch.findMany({ select: { source: true } })).toEqual([{ source: "JSEARCH" }]);
+    expect(await prisma().agentCandidate.findMany({ select: { source: true, externalId: true } })).toEqual([{ source: "JSEARCH", externalId: "job-1" }]);
+    // The application linked to the Adzuna posting stays, without it.
+    expect(await prisma().application.findUniqueOrThrow({ where: { id: ledgerly.id }, include: { posting: true } })).toMatchObject({ id: ledgerly.id, posting: null });
+    // The rest of the file came in; a saved removed source reads as Off; the removed source's key is ignored.
+    expect(await prisma().setting.findUnique({ where: { key: "paper" } })).toMatchObject({ value: "LETTER" });
+    expect(await prisma().setting.findUnique({ where: { key: "jobSource" } })).toMatchObject({ value: "OFF" });
+    expect(await prisma().setting.count({ where: { key: { startsWith: "adzuna" } } })).toBe(0);
+  });
+
   it("reads version 1 files, which have no postings", async () => {
     const file = JSON.parse(JSON.stringify(await buildExport(prisma(), { now })));
     const parsed = parseExport(JSON.stringify({ ...file, schemaVersion: 1, postings: undefined, searches: undefined }));
@@ -394,7 +438,7 @@ describe("importExport (E10-6)", () => {
     await prisma().setting.createMany({
       data: [
         { key: "jsearchKeyEnc", value: encryptSecret(JOB_SOURCE_KEY, "ak-current", secret) },
-        { key: "adzunaKeyEnc", value: encryptSecret(JOB_SOURCE_KEY, "adz-current", secret) },
+        { key: "serpapiKeyEnc", value: encryptSecret(JOB_SOURCE_KEY, "serp-current", secret) },
       ],
     });
     const file = await asFile();
@@ -403,8 +447,11 @@ describe("importExport (E10-6)", () => {
     await importExport(prisma(), { ...file, jobSourceKeys: { jsearch: "ak-from-file" } });
     const value = async (key: string) => decryptSecret(JOB_SOURCE_KEY, (await prisma().setting.findUniqueOrThrow({ where: { key } })).value, secret);
     expect(await value("jsearchKeyEnc")).toBe("ak-from-file");
-    expect(await value("adzunaKeyEnc")).toBe("adz-current");
+    expect(await value("serpapiKeyEnc")).toBe("serp-current");
     expect(decryptApiKey((await prisma().setting.findUniqueOrThrow({ where: { key: "apiKeyEnc" } })).value, secret)).toBe("sk-current");
+
+    await importExport(prisma(), { ...file, jobSourceKeys: { serpapi: "serp-from-file" } });
+    expect(await value("serpapiKeyEnc")).toBe("serp-from-file");
   });
 
   it("never exports the TypeSafe key, and keeps this server's on import (#274)", async () => {

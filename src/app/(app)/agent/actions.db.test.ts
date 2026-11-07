@@ -26,7 +26,7 @@ vi.mock("@/lib/jobs/runner", async (importOriginal) => ({
 const setup = vi.hoisted(() => ({ ai: true, source: "JSEARCH" as "JSEARCH" | null }));
 vi.mock("@/lib/ai/config", () => ({ isAiConfigured: async () => setup.ai }));
 vi.mock("@/lib/job-search/config", () => ({
-  loadJobSearchConfig: async () => ({ source: setup.source, saved: true, jsearch: { key: "k", host: "openwebninja", keyState: "set" }, adzuna: { appId: "", key: null, keyState: "none" } }),
+  loadJobSearchConfig: async () => ({ source: setup.source, saved: true, jsearch: { key: "k", host: "openwebninja", keyState: "set" }, serpapi: { key: null, keyState: "none" } }),
   credentialsFor: () => ({ key: "k", host: "openwebninja" }),
   requestContext: () => ({}),
 }));

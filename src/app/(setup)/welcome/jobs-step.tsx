@@ -16,8 +16,8 @@ import { InstructionList } from "./instruction-list";
 
 type Status = { state: "idle" } | { state: "checking" } | { state: "connected" } | { state: "failed"; message: string };
 
-const kindOf = (source: JobSearchSettingsView["source"]): JobKind | null =>
-  source === "OFF" ? "none" : (JOB_CHOICES.find((choice) => choice.source === source)?.kind ?? null);
+/** Every source is for any kind of job. */
+const kindOf = (source: JobSearchSettingsView["source"]): JobKind => (source === "OFF" ? "none" : "any");
 
 /** The guide's job search step (E21-3): what kind of jobs, then the source for it and its key, checked at once. */
 export function JobsStep({ initial }: { initial: JobSearchSettingsView }) {
@@ -59,18 +59,16 @@ export function JobsStep({ initial }: { initial: JobSearchSettingsView }) {
 }
 
 function SourcePanel({ choice, initial, onConnected }: { choice: JobChoice; initial: JobSearchSettingsView; onConnected: () => void }) {
-  const [appId, setAppId] = useState(initial.adzuna.appId);
   const [key, setKey] = useState("");
   const [status, setStatus] = useState<Status>({ state: "idle" });
-  const savedKey = choice.source === "ADZUNA" ? initial.adzuna.keyState : choice.source === "SERPAPI" ? initial.serpapi.keyState : initial.jsearch.keyState;
+  const savedKey = choice.source === "SERPAPI" ? initial.serpapi.keyState : initial.jsearch.keyState;
 
   const connect = async () => {
     setStatus({ state: "checking" });
     const steps = [
       () => saveJobSource({ source: choice.source }),
-      ...(choice.source === "ADZUNA" ? [() => saveJobSearchDetails({ adzunaAppId: appId })] : []),
       ...(choice.source === "JSEARCH" ? [() => saveJobSearchDetails({ jsearchHost: "openwebninja" })] : []),
-      ...(choice.source !== "FREEHIRE" && key.trim() ? [() => saveJobSourceKey({ source: choice.source as "ADZUNA" | "JSEARCH" | "SERPAPI", change: { action: "set", value: key } })] : []),
+      ...(key.trim() ? [() => saveJobSourceKey({ source: choice.source, change: { action: "set", value: key } })] : []),
     ];
     for (const step of steps) {
       if (!toastResult(await step()).ok) return setStatus({ state: "idle" });
@@ -106,20 +104,17 @@ function SourcePanel({ choice, initial, onConnected }: { choice: JobChoice; init
           if (status.state !== "checking") void connect();
         }}
       >
-        {choice.source === "ADZUNA" && <Input label="Application ID" autoComplete="off" value={appId} onChange={(event) => setAppId(event.target.value)} />}
-        {choice.source !== "FREEHIRE" && (
-          <Input
-            label={choice.source === "ADZUNA" ? "Application key" : `${choice.name} API key`}
-            type="password"
-            autoComplete="off"
-            placeholder={savedKey === "set" ? "Saved · paste a new one to replace it" : "Paste it here"}
-            hint="Stored encrypted on your server, and never shown again."
-            value={key}
-            onChange={(event) => setKey(event.target.value)}
-          />
-        )}
+        <Input
+          label={`${choice.name} API key`}
+          type="password"
+          autoComplete="off"
+          placeholder={savedKey === "set" ? "Saved · paste a new one to replace it" : "Paste it here"}
+          hint="Stored encrypted on your server, and never shown again."
+          value={key}
+          onChange={(event) => setKey(event.target.value)}
+        />
         <Button type="submit" className="self-start" aria-disabled={status.state === "checking" || undefined}>
-          {status.state === "checking" ? "Checking…" : choice.source === "FREEHIRE" ? "Use FreeHire" : "Check it"}
+          {status.state === "checking" ? "Checking…" : "Check it"}
         </Button>
       </form>
       <div role="status" className="text-sm empty:hidden">
