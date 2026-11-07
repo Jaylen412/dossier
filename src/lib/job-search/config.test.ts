@@ -10,6 +10,7 @@ const nothingSaved = {
   jobSource: null,
   jsearchKeyEnc: null,
   jsearchHost: "openwebninja" as const,
+  serpapiKeyEnc: null,
   adzunaAppId: null,
   adzunaKeyEnc: null,
   arbeitsagenturAcceptedAt: null,
@@ -24,6 +25,7 @@ describe("resolveJobSearchConfig", () => {
     expect(jobSearchView(config)).toEqual({
       source: "OFF",
       jsearch: { host: "openwebninja", keyState: "none" },
+      serpapi: { keyState: "none" },
       adzuna: { appId: "", keyState: "none" },
       arbeitsagentur: { offered: true, acceptedAt: null },
       freehire: { host: "freehire.me" },
@@ -52,6 +54,7 @@ describe("resolveJobSearchConfig", () => {
       jobSource: "ADZUNA" as const,
       jsearchKeyEnc: encryptSecret(JOB_SOURCE_KEY, "ak_saved"),
       jsearchHost: "openwebninja" as const,
+      serpapiKeyEnc: null,
       adzunaAppId: "app-saved",
       adzunaKeyEnc: encryptSecret(JOB_SOURCE_KEY, "adz-saved"),
       arbeitsagenturAcceptedAt: null,
@@ -73,6 +76,29 @@ describe("resolveJobSearchConfig", () => {
     );
     expect(config.jsearch).toEqual({ key: null, host: "openwebninja", keyState: "unreadable" });
     expect(() => credentialsFor(config, "JSEARCH")).toThrow("Your saved JSearch key can't be read. Enter it again in Settings → Job search.");
+  });
+});
+
+describe("SerpApi's key", () => {
+  it("is set when saved, from the environment when only there, and none otherwise", () => {
+    const saved = resolveJobSearchConfig({ ...nothingSaved, serpapiKeyEnc: encryptSecret(JOB_SOURCE_KEY, "serp_saved") }, { DOSSIER_SERPAPI_KEY: "serp_env" });
+    expect(saved.serpapi).toEqual({ key: "serp_saved", keyState: "set" });
+    expect(resolveJobSearchConfig(nothingSaved, { DOSSIER_JOBS_SOURCE: "serpapi", DOSSIER_SERPAPI_KEY: "serp_env" })).toMatchObject({
+      source: "SERPAPI",
+      serpapi: { key: "serp_env", keyState: "env" },
+    });
+    expect(resolveJobSearchConfig(nothingSaved, noEnv).serpapi).toEqual({ key: null, keyState: "none" });
+    expect(jobSearchView(saved).serpapi).toEqual({ keyState: "set" });
+    expect(credentialsFor(saved, "SERPAPI")).toEqual({ key: "serp_saved" });
+  });
+
+  it("says what's missing, or that the saved key can't be read", () => {
+    const none = resolveJobSearchConfig(nothingSaved, noEnv);
+    expect(() => credentialsFor(none, "SERPAPI")).toThrow(expect.objectContaining({ name: "JobSearchError", problem: "no-key" }));
+    expect(() => credentialsFor(none, "SERPAPI")).toThrow("Add your SerpApi key in Settings → Job search first.");
+    const unreadable = resolveJobSearchConfig({ ...nothingSaved, serpapiKeyEnc: encryptSecret(JOB_SOURCE_KEY, "serp", "b".repeat(32)) }, { DOSSIER_SERPAPI_KEY: "serp_env" });
+    expect(unreadable.serpapi).toEqual({ key: null, keyState: "unreadable" });
+    expect(() => credentialsFor(unreadable, "SERPAPI")).toThrow("Your saved SerpApi key can't be read. Enter it again in Settings → Job search.");
   });
 });
 

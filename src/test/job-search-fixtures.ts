@@ -226,3 +226,61 @@ export const freehireLastPage = {
   ],
   meta: { total: 21, limit: 20, offset: 20 },
 };
+
+// SerpApi's google_jobs answers, from SerpApi's documentation; replaced by a
+// live probe in Task 5 of the US job sources plan.
+
+/** A page of Google Jobs results: one with apply options and details, one with only a share link, one with no details. */
+export const serpapiPage = {
+  search_metadata: { id: "s1", status: "Success", google_jobs_url: "https://www.google.com/search?q=product+designer&ibp=htl;jobs" },
+  search_parameters: { engine: "google_jobs", q: "product designer in Hamburg", gl: "de", hl: "en" },
+  jobs_results: [
+    {
+      title: "Senior Product Designer, Payments",
+      company_name: "Ledgerly",
+      location: "Hamburg, Germany",
+      via: "via LinkedIn",
+      share_link: "https://www.google.com/search?q=product+designer&ibp=htl;jobs#htidocid=ledgerly",
+      extensions: ["3 days ago", "$90K–$120K a year", "Work from home", "Full-time"],
+      detected_extensions: { posted_at: "3 days ago", salary: "$90K–$120K a year", work_from_home: true, schedule_type: "Full-time" },
+      description: "Ledgerly is hiring a Senior Product Designer for its payments team.\n\nYou'll design checkout flows.",
+      apply_options: [
+        { title: "Apply on javascript", link: "javascript:alert(1)" },
+        { title: "Apply on LinkedIn", link: "https://www.linkedin.com/jobs/view/1234567890" },
+        { title: "Apply on Ledgerly Careers", link: "https://careers.ledgerly.example/jobs/42" },
+      ],
+      job_id: "eyJqb2JfdGl0bGUiOiJsZWRnZXJseSJ9",
+    },
+    {
+      title: "UX Researcher",
+      company_name: "Northwind Studio",
+      location: "Berlin, Germany",
+      via: "via Indeed",
+      share_link: "https://www.google.com/search?q=ux+researcher&ibp=htl;jobs#htidocid=northwind",
+      extensions: ["Full-time"],
+      detected_extensions: { schedule_type: "Full-time" },
+      description: "Northwind Studio is looking for a UX Researcher.",
+      job_id: "eyJqb2JfdGl0bGUiOiJub3J0aHdpbmQifQ==",
+    },
+    {
+      title: "Design Systems Designer",
+      company_name: "Canal Software",
+      location: "Amsterdam, Netherlands",
+      via: "via Company site",
+      share_link: "https://www.google.com/search?q=design+systems&ibp=htl;jobs#htidocid=canal",
+      description: "",
+      job_id: "eyJqb2JfdGl0bGUiOiJjYW5hbCJ9",
+    },
+    // Repeated across pages: kept once.
+    { title: "Repeat", job_id: "eyJqb2JfdGl0bGUiOiJsZWRnZXJseSJ9" },
+    // Without an id: skipped.
+    { title: "No id", company_name: "Nowhere" },
+  ],
+  serpapi_pagination: { next_page_token: "tok-1" },
+};
+
+/** The last page: no pagination. */
+export const serpapiLastPage = { search_parameters: { engine: "google_jobs" }, jobs_results: [serpapiPage.jobs_results[1]] };
+
+/** What SerpApi answers, with HTTP 200, when Google has no jobs for the search. */
+export const serpapiNoResults = { search_metadata: { id: "s2", status: "Success" }, error: "Google hasn't returned any results for this query." };

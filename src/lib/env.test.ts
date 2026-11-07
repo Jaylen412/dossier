@@ -154,6 +154,14 @@ describe("job search variables (E14-4)", () => {
     expect(parseEnv({ ...valid, DOSSIER_JOBS_SOURCE: "freehire" }).DOSSIER_JOBS_SOURCE).toBe("freehire");
   });
 
+  it("reads SerpApi as a source and accepts its key", () => {
+    expect(parseEnv({ ...valid, DOSSIER_JOBS_SOURCE: "serpapi", DOSSIER_SERPAPI_KEY: "serp_test" })).toMatchObject({
+      DOSSIER_JOBS_SOURCE: "serpapi",
+      DOSSIER_SERPAPI_KEY: "serp_test",
+    });
+    expect(parseEnv({ ...valid, DOSSIER_SERPAPI_KEY: "" }).DOSSIER_SERPAPI_KEY).toBeUndefined();
+  });
+
   it("reads whether the Bundesagentur für Arbeit is offered, and refuses choosing it while it's off (#223)", () => {
     expect(parseEnv(valid).DOSSIER_JOBS_ARBEITSAGENTUR).toBeUndefined();
     expect(parseEnv({ ...valid, DOSSIER_JOBS_ARBEITSAGENTUR: " OFF " }).DOSSIER_JOBS_ARBEITSAGENTUR).toBe("off");
@@ -165,7 +173,7 @@ describe("job search variables (E14-4)", () => {
 
   it("rejects sources and hosts it doesn't know, without echoing keys", () => {
     expect(problems({ ...valid, DOSSIER_JOBS_SOURCE: "linkedin", DOSSIER_JSEARCH_HOST: "google", DOSSIER_JSEARCH_KEY: "ak_secret" })).toEqual([
-      'DOSSIER_JOBS_SOURCE must be one of jsearch, adzuna, arbeitsagentur, freehire, off (got "linkedin").',
+      'DOSSIER_JOBS_SOURCE must be one of jsearch, serpapi, adzuna, arbeitsagentur, freehire, off (got "linkedin").',
       'DOSSIER_JSEARCH_HOST must be openwebninja or rapidapi (got "google").',
     ]);
   });

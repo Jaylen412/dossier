@@ -7,6 +7,7 @@ export type JobKeyState = "none" | "set" | "unreadable" | "env";
 export type JobSearchSettingsView = {
   source: JobSource | "OFF";
   jsearch: { host: JSearchHost; keyState: JobKeyState };
+  serpapi: { keyState: JobKeyState };
   adzuna: { appId: string; keyState: JobKeyState };
   /** Whether this server offers the Bundesagentur für Arbeit, and when its note was accepted (#223). */
   arbeitsagentur: { offered: boolean; acceptedAt: string | null };
@@ -56,6 +57,17 @@ export const SOURCE_INFO: Record<JobSource, SourceInfo> = {
     attributionLink: null,
     countries: null,
     radius: true,
+  },
+  SERPAPI: {
+    name: "SerpApi",
+    description: "Postings from LinkedIn, Indeed, Glassdoor and company sites, through Google for Jobs, from a US service.",
+    tag: "Most countries · 250 free searches a month",
+    keyUrl: "https://serpapi.com/users/sign_up",
+    quotaPeriod: "this month",
+    attribution: null,
+    attributionLink: null,
+    countries: null,
+    radius: false,
   },
   ADZUNA: {
     name: "Adzuna",
