@@ -33,7 +33,7 @@ test("searches, keeps postings, and starts an application from one", async ({ pa
   const asked = await fakeJobSearches();
   await page.getByRole("link", { name: /^Past searches/ }).click();
   const today = page.getByRole("region", { name: "Today" });
-  await expect(today.getByRole("link")).toHaveText(/Senior Product Designer · Rotterdam, 25 km.*4 postings · JSearch/);
+  await expect(today.getByRole("link")).toHaveText(/Senior Product Designer · Rotterdam, 25 mi.*4 postings · JSearch/);
   await today.getByRole("link").click();
   await expect(list.getByRole("listitem")).toHaveCount(4);
   await page.goto("/jobs");
@@ -78,7 +78,7 @@ test("says when nothing was found", async ({ page }) => {
   // A search written in the URL only fills in the form.
   await page.goto("/jobs?q=nothing&where=Rotterdam&country=nl");
   await page.getByRole("search", { name: "Search postings" }).getByRole("button", { name: "Search" }).click();
-  await expect(page.getByText("No postings for “nothing” within 25 km of Rotterdam. Try a bigger radius or fewer words.")).toBeVisible();
+  await expect(page.getByText("No postings for “nothing” within 25 mi of Rotterdam. Try a bigger radius or fewer words.")).toBeVisible();
 });
 
 test("tests the connection in Settings → Job search", async ({ page }) => {

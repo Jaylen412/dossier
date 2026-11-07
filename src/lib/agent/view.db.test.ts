@@ -29,7 +29,7 @@ beforeEach(async () => {
   await resetDatabase(prisma());
   await saveSettings({
     agentEnabled: true,
-    agentQuery: { keywords: "Data scientist", place: "Berlin", country: "de", radiusKm: 25, remoteOnly: false, postedWithin: "any" },
+    agentQuery: { keywords: "Data scientist", place: "Berlin", country: "de", radiusMiles: 25, remoteOnly: false, postedWithin: "any" },
     agentRuns: [{ at: "2026-10-20T05:00:00Z", manual: false, message: "2 new postings are waiting for a look." }],
   });
 });
@@ -52,7 +52,7 @@ describe("the Agent screen's data (E16-6)", () => {
     expect(view.belowMinimum.map((entry) => entry.title)).toEqual(["Posting low"]);
     expect(view.scored[1]).toMatchObject({ facts: "Berlin · Remote", origin: "Posted 2 days ago · via LinkedIn on JSearch", draftJobId: job.id });
     expect(view).toMatchObject({
-      search: "Data scientist · Berlin, 25 km · via JSearch",
+      search: "Data scientist · Berlin, 25 mi · via JSearch",
       setupProblem: null,
       limitReached: false,
       lastRun: { at: "Tue 20 Oct, 07:00", message: "2 new postings are waiting for a look." },
@@ -65,7 +65,7 @@ describe("the Agent screen's data (E16-6)", () => {
   it("says what's missing, and when the day's runs are used up", async () => {
     await saveSettings({
       agentEnabled: false,
-      agentQuery: { keywords: "", place: "", country: "", radiusKm: 25, remoteOnly: false, postedWithin: "any" },
+      agentQuery: { keywords: "", place: "", country: "", radiusMiles: 25, remoteOnly: false, postedWithin: "any" },
       agentRuns: ["09:30", "08:00", "06:00"].map((time) => ({ at: `2026-10-20T${time}:00Z`, manual: true, message: null })),
     });
     expect(await loadAgentView(now)).toMatchObject({

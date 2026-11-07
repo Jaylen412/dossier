@@ -23,7 +23,7 @@ import {
 
 describe("search in the URL", () => {
   it("round-trips a search", () => {
-    const query = { keywords: "product designer", place: "Hamburg", country: "de", radiusKm: 50 as const, remoteOnly: true, postedWithin: "week" as const };
+    const query = { keywords: "product designer", place: "Hamburg", country: "de", radiusMiles: 50 as const, remoteOnly: true, postedWithin: "week" as const };
     const href = searchHref(query);
     expect(href).toBe("/jobs?q=product+designer&where=Hamburg&country=de&radius=50&remote=1&posted=week");
     expect(queryFromParams(Object.fromEntries(new URL(href, "http://x").searchParams))).toEqual(query);
@@ -61,7 +61,7 @@ describe("search in the URL", () => {
 
   it("validates a search from the screen", () => {
     expect(searchQuerySchema.parse({ ...EMPTY_QUERY, keywords: " designer ", country: "DE" })).toMatchObject({ keywords: "designer", country: "de" });
-    expect(searchQuerySchema.safeParse({ ...EMPTY_QUERY, radiusKm: 30 }).success).toBe(false);
+    expect(searchQuerySchema.safeParse({ ...EMPTY_QUERY, radiusMiles: 30 }).success).toBe(false);
     expect(searchQuerySchema.safeParse({ ...EMPTY_QUERY, country: "deu" }).success).toBe(false);
   });
 });
@@ -69,8 +69,8 @@ describe("search in the URL", () => {
 describe("a search in a line", () => {
   it("names the radius only for a source that has one", () => {
     const query = { ...EMPTY_QUERY, keywords: "product designer", place: "Hamburg", country: "de", remoteOnly: true, postedWithin: "week" as const };
-    expect(describeSearch(query, "Germany")).toBe("product designer · Hamburg, 25 km · Remote only · Past week");
-    expect(describeSearch(query, "Germany", "JSEARCH")).toBe("product designer · Hamburg, 25 km · Remote only · Past week");
+    expect(describeSearch(query, "Germany")).toBe("product designer · Hamburg, 25 mi · Remote only · Past week");
+    expect(describeSearch(query, "Germany", "JSEARCH")).toBe("product designer · Hamburg, 25 mi · Remote only · Past week");
     expect(describeSearch(query, "Germany", "SERPAPI")).toBe("product designer · Hamburg · Remote only · Past week");
     expect(describeSearch({ ...query, place: "" }, "Germany", "SERPAPI")).toBe("product designer · Germany · Remote only · Past week");
   });

@@ -20,10 +20,10 @@ export type JobSource = PostingSource;
 export const JSEARCH_HOSTS = ["openwebninja", "rapidapi"] as const;
 export type JSearchHost = (typeof JSEARCH_HOSTS)[number];
 
-/** How far from the place to look, in km (E14-6). */
-export const RADII_KM = [10, 25, 50, 100, 200] as const;
-export type RadiusKm = (typeof RADII_KM)[number];
-export const DEFAULT_RADIUS_KM: RadiusKm = 25;
+/** How far from the place to look, in miles (E14-6). */
+export const RADII_MILES = [10, 25, 50, 100, 200] as const;
+export type RadiusMiles = (typeof RADII_MILES)[number];
+export const DEFAULT_RADIUS_MILES: RadiusMiles = 25;
 
 /** How recent the postings must be, with the days each choice allows. */
 export const POSTED_WITHIN = [
@@ -49,7 +49,15 @@ export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number]["value"];
 const LEVEL_VALUES = EXPERIENCE_LEVELS.map((option) => option.value) as [ExperienceLevel, ...ExperienceLevel[]];
 
 /** One search, as every source gets it. */
-export const searchQuerySchema = z.object({
+/** Searches kept before the radius was in miles have `radiusKm`; they read as the nearest radius in miles. */
+const fromLegacyRadius = (value: unknown) => {
+  if (typeof value !== "object" || value === null || !("radiusKm" in value) || "radiusMiles" in value) return value;
+  const { radiusKm, ...rest } = value as { radiusKm: number };
+  const miles = radiusKm / 1.609344;
+  return { ...rest, radiusMiles: RADII_MILES.reduce((best, mi) => (Math.abs(mi - miles) < Math.abs(best - miles) ? mi : best)) };
+};
+
+export const searchQuerySchema = z.preprocess(fromLegacyRadius, z.object({
   keywords: z.string().trim().max(200),
   /** A city or region; empty searches the whole country. */
   place: z.string().trim().max(200),
@@ -59,12 +67,12 @@ export const searchQuerySchema = z.object({
     .trim()
     .toLowerCase()
     .regex(/^([a-z]{2})?$/),
-  radiusKm: z.literal(RADII_KM),
+  radiusMiles: z.literal(RADII_MILES),
   remoteOnly: z.boolean(),
   postedWithin: z.enum(POSTED_VALUES),
   /** Missing in searches from before 1.12.0, which means any. */
   experience: z.enum(LEVEL_VALUES).optional(),
-});
+}));
 export type SearchQuery = z.output<typeof searchQuerySchema>;
 
 /** The level a search asks for, or null for any. */
@@ -75,7 +83,7 @@ export const EMPTY_QUERY: SearchQuery = {
   keywords: "",
   place: "",
   country: "",
-  radiusKm: DEFAULT_RADIUS_KM,
+  radiusMiles: DEFAULT_RADIUS_MILES,
   remoteOnly: false,
   postedWithin: "any",
 };
@@ -149,9 +157,9 @@ export type PastSearchDay = {
   searches: { id: string; source: JobSource; query: SearchQuery; found: number; time: string }[];
 };
 
-/** "product designer · Hamburg, 25 km · Remote only · Past week": a search in a line, without the km for a source that has no radius. */
+/** "product designer · Hamburg, 25 mi · Remote only · Past week": a search in a line, without the miles for a source that has no radius. */
 export function describeSearch(query: SearchQuery, countryName: string, source?: JobSource | null): string {
-  const where = query.place ? (source && !SOURCE_INFO[source].radius ? query.place : `${query.place}, ${query.radiusKm} km`) : countryName;
+  const where = query.place ? (source && !SOURCE_INFO[source].radius ? query.place : `${query.place}, ${query.radiusMiles} mi`) : countryName;
   const posted = POSTED_WITHIN.find((option) => option.value === query.postedWithin);
   const level = EXPERIENCE_LEVELS.find((option) => option.value === experienceAskedFor(query));
   return [query.keywords, where, query.remoteOnly ? "Remote only" : "", posted && posted.value !== "any" ? posted.label : "", level?.label ?? ""].filter(Boolean).join(" · ");
@@ -208,7 +216,7 @@ export function queryFromParams(params: Record<string, string | string[] | undef
     keywords: keywords.slice(0, 200),
     place: one(params.where).trim().slice(0, 200),
     country: /^[a-z]{2}$/.test(country) ? country : "",
-    radiusKm: RADII_KM.find((km) => km === radius) ?? DEFAULT_RADIUS_KM,
+    radiusMiles: RADII_MILES.find((mi) => mi === radius) ?? DEFAULT_RADIUS_MILES,
     remoteOnly: one(params.remote) === "1",
     postedWithin: posted ?? "any",
     ...(level && level !== "any" ? { experience: level } : {}),
@@ -233,7 +241,7 @@ export function searchHref(query: SearchQuery): string {
   const params = new URLSearchParams({ q: query.keywords });
   if (query.place) params.set("where", query.place);
   if (query.country) params.set("country", query.country);
-  if (query.radiusKm !== DEFAULT_RADIUS_KM) params.set("radius", String(query.radiusKm));
+  if (query.radiusMiles !== DEFAULT_RADIUS_MILES) params.set("radius", String(query.radiusMiles));
   if (query.remoteOnly) params.set("remote", "1");
   if (query.postedWithin !== "any") params.set("posted", query.postedWithin);
   const level = experienceAskedFor(query);

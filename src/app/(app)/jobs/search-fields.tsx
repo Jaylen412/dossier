@@ -4,7 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import type { Country } from "@/lib/job-search/countries";
-import { EXPERIENCE_LEVELS, POSTED_WITHIN, RADII_KM, type JobSource, type RadiusKm, type SearchQuery } from "@/lib/job-search/search";
+import { EXPERIENCE_LEVELS, POSTED_WITHIN, RADII_MILES, type JobSource, type RadiusMiles, type SearchQuery } from "@/lib/job-search/search";
 import { SOURCE_INFO, sourceCovers } from "@/lib/job-search/sources";
 
 // A search's fields, as Find jobs asks them (E14-6) and Settings → Job agent
@@ -60,14 +60,14 @@ export function SearchFields({
       </Select>
       <Select
         label="Within"
-        value={String(value.radiusKm)}
+        value={String(value.radiusMiles)}
         disabled={noRadius || !value.place.trim()}
         hint={noRadius ? `${SOURCE_INFO[source].name} has no distance filter` : value.place.trim() ? undefined : "Add a place first"}
-        onChange={(event) => onChange({ radiusKm: Number(event.target.value) as RadiusKm })}
+        onChange={(event) => onChange({ radiusMiles: Number(event.target.value) as RadiusMiles })}
       >
-        {RADII_KM.map((km) => (
-          <option key={km} value={km}>
-            {km} km
+        {RADII_MILES.map((mi) => (
+          <option key={mi} value={mi}>
+            {mi} mi
           </option>
         ))}
       </Select>
