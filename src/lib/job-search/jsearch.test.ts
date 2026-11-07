@@ -7,7 +7,7 @@ import { JobSearchError } from "./errors";
 import { jsearch } from "./jsearch";
 import { EMPTY_QUERY, type SearchQuery } from "./search";
 
-const query: SearchQuery = { ...EMPTY_QUERY, keywords: "product designer", place: "Hamburg", country: "de", radiusKm: 50, postedWithin: "week" };
+const query: SearchQuery = { ...EMPTY_QUERY, keywords: "product designer", place: "Hamburg", country: "de", radiusMiles: 50, postedWithin: "week" };
 const ninja = { key: "ak_test", host: "openwebninja" as const };
 const rapid = { key: "rapid-test", host: "rapidapi" as const };
 
@@ -28,7 +28,7 @@ describe("JSearch search", () => {
       query: "product designer in Hamburg",
       country: "de",
       date_posted: "week",
-      radius: "50",
+      radius: "80",
     });
   });
 

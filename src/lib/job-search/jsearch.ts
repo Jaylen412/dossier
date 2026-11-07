@@ -141,13 +141,16 @@ function queryText({ keywords, place }: SearchQuery): string {
   return place ? `${keywords} in ${place}` : keywords;
 }
 
+/** JSearch measures the radius in km. */
+const KM_PER_MILE = 1.609344;
+
 function searchUrl(query: SearchQuery, host: JSearchHost, next: string | null, baseUrl?: string): URL {
   const url = new URL(`${baseUrl ?? HOSTS[host].base}${SEARCH_PATH}`);
   url.searchParams.set("query", queryText(query));
   // Without a country, JSearch searches the US.
   url.searchParams.set("country", query.country || "us");
   url.searchParams.set("date_posted", DATE_POSTED[query.postedWithin]);
-  if (query.place) url.searchParams.set("radius", String(query.radiusKm));
+  if (query.place) url.searchParams.set("radius", String(Math.round(query.radiusMiles * KM_PER_MILE)));
   if (query.remoteOnly) url.searchParams.set("work_from_home", "true");
   // The level as far as JSearch can filter it (public issue 59); the rest is read from the postings.
   const level = experienceAskedFor(query);
@@ -190,6 +193,6 @@ export const jsearch: JobSourceAdapter<"JSEARCH"> = {
   // Search results carry the whole description.
   details: async (posting) => (posting.description ? posting.description : null),
   test: async (credentials, context) => {
-    await searchPage({ keywords: "developer", place: "", country: "us", radiusKm: 25, remoteOnly: false, postedWithin: "any" }, credentials, null, context);
+    await searchPage({ keywords: "developer", place: "", country: "us", radiusMiles: 25, remoteOnly: false, postedWithin: "any" }, credentials, null, context);
   },
 };

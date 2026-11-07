@@ -95,7 +95,7 @@ async function tool(name: string, args: Record<string, unknown> = {}): Promise<{
 }
 
 const storeSearch = (postings: unknown[]) =>
-  prisma().postingSearch.create({ data: { source: "JSEARCH", query: { keywords: "designer", place: "Berlin", country: "de", radiusKm: 25, remoteOnly: false, postedWithin: "any" }, postings: postings as object[], found: postings.length, next: "page:2" } });
+  prisma().postingSearch.create({ data: { source: "JSEARCH", query: { keywords: "designer", place: "Berlin", country: "de", radiusMiles: 25, remoteOnly: false, postedWithin: "any" }, postings: postings as object[], found: postings.length, next: "page:2" } });
 
 describe("the Claude connector's tools (#221)", () => {
   it("lists the applications, newest first, by status, and reads one without notes, sender or signature", async () => {

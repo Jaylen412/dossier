@@ -117,7 +117,7 @@ describe("the Claude connector at /api/mcp (#221)", () => {
     const { isError, text } = await tool("search_jobs", { keywords: "product designer", country: "Netherlands" });
     expect(isError).toBe(false);
     const { city } = demoProfile().basics;
-    expect(searches.ran.at(-1)).toMatchObject({ keywords: "product designer", place: city, country: "nl", radiusKm: 25, remoteOnly: false, postedWithin: "month" });
+    expect(searches.ran.at(-1)).toMatchObject({ keywords: "product designer", place: city, country: "nl", radiusMiles: 25, remoteOnly: false, postedWithin: "month" });
     expect(JSON.parse(text)).toMatchObject({ search_id: "s1", searched: `product designer in ${city}`, link: "https://dossier.example/jobs?search=s1" });
   });
 

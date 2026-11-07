@@ -12,7 +12,7 @@ import { unitsSchema } from "@/lib/application-data";
 import { fitBand } from "@/lib/fit";
 import { countryCodeFor, countryName } from "@/lib/job-search/countries";
 import { fullText } from "@/lib/job-search/find";
-import { DEFAULT_RADIUS_KM, foundPostingSchema, POSTED_WITHIN, postingText, RADII_KM, type FoundPosting, type PostedWithin, type SearchQuery, type ShownPosting } from "@/lib/job-search/search";
+import { DEFAULT_RADIUS_MILES, foundPostingSchema, POSTED_WITHIN, postingText, RADII_MILES, type FoundPosting, type PostedWithin, type SearchQuery, type ShownPosting } from "@/lib/job-search/search";
 import { getJob, startJob } from "@/lib/jobs/runner";
 import { withoutPrivateParts } from "@/lib/letter-frame";
 import { fetchPosting } from "@/lib/posting-fetch";
@@ -168,7 +168,7 @@ export function createDossierServer(origin: string): McpServer {
         place: z.string().max(200).optional().describe("City or region. Defaults to the profile's city. Use '' for the whole country."),
         country: z.string().max(60).optional().describe("Country name or ISO code, e.g. 'Germany' or 'de'. Required: the profile doesn't store one."),
         remote_only: z.boolean().optional().describe("Only remote postings."),
-        radius_km: z.literal(RADII_KM).optional(),
+        radius_miles: z.literal(RADII_MILES).optional(),
         posted_within: z.enum(POSTED).optional().describe("any, day, 3days, week or month. Defaults to month."),
       }),
       annotations: { readOnlyHint: false, openWorldHint: true },
@@ -182,7 +182,7 @@ export function createDossierServer(origin: string): McpServer {
         keywords: input.keywords,
         place: remoteOnly ? "" : (input.place ?? basics.city).trim(),
         country,
-        radiusKm: input.radius_km ?? DEFAULT_RADIUS_KM,
+        radiusMiles: input.radius_miles ?? DEFAULT_RADIUS_MILES,
         remoteOnly,
         postedWithin: input.posted_within ?? "month",
       };

@@ -45,7 +45,7 @@ export type AgentView = {
   minScore: number;
   maxScores: number;
   maxDrafts: number;
-  /** "Data scientist in Berlin (25 km), Germany · via JSearch", or null without a search. */
+  /** "Data scientist in Berlin (25 mi), Germany · via JSearch", or null without a search. */
   search: string | null;
   /** Why it can't run: no search, AI provider, source or key; null when it's set up. */
   setupProblem: string | null;

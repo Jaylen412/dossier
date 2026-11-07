@@ -81,7 +81,7 @@ describe("Find jobs actions", () => {
 
   it("says why a search didn't run", async () => {
     expect(await runJobSearch({ query: { ...query, country: "" } })).toMatchObject({ ok: true, data: { ok: false, problem: "no-country" } });
-    expect(await runJobSearch({ query: { ...query, radiusKm: 33 as never } })).toMatchObject({ ok: false });
+    expect(await runJobSearch({ query: { ...query, radiusMiles: 33 as never } })).toMatchObject({ ok: false });
   });
 
   it("saves, dismisses and brings back a posting, with a toast where one helps", async () => {

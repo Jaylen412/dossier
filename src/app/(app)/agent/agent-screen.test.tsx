@@ -42,7 +42,7 @@ const view: AgentView = {
   minScore: 70,
   maxScores: 15,
   maxDrafts: 3,
-  search: "Product designer · Rotterdam, 25 km · via JSearch",
+  search: "Product designer · Rotterdam, 25 mi · via JSearch",
   setupProblem: null,
   setupSection: null,
   limitReached: false,
@@ -61,7 +61,7 @@ describe("AgentScreen (E16-6)", () => {
   it("says what it searches, when it ran and when it runs next", () => {
     open();
     expect(screen.getByRole("heading", { level: 1, name: "Job agent" })).toBeInTheDocument();
-    expect(screen.getByText("Searches for").nextElementSibling).toHaveTextContent("Product designer · Rotterdam, 25 km · via JSearch");
+    expect(screen.getByText("Searches for").nextElementSibling).toHaveTextContent("Product designer · Rotterdam, 25 mi · via JSearch");
     expect(screen.getByText("Last run").nextElementSibling).toHaveTextContent("Tue 20 Oct, 07:002 new postings are waiting for a look.");
     expect(screen.getByText("Next run").nextElementSibling).toHaveTextContent("Wed 21 Oct, 07:00");
   });

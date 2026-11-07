@@ -167,7 +167,7 @@ export function PostingResults(props: PostingResultsProps) {
         : postings.length > 0 || !searched
           ? "You've dismissed every posting here."
           : radius
-            ? `No postings for “${searched.keywords}”${searched.place ? ` within ${searched.radiusKm} km of ${searched.place}` : ""}. Try a bigger radius or fewer words.`
+            ? `No postings for “${searched.keywords}”${searched.place ? ` within ${searched.radiusMiles} mi of ${searched.place}` : ""}. Try a bigger radius or fewer words.`
             : `No postings for “${searched.keywords}”${searched.place ? ` in ${searched.place}` : ""}. Try fewer words.`;
 
   return (

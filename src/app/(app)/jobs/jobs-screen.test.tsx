@@ -110,7 +110,7 @@ describe("the search form", () => {
     await userEvent.selectOptions(screen.getByLabelText("Within"), "50");
     await userEvent.click(screen.getByLabelText("Remote only"));
     await userEvent.click(screen.getByRole("button", { name: "Search" }));
-    expect(runJobSearch).toHaveBeenCalledWith({ query: { ...query, radiusKm: 50, remoteOnly: true } });
+    expect(runJobSearch).toHaveBeenCalledWith({ query: { ...query, radiusMiles: 50, remoteOnly: true } });
     await waitFor(() => expect(router.push).toHaveBeenCalledWith("/jobs?search=run-2", { scroll: false }));
   });
 
@@ -299,7 +299,7 @@ describe("the results", () => {
 
   it("says when nothing was found", () => {
     renderScreen({ search: stored([]) });
-    expect(screen.getByText("No postings for “product designer” within 25 km of Hamburg. Try a bigger radius or fewer words.")).toBeInTheDocument();
+    expect(screen.getByText("No postings for “product designer” within 25 mi of Hamburg. Try a bigger radius or fewer words.")).toBeInTheDocument();
   });
 
   it("says when nothing was found on a source without a radius", () => {
@@ -380,7 +380,7 @@ describe("past searches (E14-10)", () => {
     {
       day: "Today",
       searches: [
-        { id: "s1", source: "JSEARCH" as const, query: { ...query, radiusKm: 50 as const, remoteOnly: true, postedWithin: "week" as const }, found: 16, time: "14:32" },
+        { id: "s1", source: "JSEARCH" as const, query: { ...query, radiusMiles: 50 as const, remoteOnly: true, postedWithin: "week" as const }, found: 16, time: "14:32" },
         { id: "s2", source: "JSEARCH" as const, query: { ...query, keywords: "researcher", place: "" }, found: 1, time: "09:05" },
       ],
     },
@@ -392,7 +392,7 @@ describe("past searches (E14-10)", () => {
     expect(screen.queryByRole("search")).not.toBeInTheDocument();
     const today = screen.getByRole("region", { name: "Today" });
     expect(within(today).getAllByRole("link").map((link) => [link.textContent, link.getAttribute("href")])).toEqual([
-      ["product designer · Hamburg, 50 km · Remote only · Past week14:32 · 16 postings · JSearch", "/jobs?search=s1"],
+      ["product designer · Hamburg, 50 mi · Remote only · Past week14:32 · 16 postings · JSearch", "/jobs?search=s1"],
       ["researcher · Germany09:05 · 1 posting · JSearch", "/jobs?search=s2"],
     ]);
     expect(within(screen.getByRole("region", { name: "Mon 28 Sep" })).getByRole("link")).toHaveTextContent("writer · Hamburg10:00 · 0 postings · SerpApi");
