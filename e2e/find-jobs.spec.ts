@@ -162,4 +162,5 @@ test("finds postings through SerpApi", async ({ page }) => {
   await page.goto("/settings?section=jobs");
   await page.getByRole("radio", { name: "JSearch" }).click();
   await chosen("JSEARCH");
+  await sql(`DELETE FROM "Setting" WHERE key = 'serpapiKeyEnc'`);
 });
