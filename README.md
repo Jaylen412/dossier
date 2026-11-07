@@ -9,21 +9,20 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AienTech/dossier/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/AienTech/dossier?label=release"></a>
-  <a href="https://github.com/AienTech/dossier/actions/workflows/image.yml"><img alt="CI" src="https://github.com/AienTech/dossier/actions/workflows/image.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License: AGPL-3.0" src="https://img.shields.io/badge/license-AGPL--3.0-blue"></a>
-  <a href="https://github.com/AienTech/dossier/pkgs/container/dossier"><img alt="Docker image: ghcr.io/aientech/dossier" src="https://img.shields.io/badge/image-ghcr.io%2Faientech%2Fdossier-2496ED?logo=docker&logoColor=white"></a>
   <img alt="Next.js 16" src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs">
   <img alt="PostgreSQL 18" src="https://img.shields.io/badge/PostgreSQL-18-4169E1?logo=postgresql&logoColor=white">
 </p>
 
+> **This is a private fork of [AienTech/dossier](https://github.com/AienTech/dossier) 1.12.0.** It sends nothing to the upstream project: the usage ping, the daily update check and the project's notices are taken out, `src/lib/no-upstream.test.ts` fails if a merge brings one back, and there's no CI that builds or publishes images. You build the image yourself from this source; nothing here pulls `ghcr.io/aientech/dossier` or the upstream desktop app, which still have all three. The upstream wiki, linked below, is still the best guide for everything else.
+
 Dossier keeps your career history in one profile and turns it into a clean resume. For every job you apply to, it reads the posting, shows how you match, and drafts a tailored resume and cover letter that only use facts from your profile. You refine them in a chat, download them as PDFs and track each application from draft to offer.
 
-It's for one person on a small server: one password, your data in your own PostgreSQL database (or a single SQLite file), and an AI model of your choice. That can be a local model through Ollama or LM Studio, so your profile and documents stay on your own hardware, or a hosted one (any OpenAI-compatible API, Anthropic or Mistral), which then receives what it writes from. [Privacy](https://github.com/AienTech/dossier/wiki/Privacy) says what goes where.
+It's for one person on a small server: one password, your data in your own PostgreSQL database (or a single SQLite file), and an AI model of your choice. That can be a local model through Ollama or LM Studio, so your profile and documents stay on your own hardware, or a hosted one (any OpenAI-compatible API, Anthropic or Mistral), which then receives what it writes from. [PRIVACY.md](PRIVACY.md) says what goes where.
 
-**Get started:** [run it on your computer](#run-it-on-your-computer) in a few minutes, or [self-host it](#self-hosting) on a server. The [installation guide](https://github.com/AienTech/dossier/wiki) covers every way: Docker with or without Compose, Node.js, a plain Ubuntu server, CapRover, Coolify and Dokploy.
+**Get started:** [run it on your computer](#run-it-on-your-computer) in a few minutes, [on a Jetson Orin Nano](#on-a-jetson-orin-nano), or [self-host it](#self-hosting) on a server. The upstream [installation guide](https://github.com/AienTech/dossier/wiki) covers every other way; wherever it uses `ghcr.io/aientech/dossier`, use the `dossier-local` image you built instead.
 
-**Or download the desktop app** for Windows or Linux from the [latest release](https://github.com/AienTech/dossier/releases/latest). It runs Dossier on your computer with nothing else to install, or opens a Dossier you host. See [Desktop app](https://github.com/AienTech/dossier/wiki/Desktop-app).
+This fork doesn't build the desktop app. The upstream release of it still sends the usage ping, the update check and the notices request, so it isn't a way in here.
 
 ## Demo
 
@@ -76,57 +75,82 @@ It's for one person on a small server: one password, your data in your own Postg
 
 All you need is [Docker Desktop](https://docs.docker.com/desktop/) on macOS or Windows, or Docker Engine with its Compose plugin on Linux, and about 2 GB of free memory. Run the commands in a terminal: macOS's Terminal, Linux, or WSL on Windows.
 
-**1. Fetch the Compose file** into a folder of its own, and make the secrets Dossier needs:
+**1. Build the image** from this repository. It takes a few minutes and about 1.7 GB:
 
 ```bash
-mkdir ~/dossier && cd ~/dossier
-curl -fsSL -o compose.yml https://raw.githubusercontent.com/AienTech/dossier/main/compose.production.yml
+docker build --target production -t dossier-local .
+```
+
+**2. Copy the Compose file** into a folder of its own, and make the secrets Dossier needs:
+
+```bash
+mkdir ~/dossier && cp compose.production.yml ~/dossier/compose.yml && cd ~/dossier
 echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" > .env
 echo "DOSSIER_SECRET=$(openssl rand -base64 32)" >> .env
 ```
 
-**2. Choose your password.** This asks for it twice and prints a hash of it, one line that starts with `argon2id:`:
+**3. Choose your password.** This asks for it twice and prints a hash of it, one line that starts with `argon2id:`:
 
 ```bash
-docker run --rm -it ghcr.io/aientech/dossier hash-password
+docker run --rm -it dossier-local hash-password
 ```
 
 Add that line to `.env` as `DOSSIER_PASSWORD=argon2id:…`, with any text editor. Dossier only keeps the hash, never the password.
 
-**3. Start it:**
+**4. Start it:**
 
 ```bash
 docker compose up -d
 ```
 
-The first start downloads the image (about 1.7 GB) and sets up the database. Open [http://localhost:3000](http://localhost:3000), sign in with your password, and pick an AI model in **Settings → AI provider** (see [Choosing an AI provider](https://github.com/AienTech/dossier/wiki/Choosing-an-AI-provider)).
+The first start downloads PostgreSQL's image and sets up the database. The Compose file never pulls Dossier's image: without `dossier-local`, it stops with an error instead. Open [http://localhost:3000](http://localhost:3000), sign in with your password, and pick an AI model in **Settings → AI provider** (see [Choosing an AI provider](https://github.com/AienTech/dossier/wiki/Choosing-an-AI-provider)).
 
 `docker compose stop` stops it and `docker compose start` starts it again, with your data kept.
 
 **Without a database server:** Dossier can keep its data in an SQLite file instead, in one container. Put `DATABASE_URL=file:/data/dossier.db` in `.env` and run the image on its own, with a volume for `/data`:
 
 ```bash
-docker run -d --name dossier --env-file .env -v dossier-data:/data -p 127.0.0.1:3000:3000 ghcr.io/aientech/dossier
+docker run -d --name dossier --env-file .env -v dossier-data:/data -p 127.0.0.1:3000:3000 dossier-local
 ```
 
 Without that volume, the next upgrade deletes the data, and the container warns about it when it starts. To back up the file, stop the container and copy `dossier.db` out of the volume. PostgreSQL stays the better choice on a shared server; to move between the two, export your data in Settings → Your data and import it on the other. It's only reachable from your own computer. The [installation guide's Docker Compose page](https://github.com/AienTech/dossier/wiki/Run-locally-with-Docker-Compose) has more: another port, your time zone, upgrades and removing it.
 
+## On a Jetson Orin Nano
+
+`compose.jetson.yml` runs Dossier on an 8 GB Jetson Orin Nano, for your home network only: one container on an SQLite file, so the memory goes to the AI model, and Ollama on the Jetson itself, outside Docker, so it can use the GPU.
+
+1. **Build the image on an arm64 machine** (an Apple Silicon Mac is one) and copy it over:
+
+   ```bash
+   docker buildx build --platform linux/arm64 --target production -t dossier-local --load .
+   docker save dossier-local | ssh jetson docker load
+   ```
+
+2. **Prepare the Jetson:** JetPack 6 on an NVMe drive, headless (`sudo systemctl set-default multi-user.target`), Docker with its Compose plugin, and a swap file on the NVMe.
+3. **Install Ollama** with its own installer, which picks the Jetson build, and bind it to Docker's bridge only: Ollama has no password, so it must never listen on the network. In `systemctl edit ollama`, set `OLLAMA_HOST=172.17.0.1:11434`, `OLLAMA_FLASH_ATTENTION=1` and `OLLAMA_KV_CACHE_TYPE=q8_0`.
+4. **Pull a 3–4B model,** such as `qwen3:4b`. Dossier asks Ollama for a 16k context, and an 8B model with that doesn't fit next to the app in 8 GB. Expect a minute or three per resume or letter.
+5. **Write `.env`** next to `compose.jetson.yml`: `DOSSIER_PASSWORD` (from `docker run --rm -it dossier-local hash-password`), `DOSSIER_SECRET` (from `openssl rand -base64 32`), `DOSSIER_LAN_IP` (the Jetson's address on your network) and `DOSSIER_AI_MODEL`.
+6. **Close everything else** with ufw: deny incoming by default, then allow SSH and port 3000 from your home subnet only.
+7. **Start it:** `docker compose -f compose.jetson.yml up -d`, and open `http://<the Jetson's address>:3000`.
+
+The upstream project's addresses lead nowhere inside the container (`extra_hosts`), in case a merge ever brings a call back. Over plain HTTP, your password crosses your home network unencrypted. For HTTPS, put Caddy in front with its own local certificate authority, or reach the Jetson only through a VPN such as WireGuard. Without a proxy in front, sign-in limits per address can be dodged by faking `X-Forwarded-For`, but the limit on all failed sign-ins still holds (see [SECURITY.md](SECURITY.md)).
+
 ## Self-hosting
 
-To put Dossier on a server, on your own domain with HTTPS, follow the [installation guide](https://github.com/AienTech/dossier/wiki#self-host-on-a-server): a plain Ubuntu server with Docker Compose and Caddy (or Node.js, without Docker), CapRover, Coolify or Dokploy. Give the server at least 2 vCPUs and 2 GB of memory (see [Performance and sizing](#performance-and-sizing)).
+To put Dossier on a server, on your own domain with HTTPS, follow the upstream [installation guide](https://github.com/AienTech/dossier/wiki#self-host-on-a-server), with the `dossier-local` image in place of `ghcr.io/aientech/dossier`: a plain Ubuntu server with Docker Compose and Caddy (or Node.js, without Docker), CapRover, Coolify or Dokploy. Give the server at least 2 vCPUs and 2 GB of memory (see [Performance and sizing](#performance-and-sizing)).
 
 ## Documentation
 
-The [wiki](https://github.com/AienTech/dossier/wiki) has what comes after installing:
+The upstream [wiki](https://github.com/AienTech/dossier/wiki) has what comes after installing. Its pages on privacy and upgrading describe upstream's image, not this fork:
 
 - [Choosing an AI provider](https://github.com/AienTech/dossier/wiki/Choosing-an-AI-provider): a hosted model, or a local one with Ollama or LM Studio.
 - [Choosing a job source](https://github.com/AienTech/dossier/wiki/Choosing-a-job-source): JSearch, Adzuna or FreeHire (and an unofficial one for Germany), and the job agent.
 - [Connecting Gmail and Calendar](https://github.com/AienTech/dossier/wiki/Connecting-Gmail-and-Calendar): your own Google OAuth client, step by step.
 - [Connecting Claude](https://github.com/AienTech/dossier/wiki/Connecting-Claude): the MCP connector, in Claude's apps and on the command line.
 - [Backups and restore](https://github.com/AienTech/dossier/wiki/Backups-and-restore): exports, nightly backups and database dumps.
-- <a name="upgrading"></a>[Upgrading](https://github.com/AienTech/dossier/wiki/Upgrading) to a new version.
+- <a name="upgrading"></a>**Upgrading** this fork: take a backup, merge the upstream release into a branch, read what it changes (any new `fetch` and any new address), run `yarn test` (the guard test fails on an upstream address), then rebuild `dossier-local` and restart. Upstream's [Upgrading](https://github.com/AienTech/dossier/wiki/Upgrading) page explains each version's database changes.
 - [Troubleshooting](https://github.com/AienTech/dossier/wiki/Troubleshooting): what the common errors mean, and what to do about them.
-- [Privacy](https://github.com/AienTech/dossier/wiki/Privacy): what stays on your server and what leaves it. [PRIVACY.md](PRIVACY.md) has the details.
+- [PRIVACY.md](PRIVACY.md): what stays on your server and what leaves it, for this fork.
 - [Environment variables](https://github.com/AienTech/dossier/wiki/Environment-variables): every setting the server reads.
 
 ## Known limitations

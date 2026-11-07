@@ -34,15 +34,17 @@ So the worst a hostile posting or mail can do is get odd wording into its own dr
 - **Use HTTPS.** Put Dossier behind a reverse proxy that ends TLS (Caddy, Traefik, nginx). Set `Strict-Transport-Security` there. Dossier adds `upgrade-insecure-requests` to its policy when the proxy says the request came over HTTPS (`X-Forwarded-Proto`).
 - **Don't expose port 3000 directly.** Rate limiting trusts the last `X-Forwarded-For` entry, which is only the real client behind a proxy.
 - **Pick a long `DOSSIER_SECRET`** and keep it with your backups: without it, saved API keys can't be read. Changing it or the password signs out every session.
-- **Keep it updated.** Settings → About tells you when a new version is out.
+- **Keep it updated.** This fork doesn't check for new versions. Watch [upstream's releases](https://github.com/AienTech/dossier/releases) yourself, and merge one the way the README's Upgrading says.
 
 ## Dependencies
 
-Dependabot proposes updates once a week, for the npm packages, GitHub Actions and Docker images. Advisories that `yarn npm audit --all --recursive` still reports, checked on 28 September 2026:
+Nothing proposes updates in this fork: there's no Dependabot and no CI. Check the dependencies yourself before each upgrade. Every exact version in `yarn.lock` and `desktop/yarn.lock` (1,075 packages) was checked against [OSV](https://osv.dev) on 6 November 2026; what it still reports:
 
 | Package | Advisory | Why it's accepted |
 |---|---|---|
-| `deepmerge-ts` 7.1.5, from `@prisma/config` | Stack exhaustion on recursive objects ([GHSA-ggr8-5vv4-36mx](https://github.com/advisories/GHSA-ggr8-5vv4-36mx)) | Only merges Prisma's own config when its CLI starts; no user input reaches it. The fix is in 8.x, which Prisma doesn't support yet. |
+| `minimatch` 9.0.9 and 10.2.6, from ESLint, typescript-eslint and the desktop app's electron-builder | Denial of service through crafted glob patterns ([GHSA-g3hv-75wg-m249](https://osv.dev/vulnerability/GHSA-g3hv-75wg-m249), CVE-2026-118764) | Development and packaging tools only, never the server, and only the repository's own patterns reach it. The fix is in 11.0.1, which those tools don't use yet. |
 | `eslint` 9 | Version no longer supported | Development only. Waits for `eslint-config-next` to support ESLint 10. |
+
+Six packages run install scripts: `prisma` and `@prisma/engines` (a Node version check, and the engine binary from `binaries.prisma.sh`), `better-sqlite3` and `fsevents` (native builds), and `esbuild` and `unrs-resolver` (their platform's binary). To install without running any of them, use `yarn install --immutable --mode=skip-build`; `yarn generate` then fetches Prisma's engine itself, and SQLite needs `yarn rebuild better-sqlite3` before it works. Yarn's own telemetry is off in `.yarnrc.yml`.
 
 `mysql2`, which Prisma's CLI ships but Dossier never loads (it uses PostgreSQL), is pinned to a patched release in `package.json` `resolutions`. Remove the pin once Prisma updates it.
